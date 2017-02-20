@@ -1,11 +1,8 @@
 package bvcrplbe;
 
-import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -17,26 +14,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.maps.DirectionsApi;
-import com.google.maps.GeoApiContext;
-import com.google.maps.model.DirectionsResult;
-import com.google.maps.model.DirectionsRoute;
-import com.google.maps.model.EncodedPolyline;
-import com.google.maps.model.LatLng;
 
-import bvcrplbe.persistence.TransferDAO;
-import bvcrplbe.persistence.UserProfileDAO;
 import bvcrplbe.domain.Transfer;
 import bvcrplbe.domain.UserProfile;
+import bvcrplbe.persistence.TransferDAO;
+import bvcrplbe.persistence.UserProfileDAO;
 
 @Path("/offertran")
 public class OfferTransferService {
@@ -45,14 +31,46 @@ public class OfferTransferService {
 	  @Path("{userid}")
 	  @GET
 	  @Produces(MediaType.APPLICATION_JSON)
-	  public Response getUserTransfers(@PathParam("userid") int userid) throws JSONException, SQLException, DaoException, IOException
+	  public Response getUserTransfers(@PathParam("userid") int userid) 
 	 	{
-		 UserProfile user = UserProfileDAO.load(userid);
-		 LinkedList<Transfer> userTransfers=TransferDAO.readMyOfferings(user);
+		 UserProfile user;
+		try {
+			user = UserProfileDAO.load(userid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("SQL STATE: "+e.getSQLState()+" "+e.getMessage()).build();
+		} catch (DaoException e) {
+			e.printStackTrace();
+			return Response.status(Status.FORBIDDEN).entity(e.getMessage()).build();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+		}
+		 LinkedList<Transfer> userTransfers;
+		try {
+			userTransfers = TransferDAO.readMyOfferings(user);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("SQL STATE: "+e.getSQLState()+" "+e.getMessage()).build();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+		}
 		 ObjectMapper mapper = new ObjectMapper();
-		 String jsonInString = mapper.writeValueAsString(userTransfers);
+		 String jsonInString;
+		try {
+			jsonInString = mapper.writeValueAsString(userTransfers);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+		}
 		 //JsonObject userTranJson = (new JsonParser()).parse(jsonInString).getAsJsonObject();
-		 return Response.status(200).entity(jsonInString).build();
+		 return Response.status(Status.OK).entity(jsonInString).build();
 		 
 	 	}
 	  
@@ -65,7 +83,14 @@ public class OfferTransferService {
 				Transfer toAdd = mapper.readValue(jsonInput, Transfer.class);
 				if(toAdd.getUser_id()==0) return Response.status(Status.FORBIDDEN).entity("cannot register a transfer with undefined user_id field").build();
 				
-				int transId = TransferDAO.insert(toAdd);
+				int transId;
+				try {
+					transId = TransferDAO.insert(toAdd);
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+				}
 				String strTranId = new Integer(transId).toString();
 				return Response.status(Status.CREATED).entity(strTranId).build();
 			} catch (JsonParseException e) {
@@ -85,6 +110,7 @@ public class OfferTransferService {
 		  
 	  	}
 	  
+	  /*
 	  @Path("/test/{userid}")
 	  @GET
 	  @Produces("text/plain")
@@ -153,6 +179,6 @@ public class OfferTransferService {
 		 //JsonObject userTranJson = (new JsonParser()).parse(jsonInString).getAsJsonObject();
 		 return Response.status(200).entity(jsonInString).build();
 		 
-	 	}
+	 	}*/
 
 }

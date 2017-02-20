@@ -18,11 +18,15 @@ import bvcrplbe.domain.UserProfile;
 public class UserProfileDAO implements Serializable{
 
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4887377855557315534L;
 	/*Sql statement for obtaining an instance of User, reading from table user_profile
 	 * 
 	 */
 	private static final String GET_USER_BY_ID = "SELECT * FROM user_profile Where user_id=?";
-	public static UserProfile load(int userid) throws SQLException, DaoException
+	public static UserProfile load(int userid) throws SQLException, DaoException, ClassNotFoundException
 		{
 		 Connection con=null;
 		 PreparedStatement pstm=null;

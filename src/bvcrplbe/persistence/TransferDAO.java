@@ -47,7 +47,7 @@ public class TransferDAO implements Serializable{
 				+ "\"Arrival_GPS\",\"Departure_Time\",\"Type\",\"Occupied_Seats\",\"Available_Seats\",\"Animal\",\"Handicap\",\"Smoke\",\"Luggage\",\"Status\",\"Price\",\"Path\")"
 				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		
-		public static int insert(Transfer transfer) throws SQLException, JsonParseException, JsonMappingException, IOException
+		public static int insert(Transfer transfer) throws SQLException, JsonParseException, JsonMappingException, IOException, ClassNotFoundException
 		{
 			Connection con = null;
 			PreparedStatement pstm = null;
@@ -118,7 +118,7 @@ public class TransferDAO implements Serializable{
 		}
 		
 		private static String READ_MY_OFFERINGS="Select * from Transfer WHERE \"User_ID\"=?";
-		public static LinkedList<Transfer> readMyOfferings(UserProfile user) throws SQLException, IOException
+		public static LinkedList<Transfer> readMyOfferings(UserProfile user) throws SQLException, IOException, ClassNotFoundException
 			{
 			Connection con = null;
 			PreparedStatement pstm = null;
@@ -147,7 +147,7 @@ public class TransferDAO implements Serializable{
 					 JsonObject roleJson = (new JsonParser()).parse(roleString).getAsJsonObject();
 					 toAdd.setUser_role(roleJson);*/
 					 
-					 System.out.println("che cacchio c'è in questo json?"+rs.getString(7));
+					 System.out.println("che cacchio c'ï¿½ in questo json?"+rs.getString(7));
 					 JSONObject roleJson = new JSONObject(rs.getString(7));
 					 toAdd.setUser_role(roleJson.getString("role"));
 					 toAdd.setDep_addr(rs.getString(8));
