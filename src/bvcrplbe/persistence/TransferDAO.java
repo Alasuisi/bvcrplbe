@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.postgresql.util.PGobject;
+import org.json.JSONObject;
 import org.postgresql.geometric.PGpoint;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.maps.model.LatLng;
@@ -34,6 +36,10 @@ import bvcrplbe.domain.UserProfile;
 
 public class TransferDAO implements Serializable{
 	
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4018466579143180128L;
 		/*private static final String INSERT_TRANSFER = "INSERT INTO Transfer(\"Transfer_ID\",\"User_ID\",\"Profile_ID\",\"Class_ID\",\"Reservation_ID\",\"Pool_ID\",\"User_Role\",\"Departure_Address\",\"Arrival_Address\",\"Departure_GPS\","
 																			+ "\"Arrival_GPS\",\"Departure_Time\",\"Type\",\"Occupied_Seats\",\"Available_Seats\",\"Animal\",\"Handicap\",\"Smoke\",\"Luggage\",\"Status\",\"Price\",\"Path\")"
 																			+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";*/
@@ -41,7 +47,7 @@ public class TransferDAO implements Serializable{
 				+ "\"Arrival_GPS\",\"Departure_Time\",\"Type\",\"Occupied_Seats\",\"Available_Seats\",\"Animal\",\"Handicap\",\"Smoke\",\"Luggage\",\"Status\",\"Price\",\"Path\")"
 				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		
-		public static void insert(Transfer transfer) throws SQLException, JsonParseException, JsonMappingException, IOException
+		public static int insert(Transfer transfer) throws SQLException, JsonParseException, JsonMappingException, IOException
 		{
 			Connection con = null;
 			PreparedStatement pstm = null;
@@ -56,9 +62,13 @@ public class TransferDAO implements Serializable{
 			pstm.setInt(5, transfer.getPool_id());
 			//pstm.setString(6, transfer.getUser_role().toString());
 			
+			//JsonObject userRoleJ = new JsonObject();
+			//userRoleJ.addProperty("user_role", transfer.getUser_role());
 			PGobject userRole = new PGobject();
 			userRole.setType("json");
-			userRole.setValue(transfer.getUser_role().toString());
+			userRole.setValue("{\"role\":"+"\""+transfer.getUser_role()+"\"}");
+			
+			//userRole.setValue(transfer.getUser_role());
 			pstm.setObject(6, userRole);
 			
 			pstm.setString(7, transfer.getDep_addr());
@@ -93,15 +103,18 @@ public class TransferDAO implements Serializable{
 			pathpg.setType("json");
 			pathpg.setValue(pathInJson);
 			pstm.setObject(21, pathpg);
-			//pstm.executeUpdate();
-			ResultSet chiave = pstm.getGeneratedKeys();
+			pstm.executeUpdate();
+			/*ResultSet chiave = pstm.getGeneratedKeys();
 			if(chiave.isBeforeFirst())
 				{
 				chiave.next();
 				System.out.println(chiave.getInt(1));
-				}
+				}*/
+			ResultSet chiave = pstm.getGeneratedKeys();
 			con.commit();
 			con.close();
+			chiave.next();
+			return chiave.getInt(1);
 		}
 		
 		private static String READ_MY_OFFERINGS="Select * from Transfer WHERE \"User_ID\"=?";
@@ -134,14 +147,16 @@ public class TransferDAO implements Serializable{
 					 JsonObject roleJson = (new JsonParser()).parse(roleString).getAsJsonObject();
 					 toAdd.setUser_role(roleJson);*/
 					 
-					 toAdd.setUser_role(rs.getString(7));
+					 System.out.println("che cacchio c'è in questo json?"+rs.getString(7));
+					 JSONObject roleJson = new JSONObject(rs.getString(7));
+					 toAdd.setUser_role(roleJson.getString("role"));
 					 toAdd.setDep_addr(rs.getString(8));
 					 toAdd.setArr_addr(rs.getString(9));
 					 PGpoint depGps = new PGpoint(rs.getString(10));
-					 Point2D depPoint = new Point2D.Double(depGps.x, depGps.y);
+					 Point2D.Double depPoint = new Point2D.Double(depGps.x, depGps.y);
 					 toAdd.setDep_gps(depPoint);
 					 PGpoint arrGps = new PGpoint(rs.getString(11));
-					 Point2D arrPoint = new Point2D.Double(arrGps.x, arrGps.y);
+					 Point2D.Double arrPoint = new Point2D.Double(arrGps.x, arrGps.y);
 					 toAdd.setArr_gps(arrPoint);
 					 Timestamp depTimestamp = rs.getTimestamp(12);
 					 toAdd.setDep_time(depTimestamp.getTime());

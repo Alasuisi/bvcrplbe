@@ -28,8 +28,8 @@ public class Transfer {
 	private String role; //JsonObject
 	private String dep_addr;
 	private String arr_addr;
-	private Point2D dep_gps;
-	private Point2D arr_gps;
+	private Point2D.Double dep_gps;
+	private Point2D.Double arr_gps;
 	private Long dep_time;
 	private String type;
 	private int occ_seats;
@@ -95,13 +95,14 @@ public class Transfer {
 
 	public String getUser_role() {
 		return role; 
-		//"{\"role\":\""+user_role+"\"}";
+		//return "{\"role\":\""+role+"\"}";
 	}
 
 	public void setUser_role(String user_role) throws JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
+		/*ObjectMapper mapper = new ObjectMapper();
 		String jsonInString = mapper.writeValueAsString(user_role);
-		this.role = jsonInString;
+		this.role = jsonInString;*/
+		this.role=user_role;
 	}
 
 	public String getDep_addr() {
@@ -120,19 +121,19 @@ public class Transfer {
 		this.arr_addr = arr_addr;
 	}
 
-	public Point2D getDep_gps() {
+	public Point2D.Double getDep_gps() {
 		return dep_gps;
 	}
 
-	public void setDep_gps(Point2D dep_gps) {
+	public void setDep_gps(Point2D.Double dep_gps) {
 		this.dep_gps = dep_gps;
 	}
 
-	public Point2D getArr_gps() {
+	public Point2D.Double getArr_gps() {
 		return arr_gps;
 	}
 
-	public void setArr_gps(Point2D point2d) {
+	public void setArr_gps(Point2D.Double point2d) {
 		this.arr_gps = point2d;
 	}
 

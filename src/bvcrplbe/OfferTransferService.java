@@ -44,7 +44,7 @@ public class OfferTransferService {
 	  
 	  @Path("{userid}")
 	  @GET
-	  @Produces("application/json")
+	  @Produces(MediaType.APPLICATION_JSON)
 	  public Response getUserTransfers(@PathParam("userid") int userid) throws JSONException, SQLException, DaoException, IOException
 	 	{
 		 UserProfile user = UserProfileDAO.load(userid);
@@ -63,6 +63,11 @@ public class OfferTransferService {
 		  	ObjectMapper mapper = new ObjectMapper();
 		  	try {
 				Transfer toAdd = mapper.readValue(jsonInput, Transfer.class);
+				if(toAdd.getUser_id()==0) return Response.status(Status.FORBIDDEN).entity("cannot register a transfer with undefined user_id field").build();
+				
+				int transId = TransferDAO.insert(toAdd);
+				String strTranId = new Integer(transId).toString();
+				return Response.status(Status.CREATED).entity(strTranId).build();
 			} catch (JsonParseException e) {
 				e.printStackTrace();
 				return Response.status(Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
@@ -72,8 +77,11 @@ public class OfferTransferService {
 			} catch (IOException e) {
 				e.printStackTrace();
 				return Response.status(Status.UNSUPPORTED_MEDIA_TYPE).entity(e.getMessage()).build();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("SQL STATE: "+e.getSQLState()+" "+e.getMessage()).build();
 			}
-			return Response.status(Status.OK).entity("da mettere").build();
+			//return Response.status(Status.OK).entity("da mettere").build();
 		  
 	  	}
 	  
@@ -108,13 +116,13 @@ public class OfferTransferService {
 			Transfer testTran = new Transfer();
 			testTran.setAnimal(true);
 			testTran.setArr_addr("ferentino");
-			Point2D arrpoint = new Point2D.Double();
+			Point2D.Double arrpoint = new Point2D.Double();
 			arrpoint.setLocation(path.get(path.size()-1).lat,path.get(path.size()-1).lng);
 			testTran.setArr_gps(arrpoint);
 			testTran.setAva_seats(4);
 			testTran.setClass_id(6);
 			testTran.setDep_addr("roma");
-			Point2D deppoint = new Point2D.Double();
+			Point2D.Double deppoint = new Point2D.Double();
 			deppoint.setLocation(path.get(0).lat, path.get(0).lng);
 			testTran.setDep_gps(deppoint);
 			testTran.setDep_time(System.currentTimeMillis());
