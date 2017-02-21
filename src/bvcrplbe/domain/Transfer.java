@@ -40,7 +40,7 @@ public class Transfer {
 	private boolean luggage;
 	private String status;
 	private double price;
-	private LinkedList<Point2D.Double> path; //jsonobject
+	private LinkedList<TimedPoint2D> path; //jsonobject
 
 	
 	public Transfer(){}
@@ -217,13 +217,13 @@ public class Transfer {
 		this.price = price;
 	}
 
-	public LinkedList<Point2D.Double> getPath() {
+	public LinkedList<TimedPoint2D> getPath() {
 		/*ObjectMapper mapper = new ObjectMapper();
 		LinkedList<Point2D> pathFromJson =mapper.readValue(path, new TypeReference<LinkedList<Point2D>>() {});*/
 		return path;
 	}
 
-	public void setPath(LinkedList<Point2D.Double> pathpp) {
+	public void setPath(LinkedList<TimedPoint2D> pathpp) {
 		/*ObjectMapper mapper = new ObjectMapper();
 		String pathInString = mapper.writeValueAsString(path);*/
 		this.path = pathpp;

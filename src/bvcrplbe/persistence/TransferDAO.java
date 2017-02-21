@@ -29,6 +29,7 @@ import com.google.gson.JsonParser;
 import com.google.maps.model.LatLng;
 
 import bvcrplbe.ConnectionManager;
+import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
 import bvcrplbe.domain.UserProfile;
 
@@ -96,7 +97,7 @@ public class TransferDAO implements Serializable{
 			path.setType("json");
 			path.setValue(transfer.getPath().toString());
 			pstm.setObject(21, path);*/
-			LinkedList<Point2D.Double> path=transfer.getPath();
+			LinkedList<TimedPoint2D> path=transfer.getPath();
 			ObjectMapper mapper = new ObjectMapper();
 			String pathInJson = mapper.writeValueAsString(path);
 			PGobject pathpg = new PGobject();
@@ -173,7 +174,7 @@ public class TransferDAO implements Serializable{
 					 String pathString =rs.getString(22);
 					 //JsonObject path = (new JsonParser()).parse(pathString).getAsJsonObject();
 					 ObjectMapper mapper = new ObjectMapper();
-					 LinkedList<Point2D.Double> pathFromJson =mapper.readValue(pathString, new TypeReference<LinkedList<Point2D.Double>>() {});
+					 LinkedList<TimedPoint2D> pathFromJson =mapper.readValue(pathString, new TypeReference<LinkedList<TimedPoint2D>>() {});
 					 
 					 toAdd.setPath(pathFromJson);
 					 result.add(toAdd);
