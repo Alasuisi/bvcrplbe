@@ -14,6 +14,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.json.JSONException;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -26,7 +28,41 @@ import bvcrplbe.persistence.UserProfileDAO;
 
 @Path("/offertran")
 public class OfferTransferService {
-	
+	  @Path("{latSta}/{lonSta}/{latEnd}/{lonEnd}")
+	  @GET
+	  @Produces(MediaType.APPLICATION_JSON)
+	  public Response getOfferTransferInRange(@PathParam("latSta") double latSta,
+			  								  @PathParam("lonSta") double lonSta,
+			  								  @PathParam("latEnd") double latEnd,
+			  								  @PathParam("lonEnd") double lonEnd){
+		  System.out.println("ma che cazz"+latSta+" "+lonSta+" "+latEnd+" "+lonEnd);
+		  LinkedList<Transfer> transferInRange= new LinkedList<Transfer>();
+		  	try {
+		  		transferInRange =TransferDAO.readTransferInRange(latSta, lonSta, latEnd, lonEnd);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		  	ObjectMapper mapper = new ObjectMapper();
+		  	String jsonInString = null;
+			try {
+				jsonInString = mapper.writeValueAsString(transferInRange);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return Response.status(Status.OK).entity(jsonInString).build();
+		  
+	  	}
 	  
 	  @Path("{userid}")
 	  @GET

@@ -9,10 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.postgresql.util.PGobject;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.geometric.PGpoint;
 
@@ -148,7 +150,7 @@ public class TransferDAO implements Serializable{
 					 JsonObject roleJson = (new JsonParser()).parse(roleString).getAsJsonObject();
 					 toAdd.setUser_role(roleJson);*/
 					 
-					 System.out.println("che cacchio c'� in questo json?"+rs.getString(7));
+					 //System.out.println("che cacchio c'� in questo json?"+rs.getString(7));
 					 JSONObject roleJson = new JSONObject(rs.getString(7));
 					 toAdd.setUser_role(roleJson.getString("role"));
 					 toAdd.setDep_addr(rs.getString(8));
@@ -186,6 +188,78 @@ public class TransferDAO implements Serializable{
 				
 				}
 			return result;
+			}
+		
+		//private static String READ_TRANSFERS_IN_RANGE= "SELECT * FROM transfer WHERE \"Departure_GPS\"[0]>=? AND \"Departure_GPS\"[1]>=? AND \"Arrival_GPS\"[0]<=? AND \"Arrival_GPS\"[1]<=?";
+		private static String READ_TRANSFERS_IN_RANGE= "SELECT * FROM transfer WHERE \"Departure_GPS\"[0]>=? AND \"Departure_GPS\"[1]>=? AND \"Arrival_GPS\"[0]<=? AND \"Arrival_GPS\"[1]<=?";
+		
+		public static LinkedList<Transfer> readTransferInRange(double latSta,double lonSta,double latEnd,double lonEnd) throws SQLException, JSONException, ClassNotFoundException, IOException
+			{
+			Connection con = null;
+			PreparedStatement pstm = null;
+			ResultSet rs=null;
+			LinkedList<Transfer> result = null;
+			ConnectionManager manager = new ConnectionManager();
+			con = manager.connect();
+			pstm=con.prepareStatement(READ_TRANSFERS_IN_RANGE);
+			pstm.setDouble(1, latSta);
+			pstm.setDouble(2, lonSta);
+			pstm.setDouble(3, latEnd);
+			pstm.setDouble(4, lonEnd);
+			rs=pstm.executeQuery();
+			if(rs.isBeforeFirst())
+				{
+				 rs.next();
+				 result = new LinkedList<Transfer>();
+				 while(!rs.isAfterLast())
+				 	{
+					 Transfer toAdd = new Transfer();
+					 toAdd.setTran_id(rs.getInt(1));
+					 toAdd.setUser_id(rs.getInt(2));
+					 toAdd.setProf_id(rs.getInt(3));
+					 toAdd.setClass_id(rs.getShort(4));
+					 toAdd.setReser_id(rs.getInt(5));
+					 toAdd.setPool_id(rs.getInt(6));
+					 
+					 /*String roleString = rs.getString(7);
+					 JsonObject roleJson = (new JsonParser()).parse(roleString).getAsJsonObject();
+					 toAdd.setUser_role(roleJson);*/
+					 
+					 //System.out.println("che cacchio c' in questo json?"+rs.getString(7));
+					 JSONObject roleJson = new JSONObject(rs.getString(7));
+					 toAdd.setUser_role(roleJson.getString("role"));
+					 toAdd.setDep_addr(rs.getString(8));
+					 toAdd.setArr_addr(rs.getString(9));
+					 PGpoint depGps = new PGpoint(rs.getString(10));
+					 Point2D.Double depPoint = new Point2D.Double(depGps.x, depGps.y);
+					 toAdd.setDep_gps(depPoint);
+					 PGpoint arrGps = new PGpoint(rs.getString(11));
+					 Point2D.Double arrPoint = new Point2D.Double(arrGps.x, arrGps.y);
+					 toAdd.setArr_gps(arrPoint);
+					 Timestamp depTimestamp = rs.getTimestamp(12);
+					 toAdd.setDep_time(depTimestamp.getTime());
+					 toAdd.setType(rs.getString(13));
+					 toAdd.setOcc_seats(rs.getInt(14));
+					 toAdd.setAva_seats(rs.getInt(15));
+					 toAdd.setAnimal(rs.getBoolean(16));
+					 toAdd.setHandicap(rs.getBoolean(17));
+					 toAdd.setSmoke(rs.getBoolean(18));
+					 toAdd.setLuggage(rs.getBoolean(19));
+					 toAdd.setStatus(rs.getString(20));
+					 toAdd.setPrice(rs.getDouble(21));
+					 
+					 String pathString =rs.getString(22);
+					 //JsonObject path = (new JsonParser()).parse(pathString).getAsJsonObject();
+					 ObjectMapper mapper = new ObjectMapper();
+					 LinkedList<TimedPoint2D> pathFromJson =mapper.readValue(pathString, new TypeReference<LinkedList<TimedPoint2D>>() {});
+					 
+					 toAdd.setPath(pathFromJson);
+					 result.add(toAdd);
+					 rs.next();
+				 	}
+				}
+			return result;
+			
 			}
 	
 	

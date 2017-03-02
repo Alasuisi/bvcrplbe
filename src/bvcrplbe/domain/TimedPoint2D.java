@@ -6,24 +6,45 @@ import java.awt.geom.Point2D.Double;
 public class TimedPoint2D{
 
 	
-	private Point2D.Double latLng = new Point2D.Double();
+	private double latitude;
+	private double longitude;
 	private long touchTime;
 	
 	public TimedPoint2D(){};
 	
-	public TimedPoint2D(Point2D.Double latLng, long touchTime) {
+	public TimedPoint2D(double latitude, double longitude, long touchTime) {
 		super();
-		this.latLng = latLng;
+		this.latitude = latitude;
+		this.longitude = longitude;
 		this.touchTime = touchTime;
 	}
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((latLng == null) ? 0 : latLng.hashCode());
-		result = prime * result + (int) (touchTime ^ (touchTime >>> 32));
-		return result;
+
+	public double getLatitude() {
+		return latitude;
 	}
+
+	public void setLatitude(long latitude) {
+		this.latitude = latitude;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(long longitude) {
+		this.longitude = longitude;
+	}
+
+	public long getTouchTime() {
+		return touchTime;
+	}
+
+	public void setTouchTime(long touchTime) {
+		this.touchTime = touchTime;
+	}
+
+	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -33,27 +54,20 @@ public class TimedPoint2D{
 		if (getClass() != obj.getClass())
 			return false;
 		TimedPoint2D other = (TimedPoint2D) obj;
-		if (latLng == null) {
-			if (other.latLng != null)
-				return false;
-		} else if (!latLng.equals(other.latLng))
+		if (latitude != other.latitude)
+			return false;
+		if (longitude != other.longitude)
 			return false;
 		if (touchTime != other.touchTime)
 			return false;
 		return true;
 	}
-	public Point2D.Double getLatLng() {
-		return latLng;
+
+	@Override
+	public String toString() {
+		return "TimedPoint2D [latitude=" + latitude + ", longitude=" + longitude + ", touchTime=" + touchTime + "]";
 	}
-	public void setLatLng(Point2D.Double latLng) {
-		this.latLng = latLng;
-	}
-	public long getTouchTime() {
-		return touchTime;
-	}
-	public void setTouchTime(long touchTime) {
-		this.touchTime = touchTime;
-	}
+	
 	
 
 }
