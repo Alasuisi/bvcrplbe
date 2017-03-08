@@ -41,9 +41,27 @@ public class Transfer {
 	private String status;
 	private double price;
 	private LinkedList<TimedPoint2D> path; //jsonobject
+	private double det_range;
+	private String ride_details;
 
 	
 	public Transfer(){}
+
+	public double getDet_range() {
+		return det_range;
+	}
+
+	public void setDet_range(double det_range) {
+		this.det_range = det_range;
+	}
+
+	public String getRide_details() {
+		return ride_details;
+	}
+
+	public void setRide_details(String ride_details) {
+		this.ride_details = ride_details;
+	}
 
 	public int getTran_id() {
 		return tran_id;

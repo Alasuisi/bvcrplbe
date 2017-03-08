@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -26,7 +27,7 @@ import bvcrplbe.domain.UserProfile;
 import bvcrplbe.persistence.TransferDAO;
 import bvcrplbe.persistence.UserProfileDAO;
 
-@Path("/offertran")
+@Path("/OfferRide")
 public class OfferTransferService {
 	  @Path("{latSta}/{lonSta}/{latEnd}/{lonEnd}")
 	  @GET
@@ -110,7 +111,7 @@ public class OfferTransferService {
 		 
 	 	}
 	  
-	  @PUT
+	  @POST
 	  @Consumes(MediaType.APPLICATION_JSON)
 	  public Response registerNewTransfer(String jsonInput)
 	  	{

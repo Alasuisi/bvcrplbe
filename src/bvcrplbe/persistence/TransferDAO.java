@@ -44,11 +44,11 @@ public class TransferDAO implements Serializable{
 	 */
 	private static final long serialVersionUID = -4018466579143180128L;
 		/*private static final String INSERT_TRANSFER = "INSERT INTO Transfer(\"Transfer_ID\",\"User_ID\",\"Profile_ID\",\"Class_ID\",\"Reservation_ID\",\"Pool_ID\",\"User_Role\",\"Departure_Address\",\"Arrival_Address\",\"Departure_GPS\","
-																			+ "\"Arrival_GPS\",\"Departure_Time\",\"Type\",\"Occupied_Seats\",\"Available_Seats\",\"Animal\",\"Handicap\",\"Smoke\",\"Luggage\",\"Status\",\"Price\",\"Path\")"
-																			+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";*/
+																			+ "\"Arrival_GPS\",\"Departure_Time\",\"Type\",\"Occupied_Seats\",\"Available_Seats\",\"Animal\",\"Handicap\",\"Smoke\",\"Luggage\",\"Status\",\"Price\",\"Path\",\"Detour_range\",\"Ride_Details\")"
+																			+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";*/
 		private static final String INSERT_TRANSFER = "INSERT INTO Transfer(\"User_ID\",\"Profile_ID\",\"Class_ID\",\"Reservation_ID\",\"Pool_ID\",\"User_Role\",\"Departure_Address\",\"Arrival_Address\",\"Departure_GPS\","
-				+ "\"Arrival_GPS\",\"Departure_Time\",\"Type\",\"Occupied_Seats\",\"Available_Seats\",\"Animal\",\"Handicap\",\"Smoke\",\"Luggage\",\"Status\",\"Price\",\"Path\")"
-				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "\"Arrival_GPS\",\"Departure_Time\",\"Type\",\"Occupied_Seats\",\"Available_Seats\",\"Animal\",\"Handicap\",\"Smoke\",\"Luggage\",\"Status\",\"Price\",\"Path\",\"Detour_Range\",\"Ride_Details\")"
+				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		
 		public static int insert(Transfer transfer) throws SQLException, JsonParseException, JsonMappingException, IOException, ClassNotFoundException
 		{
@@ -106,6 +106,8 @@ public class TransferDAO implements Serializable{
 			pathpg.setType("json");
 			pathpg.setValue(pathInJson);
 			pstm.setObject(21, pathpg);
+			pstm.setDouble(22,transfer.getDet_range());
+			pstm.setString(23, transfer.getRide_details());
 			pstm.executeUpdate();
 			/*ResultSet chiave = pstm.getGeneratedKeys();
 			if(chiave.isBeforeFirst())
@@ -179,6 +181,8 @@ public class TransferDAO implements Serializable{
 					 LinkedList<TimedPoint2D> pathFromJson =mapper.readValue(pathString, new TypeReference<LinkedList<TimedPoint2D>>() {});
 					 
 					 toAdd.setPath(pathFromJson);
+					 toAdd.setDet_range(rs.getDouble(23));
+					 toAdd.setRide_details(rs.getString(24));
 					 result.add(toAdd);
 					 rs.next();
 					 }
