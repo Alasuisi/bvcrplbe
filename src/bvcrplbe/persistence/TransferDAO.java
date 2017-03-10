@@ -109,12 +109,6 @@ public class TransferDAO implements Serializable{
 			pstm.setDouble(22,transfer.getDet_range());
 			pstm.setString(23, transfer.getRide_details());
 			pstm.executeUpdate();
-			/*ResultSet chiave = pstm.getGeneratedKeys();
-			if(chiave.isBeforeFirst())
-				{
-				chiave.next();
-				System.out.println(chiave.getInt(1));
-				}*/
 			ResultSet chiave = pstm.getGeneratedKeys();
 			con.commit();
 			con.close();

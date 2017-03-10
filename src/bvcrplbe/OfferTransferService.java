@@ -36,7 +36,6 @@ public class OfferTransferService {
 			  								  @PathParam("lonSta") double lonSta,
 			  								  @PathParam("latEnd") double latEnd,
 			  								  @PathParam("lonEnd") double lonEnd){
-		  System.out.println("ma che cazz"+latSta+" "+lonSta+" "+latEnd+" "+lonEnd);
 		  LinkedList<Transfer> transferInRange= new LinkedList<Transfer>();
 		  	try {
 		  		transferInRange =TransferDAO.readTransferInRange(latSta, lonSta, latEnd, lonEnd);
