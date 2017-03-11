@@ -16,7 +16,7 @@ public class CSA {
 
     private Timetable timetable;
     private Connection in_connection[];
-    private int earliest_arrival[];
+    private long earliest_arrival[];
     
     private Transfer passenger;
     private LinkedList<Transfer> drivers;
@@ -26,7 +26,7 @@ public class CSA {
     }
 
     void main_loop(int arrival_station) {
-        int earliest = Integer.MAX_VALUE;
+        long earliest = Long.MAX_VALUE;
         for (Connection connection: timetable.connections) {
             if (connection.departure_timestamp >= earliest_arrival[connection.departure_station] &&
                     connection.arrival_timestamp < earliest_arrival[connection.arrival_station]) {
@@ -65,9 +65,9 @@ public class CSA {
         System.out.flush();
     }
 
-    void compute(int departure_station, int arrival_station, int departure_time) {
+    void compute(int departure_station, int arrival_station, long departure_time) {
         in_connection = new Connection[MAX_STATIONS];
-        earliest_arrival = new int[MAX_STATIONS];
+        earliest_arrival = new long[MAX_STATIONS];
         for(int i = 0; i < MAX_STATIONS; ++i) {
             in_connection[i] = null;
             earliest_arrival[i] = Integer.MAX_VALUE;
@@ -87,7 +87,7 @@ public class CSA {
     	 this.drivers=drivers;
     	 this.passenger=passenger;
     	 CSA csa = new CSA(drivers,passenger);
-    	 csa.co
+    	 csa.compute(timetable.getSourceIndex(), timetable.getDestinationIndex(), passenger.getDep_time());
     	}
     
   /*  public static void main(String[] args) {

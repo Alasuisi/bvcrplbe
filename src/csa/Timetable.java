@@ -17,7 +17,7 @@ import bvcrplbe.domain.Transfer;
 
 
 public class Timetable {
-    private List<Connection> connections;
+    protected List<Connection> connections;
     private int source=0;
     private int destination=0;
 
