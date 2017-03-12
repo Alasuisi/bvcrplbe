@@ -55,4 +55,11 @@ class Connection {
     	 transferID=tranId;
     	 
     	}
+	@Override
+	public String toString() {
+		return "Connection [departure_station=" + departure_station + ", arrival_station=" + arrival_station
+				+ ", departure_timestamp=" + departure_timestamp + ", arrival_timestamp=" + arrival_timestamp
+				+ ", first_point=" + first_point + ", second_point=" + second_point + ", transferID=" + transferID
+				+ "]";
+	}
 };

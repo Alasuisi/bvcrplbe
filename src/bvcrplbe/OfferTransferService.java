@@ -2,6 +2,7 @@ package bvcrplbe;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.ws.rs.Consumes;
@@ -26,6 +27,7 @@ import bvcrplbe.domain.Transfer;
 import bvcrplbe.domain.UserProfile;
 import bvcrplbe.persistence.TransferDAO;
 import bvcrplbe.persistence.UserProfileDAO;
+import csa.CSA;
 
 @Path("/OfferRide")
 public class OfferTransferService {
@@ -62,6 +64,40 @@ public class OfferTransferService {
 			}
 			return Response.status(Status.OK).entity(jsonInString).build();
 		  
+	  	}
+	  
+	  
+	  @Path("/CSA")
+	  @GET
+	  public Response testCSA()
+	  	{
+		  try {
+			LinkedList<Transfer> allTran = TransferDAO.getAllTransfers();
+			LinkedList<Transfer> driverTran = new LinkedList<Transfer>();
+			Transfer passenger = null;
+			Iterator<Transfer> alliter = allTran.iterator();
+			while(alliter.hasNext())
+				{
+					Transfer thisTran = alliter.next();
+					if(thisTran.getUser_role().equals("driver")) driverTran.add(thisTran);
+					else passenger=thisTran;
+				}
+			CSA csa = new CSA(driverTran,passenger);
+			csa.computeCSA();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	  	}
 	  
 	  @Path("{userid}")

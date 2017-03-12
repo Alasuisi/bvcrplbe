@@ -20,12 +20,14 @@ public class Timetable {
     protected List<Connection> connections;
     private int source=0;
     private int destination=0;
+    int index=1;
 
     // Timetable constructor: reads all the connections from stdin
     Timetable(LinkedList<Transfer> drivers,Transfer passenger) {
+    	System.out.println("passenger transfer "+passenger);
         connections = new ArrayList<Connection>();
         double passDet=passenger.getDet_range();
-        int index=1;
+       
         int totalPoints=0;
         Iterator<Transfer> driverIter = drivers.iterator();
         while(driverIter.hasNext())
@@ -34,45 +36,77 @@ public class Timetable {
         	}
         driverIter =drivers.iterator();
         destination=totalPoints+1;
+        System.out.println("destination index "+destination);
         while(driverIter.hasNext())
         	{
+        		System.out.println("reading a transfer");
         		Transfer thisTran = driverIter.next();
         		double drivDet=thisTran.getDet_range();
         		Iterator<TimedPoint2D> pathIter=thisTran.getPath().iterator();
         		TimedPoint2D previous=null;
         		while(pathIter.hasNext())
         			{
+        			//System.out.println("previous is "+previous);
         			 TimedPoint2D driCoord = pathIter.next();
         			 double sourceToPath =evaluateDistance(driCoord,passenger.getDep_gps());
-        			 long stpWalkTime = walkTime(sourceToPath-drivDet);
-        			 if(sourceToPath<=passDet+drivDet && (passenger.getDep_time()+stpWalkTime)<driCoord.getTouchTime() )
+        			 long stpWalkTime = walkTime(sourceToPath);
+        			 //System.out.println("Walktime: "+stpWalkTime);
+        			 
+       
+        			// if(sourceToPath<=passDet+drivDet && (passenger.getDep_time()+stpWalkTime)<driCoord.getTouchTime() )
+        			 if(sourceToPath<=passDet)
         			 	{
+        				 System.out.println("source to path distance: "+sourceToPath);
+            			 System.out.println("from point A-->B"+driCoord+"-->"+passenger.getDep_gps());
+        				 System.out.println("generated connection from passenger source, to point "+driCoord+"-->"+passenger.getDep_gps()+" pass walk time"+stpWalkTime+" time to path passenger "+passenger.getDep_time()+stpWalkTime);
+        				 System.out.println("");
         				 connections.add(new Connection(driCoord,passenger.getDep_gps(),passenger.getDep_time(),index,source,passenger.getTran_id()));
         				 //index=index++;
         			 	}
         			 double destToPath=evaluateDistance(driCoord,passenger.getArr_gps());
-        			 long ptdWalkTime = walkTime(destToPath-drivDet);
+        			 long ptdWalkTime = walkTime(destToPath);
         			 if(destToPath<=passDet+drivDet)
         			 	{
-        				 connections.add(new Connection(driCoord,passenger.getArr_gps(),driCoord.getTouchTime()+ptdWalkTime,index,destination,passenger.getTran_id()));
+        				 System.out.println("path to destination distance: "+destToPath);
+            			 System.out.println("from point A-->B"+driCoord+"-->"+passenger.getArr_gps());
+        				 System.out.println("generated connection from point "+driCoord+" to passenger destination");
+        				 System.out.println("");
+        				 connections.add(new Connection(driCoord,passenger.getArr_gps(),driCoord.getTouchTime()+ptdWalkTime,destination,index,passenger.getTran_id()));
         			 	}
         			 if(previous==null)
         			 	{
         				 previous=driCoord;
-        				 index=index++;
+        				// if(index>1)index=++index;
+        				 System.out.println("previous was null, NOT increasing index "+index);
         			 	}else
         			 		{
-        			 		connections.add(new Connection(previous,driCoord,index--,index,thisTran.getTran_id()));
-        			 		index=index++;
-        			 		previous=driCoord;
+        			 			System.out.println("Previous is not null,index "+index+" previous"+previous+" successor"+driCoord);
+        			 			connections.add(new Connection(previous,driCoord,index,++index,thisTran.getTran_id()));
+        			 			previous=driCoord;
+        			 			
+        			 		/*int prevIndex = index-1;
+        			 		connections.add(new Connection(previous,driCoord,prevIndex,index,thisTran.getTran_id()));
+        			 		System.out.println("previous index "+(index-1)+" next index "+index);
+        			 		index=++index;
+        			 		System.out.println("index increased, new index= "+index);
+        			 		previous=driCoord;*/
         			 		}
         			}
+        		//previous=null;
+        		++index;
+        	}
+        System.out.println("Printing all connections");
+        Iterator<Connection> iter = connections.iterator();
+        while(iter.hasNext())
+        	{
+        	System.out.println(iter.next());
         	}
         
         
         
-        
     }
+    
+    
     public int getSourceIndex()
     	{
     	 return source;
@@ -86,7 +120,9 @@ public class Timetable {
     	{
     	 double meanSpeed = 1.39;
     	 double timeSeconds = distance/meanSpeed;
-    	 return Math.round(timeSeconds*1000);
+    	 double millitime =timeSeconds*1000;
+    	 if(millitime<0) System.out.println("che porcaddio è successo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!?"+distance);
+    	 return Math.round(millitime);
     	}
     private double evaluateDistance(TimedPoint2D pPoint,Point2D.Double dPoint)
     	{

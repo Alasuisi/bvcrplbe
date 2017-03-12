@@ -116,6 +116,71 @@ public class TransferDAO implements Serializable{
 			return chiave.getInt(1);
 		}
 		
+		private static String READ_ALL_TRANSFERS="Select * from Transfer";
+		public static LinkedList<Transfer> getAllTransfers() throws ClassNotFoundException, SQLException, JSONException, IOException
+		{
+			Connection con = null;
+			PreparedStatement pstm = null;
+			ResultSet rs=null;
+			LinkedList<Transfer> result = null;
+			ConnectionManager manager = new ConnectionManager();
+			con = manager.connect();
+			pstm=con.prepareStatement(READ_ALL_TRANSFERS);
+			rs=pstm.executeQuery();
+			if(rs.isBeforeFirst())
+				{
+				rs.next();
+				result = new LinkedList<Transfer>();
+				while(!rs.isAfterLast())
+					{
+					 Transfer toAdd = new Transfer();
+					 toAdd.setTran_id(rs.getInt(1));
+					 toAdd.setUser_id(rs.getInt(2));
+					 toAdd.setProf_id(rs.getInt(3));
+					 toAdd.setClass_id(rs.getShort(4));
+					 toAdd.setReser_id(rs.getInt(5));
+					 toAdd.setPool_id(rs.getInt(6));
+					 JSONObject roleJson = new JSONObject(rs.getString(7));
+					 toAdd.setUser_role(roleJson.getString("role"));
+					 toAdd.setDep_addr(rs.getString(8));
+					 toAdd.setArr_addr(rs.getString(9));
+					 PGpoint depGps = new PGpoint(rs.getString(10));
+					 Point2D.Double depPoint = new Point2D.Double(depGps.x, depGps.y);
+					 toAdd.setDep_gps(depPoint);
+					 PGpoint arrGps = new PGpoint(rs.getString(11));
+					 Point2D.Double arrPoint = new Point2D.Double(arrGps.x, arrGps.y);
+					 toAdd.setArr_gps(arrPoint);
+					 Timestamp depTimestamp = rs.getTimestamp(12);
+					 toAdd.setDep_time(depTimestamp.getTime());
+					 toAdd.setType(rs.getString(13));
+					 toAdd.setOcc_seats(rs.getInt(14));
+					 toAdd.setAva_seats(rs.getInt(15));
+					 toAdd.setAnimal(rs.getBoolean(16));
+					 toAdd.setHandicap(rs.getBoolean(17));
+					 toAdd.setSmoke(rs.getBoolean(18));
+					 toAdd.setLuggage(rs.getBoolean(19));
+					 toAdd.setStatus(rs.getString(20));
+					 toAdd.setPrice(rs.getDouble(21));
+					 
+					 String pathString =rs.getString(22);
+					 //JsonObject path = (new JsonParser()).parse(pathString).getAsJsonObject();
+					 ObjectMapper mapper = new ObjectMapper();
+					 LinkedList<TimedPoint2D> pathFromJson =mapper.readValue(pathString, new TypeReference<LinkedList<TimedPoint2D>>() {});
+					 
+					 toAdd.setPath(pathFromJson);
+					 toAdd.setDet_range(rs.getDouble(23));
+					 toAdd.setRide_details(rs.getString(24));
+					 result.add(toAdd);
+					 rs.next();
+					 }
+				if(rs!=null) rs.close();
+				if(pstm!=null) pstm.close();
+				if(con!=null) con.close();
+				
+				}
+			return result;
+		}
+		
 		private static String READ_MY_OFFERINGS="Select * from Transfer WHERE \"User_ID\"=?";
 		public static LinkedList<Transfer> readMyOfferings(UserProfile user) throws SQLException, IOException, ClassNotFoundException
 			{
@@ -259,6 +324,8 @@ public class TransferDAO implements Serializable{
 			return result;
 			
 			}
+		
+		
 	
 	
 	

@@ -21,7 +21,9 @@ public class CSA {
     private Transfer passenger;
     private LinkedList<Transfer> drivers;
 
-    CSA(LinkedList<Transfer> drivers,Transfer passenger) {
+    public CSA(LinkedList<Transfer> drivers,Transfer passenger) {
+    	this.drivers=drivers;
+    	this.passenger=passenger;
         timetable = new Timetable(drivers,passenger);
     }
 
@@ -58,19 +60,19 @@ public class CSA {
             Collections.reverse(route);
             for (Connection connection : route) {
                 System.out.println(connection.departure_station + " " + connection.arrival_station + " " +
-                        connection.departure_timestamp + " " + connection.arrival_timestamp);
+                        connection.departure_timestamp + " " + connection.arrival_timestamp + " " + connection.transferID +" ("+connection.first_point.getLatitude()+","+connection.first_point.getLongitude()+")-->"+" ("+connection.second_point.getLatitude()+","+connection.second_point.getLongitude()+") "+connection.transferID);
             }
         }
         System.out.println("");
         System.out.flush();
     }
 
-    void compute(int departure_station, int arrival_station, long departure_time) {
+    private void compute(int departure_station, int arrival_station, long departure_time) {
         in_connection = new Connection[MAX_STATIONS];
         earliest_arrival = new long[MAX_STATIONS];
         for(int i = 0; i < MAX_STATIONS; ++i) {
             in_connection[i] = null;
-            earliest_arrival[i] = Integer.MAX_VALUE;
+            earliest_arrival[i] = Long.MAX_VALUE;
         }
         earliest_arrival[departure_station] = departure_time;
 
@@ -84,10 +86,16 @@ public class CSA {
     
     public void aggregateAll(LinkedList<Transfer> drivers,Transfer passenger)
     	{
-    	 this.drivers=drivers;
-    	 this.passenger=passenger;
+    	// this.drivers=drivers;
+    	// this.passenger=passenger;
     	 CSA csa = new CSA(drivers,passenger);
     	 csa.compute(timetable.getSourceIndex(), timetable.getDestinationIndex(), passenger.getDep_time());
+    	}
+    public void computeCSA()
+    	{
+    	this.compute(timetable.getSourceIndex(), timetable.getDestinationIndex(), passenger.getDep_time());
+    	long diocaro= 1416879902083L;
+    	//this.compute(0, 86, diocaro);
     	}
     
   /*  public static void main(String[] args) {
