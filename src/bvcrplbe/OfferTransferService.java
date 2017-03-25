@@ -74,15 +74,26 @@ public class OfferTransferService {
 		  try {
 			LinkedList<Transfer> allTran = TransferDAO.getAllTransfers();
 			LinkedList<Transfer> driverTran = new LinkedList<Transfer>();
-			Transfer passenger = null;
+			LinkedList<Transfer> passenger = new LinkedList<Transfer>();
 			Iterator<Transfer> alliter = allTran.iterator();
 			while(alliter.hasNext())
 				{
 					Transfer thisTran = alliter.next();
-					if(thisTran.getUser_role().equals("driver")) driverTran.add(thisTran);
-					else passenger=thisTran;
+					if(thisTran.getUser_role().equals("driver"))
+						{
+							if(thisTran.getTran_id()>96) driverTran.add(thisTran);
+						}
+					else passenger.add(thisTran);
 				}
-			CSA csa = new CSA(driverTran,passenger);
+			Iterator<Transfer> passIter = passenger.iterator();
+			System.out.println("dimensione passenger lista"+passenger.size());
+			Transfer toCompute = null;
+			while(passIter.hasNext())
+				{
+					Transfer temp=passIter.next();
+				 if(temp.getTran_id()==121) toCompute=temp;
+				}
+			CSA csa = new CSA(driverTran,toCompute);
 			csa.computeCSA();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

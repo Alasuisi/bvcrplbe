@@ -46,7 +46,7 @@ public class ConnectionManager {
 		private String UNABLE_TO_ESTABLISH_SQLCONNECTION="08001";
 		
 		
-		  public Connection connect() throws ClassNotFoundException, SQLException
+		  public Connection connect2() throws ClassNotFoundException, SQLException
 		  	{
 				  try {
 					return connectToDB(5432);
@@ -62,10 +62,10 @@ public class ConnectionManager {
 						 System.out.println("Unable to connect locally, trying to establish ssh tunnel");
 						 if(!tunnelUp)
 						 	{
-							 	String strSshUser = "osboxes";                  // SSH loging username
-					    		String strSshPassword = "osboxes.org";                   // SSH login password
+							 	String strSshUser = "bonvoyage";                  // SSH loging username
+					    		String strSshPassword = "bnvyg2017";                   // SSH login password
 					    		String strSshHost = "82.223.67.189";          // hostname or ip or SSH server
-					    		int nSshPort = 22;                                    // remote SSH host port number
+					    		int nSshPort = 2222;                                    // remote SSH host port number
 					    		String strRemoteHost = "localhost";  // hostname or ip of your database server
 					                                      // local port number use to bind SSH tunnel
 					    		int nRemotePort = 5432;
@@ -84,17 +84,17 @@ public class ConnectionManager {
 				return null;
 		  	}
 		   
-		  public Connection connect2()
+		  public Connection connect()
 		  {
 		    try
 		    {
 		    	if(!tunnelUp)
 		    	{
 		    		System.out.println("dentro primo if");
-		    		String strSshUser = "osboxes";                  // SSH loging username
-		    		String strSshPassword = "osboxes.org";                   // SSH login password
+		    		String strSshUser = "bonvoyage";                  // SSH loging username
+		    		String strSshPassword = "bnvyg2017";                   // SSH login password
 		    		String strSshHost = "82.223.67.189";          // hostname or ip or SSH server
-		    		int nSshPort = 22;                                    // remote SSH host port number
+		    		int nSshPort = 2222;                                    // remote SSH host port number
 		    		String strRemoteHost = "localhost";  // hostname or ip of your database server
 		                                      // local port number use to bind SSH tunnel
 		    		int nRemotePort = 5432;                               // remote port number of your database 
@@ -134,7 +134,7 @@ public class ConnectionManager {
 		  private static void doSshTunnel( String strSshUser, String strSshPassword, String strSshHost, int nSshPort, String strRemoteHost, int nLocalPort, int nRemotePort ) throws JSchException
 		  {
 		    final JSch jsch = new JSch();
-		    Session session = jsch.getSession( strSshUser, strSshHost, 22 );
+		    Session session = jsch.getSession( strSshUser, strSshHost, nSshPort );
 		    session.setPassword( strSshPassword );
 		    final Properties config = new Properties();
 		    config.put( "StrictHostKeyChecking", "no" );
