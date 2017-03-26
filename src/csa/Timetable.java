@@ -103,7 +103,7 @@ public class Timetable {
             			 logger.info("from point A-->B"+driCoord+"-->"+passenger.getArr_gps());
         				 logger.info("generated connection from point "+driCoord+" to passenger destination");
         				 logger.info("");*/
-        				 connections.add(new Connection(driCoord,passenger.getArr_gps(),driCoord.getTouchTime()+ptdWalkTime,destination,index,passenger.getTran_id()));
+        				 connections.add(new Connection(driCoord,passenger.getArr_gps(),driCoord.getTouchTime()+ptdWalkTime,index,destination,passenger.getTran_id()));
         			 	}
         			 if(previous==null)
         			 	{
@@ -126,7 +126,7 @@ public class Timetable {
         			 		}
         			}
         		//previous=null;
-        		++index;
+        		index++;
         	}
         
         //checking if possible connection between different transfers can be made

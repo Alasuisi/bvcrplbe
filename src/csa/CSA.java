@@ -14,7 +14,7 @@ import bvcrplbe.domain.Transfer;
 public class CSA {
     public static final int MAX_STATIONS  = 100000;
 
-    private Timetable timetable;
+    private Timetable1 timetable;
     private Connection in_connection[];
     private long earliest_arrival[];
     
@@ -24,7 +24,7 @@ public class CSA {
     public CSA(LinkedList<Transfer> drivers,Transfer passenger) {
     	this.drivers=drivers;
     	this.passenger=passenger;
-        timetable = new Timetable(drivers,passenger);
+        timetable = new Timetable1(drivers,passenger);
     }
 
     void main_loop(int arrival_station) {
