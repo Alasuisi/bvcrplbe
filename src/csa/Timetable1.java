@@ -28,11 +28,19 @@ public class Timetable1 {
     Timetable1(LinkedList<Transfer> drivers,Transfer passenger) {
     	connections = new ArrayList<Connection>();
     	Iterator<Transfer> drivIter = drivers.iterator();
+    	
+    	while(drivIter.hasNext())
+    		{
+    		Transfer temp = drivIter.next();
+    		totalPoints=totalPoints+temp.getPath().size();
+    		}
+    	destination=totalPoints+1;
+    	drivIter=drivers.iterator();
     	while(drivIter.hasNext())
     		{
     		Transfer temp = drivIter.next();
     		System.out.println("new transfer "+temp.getTran_id());
-    		totalPoints=totalPoints+temp.getPath().size();
+    		//totalPoints=totalPoints+temp.getPath().size();
     		LinkedList<TimedPoint2D> thisPath = temp.getPath();
     		Iterator<TimedPoint2D> pathIter=thisPath.iterator();
     		TimedPoint2D previous = null;
@@ -41,46 +49,168 @@ public class Timetable1 {
     			 if(previous==null) 
     			 	{
     				 previous=pathIter.next();
-    				 index++;
+    				 //index++;
     				 System.out.println("previous was null");
+    				 ///////
+    				 TimedPoint2D source = new TimedPoint2D();
+    				 source.setLatitude(passenger.getDep_gps().getX());
+    				 source.setLongitude(passenger.getDep_gps().getY());
+    				 source.setTouchTime(passenger.getDep_time());
+    				 if(source.getTouchTime()<previous.getTouchTime())
+    		    		{
+    		    		double sToPath1=evaluateDistance(previous,source);
+    		    		if(sToPath1<passenger.getDet_range())
+    		    			{
+    		    				long sWalktime1=walkTime(sToPath1);
+    		    				long timeSkew=previous.getTouchTime()-source.getTouchTime();
+    		    				if(sWalktime1<timeSkew)
+    		    				{
+    		    					
+    		    					connections.add(new Connection(source,previous,0,index,passenger.getTran_id()));
+    		    				}
+    		    			}
+    		    		}
+    				 TimedPoint2D destination = new TimedPoint2D();
+    			     destination.setLatitude(passenger.getArr_gps().getX());
+    			     destination.setLongitude(passenger.getArr_gps().getY());
+    				 double pToDest1=evaluateDistance(previous,destination);
+    					if(pToDest1<passenger.getDet_range())
+    						{
+    						long pWalktime1=walkTime(pToDest1);
+    						destination.setTouchTime((previous.getTouchTime()+pWalktime1));
+    						connections.add(new Connection(previous,destination,index,(totalPoints+1),passenger.getTran_id()));
+    						}
+    				 
+    				 ///////
+    				 index++;
     			 	}else
     			 		{
     			 		int prevIndex=index-1;
     			 		TimedPoint2D pathPoint = pathIter.next();
     			 		connections.add(new Connection(previous,pathPoint,prevIndex,index,temp.getTran_id()));
     			 		previous=pathPoint;
+    			 		
+    			 		/////////
+    			 			 TimedPoint2D source = new TimedPoint2D();
+		       				 source.setLatitude(passenger.getDep_gps().getX());
+		       				 source.setLongitude(passenger.getDep_gps().getY());
+		       				 source.setTouchTime(passenger.getDep_time());
+		       				 if(source.getTouchTime()<pathPoint.getTouchTime())
+		       		    		{
+		       		    		double sToPath1=evaluateDistance(pathPoint,source);
+		       		    		if(sToPath1<passenger.getDet_range())
+		       		    			{
+		       		    				long sWalktime1=walkTime(sToPath1);
+		       		    				long timeSkew=pathPoint.getTouchTime()-source.getTouchTime();
+		       		    				if(sWalktime1<timeSkew)
+		       		    				{
+		       		    					
+		       		    					connections.add(new Connection(source,pathPoint,0,index,passenger.getTran_id()));
+		       		    				}
+		       		    			}
+		       		    		}
+		       				TimedPoint2D destination = new TimedPoint2D();
+		    			     destination.setLatitude(passenger.getArr_gps().getX());
+		    			     destination.setLongitude(passenger.getArr_gps().getY());
+		    				 double pToDest1=evaluateDistance(pathPoint,destination);
+		    					if(pToDest1<passenger.getDet_range())
+		    						{
+		    						long pWalktime1=walkTime(pToDest1);
+		    						destination.setTouchTime((pathPoint.getTouchTime()+pWalktime1));
+		    						connections.add(new Connection(pathPoint,destination,index,(totalPoints+1),passenger.getTran_id()));
+		    						}
+    			 		/////////
+    			 		
+    			 		
     			 		index++;
     			 		}
     			}
     		}
+    	ArrayList<Connection> temp = new ArrayList<Connection>();
+    	Iterator<Connection> connIter = connections.iterator();
+    	Connection previous = null;
+    	while(connIter.hasNext())
+    		{
+    		 if(previous==null)previous=connIter.next();
+    		 else
+    		 	{
+    			 Iterator<Connection> connIter2 = connections.iterator();
+    			 while(connIter2.hasNext())
+    			 	{
+    				 Connection actual = connIter2.next();
+    				 if(previous.getTransferID()!=actual.getTransferID())
+    				 	{
+    					 TimedPoint2D prevFirst=previous.getFirst_point();
+    					 TimedPoint2D prevSecond=previous.getSecond_point();
+    					 TimedPoint2D actuFirst = actual.getFirst_point();
+    					 TimedPoint2D actuSecond= actual.getSecond_point();
+    					 double preAct11=evaluateDistance(prevFirst,actuFirst);
+    					 double preAct12=evaluateDistance(prevFirst,actuSecond);
+    					 double preAct21=evaluateDistance(prevSecond,actuFirst);
+    					 double preAct22=evaluateDistance(prevSecond,actuSecond);
+    					 long walk11=walkTime(preAct11);
+    					 long walk12=walkTime(preAct12);
+    					 long walk21=walkTime(preAct21);
+    					 long walk22=walkTime(preAct22);
+    					 long touch11 = prevFirst.getTouchTime()+walk11;
+    					 long touch12 = prevFirst.getTouchTime()+walk12;
+    					 long touch21 = prevSecond.getTouchTime()+walk21;
+    					 long touch22 = prevSecond.getTouchTime()+walk22;
+    					 if(preAct11<passenger.getDet_range())
+    					 	{
+    						 if(touch11<actuFirst.getTouchTime());
+    					 	}
+    				 	}
+    			 	}
+    		 	}
+    		}
+    	/*
     	System.out.println("Linking source and destination, dest index="+(totalPoints-1));
     	TimedPoint2D source = new TimedPoint2D();
     	source.setLatitude(passenger.getDep_gps().getX());
     	source.setLongitude(passenger.getDep_gps().getY());
     	source.setTouchTime(passenger.getDep_time());
     	
+    	
+    	    	
     	TimedPoint2D destination = new TimedPoint2D();
     	destination.setLatitude(passenger.getArr_gps().getX());
     	destination.setLongitude(passenger.getArr_gps().getY());
     	ArrayList<Connection> complement = new ArrayList<Connection>();
+    	
+    	////////////////////////////////////////////////////////////////////////
+    	///Checking if possible to link first point to source and destination///
+    	////////////////////////////////////////////////////////////////////////
+    	TimedPoint2D firstPoint=connections.get(0).getFirst_point();
+    	if(source.getTouchTime()<firstPoint.getTouchTime())
+    		{
+    		double sToPath1=evaluateDistance(firstPoint,source);
+    		if(sToPath1<passenger.getDet_range())
+    			{
+    				long sWalktime1=walkTime(sToPath1);
+    				long timeSkew=firstPoint.getTouchTime()-source.getTouchTime();
+    				if(sWalktime1<timeSkew)
+    				{
+    					
+    					complement.add(new Connection(source,firstPoint,0,connections.get(0).getDeparture_station(),passenger.getTran_id()));
+    				}
+    			}
+    		}
+    	double pToDest1=evaluateDistance(firstPoint,destination);
+		if(pToDest1<passenger.getDet_range())
+			{
+			long pWalktime1=walkTime(pToDest1);
+			destination.setTouchTime((connections.get(0).getDeparture_timestamp()+pWalktime1));
+			complement.add(new Connection(firstPoint,destination,connections.get(0).getDeparture_station(),(totalPoints+1),passenger.getTran_id()));
+			}
+    	
+		////////////////////////////////////////////////////////////////////////
+    	///checking if all other points are linkable to source or destination///
+		////////////////////////////////////////////////////////////////////////
     	Iterator<Connection> linkIter = connections.iterator();
     	while(linkIter.hasNext())
     		{
     			Connection temp=linkIter.next();
-    			if(source.getTouchTime()<temp.getFirst_point().getTouchTime())
-    				{
-    					double sToPath1=evaluateDistance(temp.getFirst_point(),source);
-    					if(sToPath1<passenger.getDet_range())
-    					{
-	    					long sWalktime1=walkTime(sToPath1);
-	    					long timeSkew = temp.getFirst_point().getTouchTime()-source.getTouchTime();
-	    					if(sWalktime1<timeSkew)
-	    						{
-	    						complement.add(new Connection(source,temp.getFirst_point(),0,temp.getDeparture_station(),passenger.getTran_id()));
-	    						}
-    					}
-    				}
-    			
     			if(source.getTouchTime()<temp.getSecond_point().getTouchTime())
     				{
     					double sToPath2=evaluateDistance(temp.getSecond_point(),source);
@@ -95,14 +225,6 @@ public class Timetable1 {
     					}
     				}
     			
-    			double pToDest1=evaluateDistance(temp.getFirst_point(),destination);
-    			if(pToDest1<passenger.getDet_range())
-    				{
-	    			long pWalktime1=walkTime(pToDest1);
-	    			destination.setTouchTime((temp.getDeparture_timestamp()+pWalktime1));
-	    			complement.add(new Connection(temp.getFirst_point(),destination,temp.getDeparture_station(),(totalPoints+1),passenger.getTran_id()));
-    				}
-    			
     			double pToDest2=evaluateDistance(temp.getSecond_point(),destination);
     			if(pToDest2<passenger.getDet_range())
     				{
@@ -112,19 +234,31 @@ public class Timetable1 {
     				}
     			
     		}
-    	
-    	/*System.out.print("Printing connections"+System.lineSeparator());
+    	System.out.print("Printing connections"+System.lineSeparator());
     	Iterator<Connection> connIter = connections.iterator();
     	while(connIter.hasNext())
     		{
     		System.out.println(connIter.next().toString());
-    		}*/
+    		}
+    	////////////////////////////////////////////////////////
+    	///appending complement connection to connection list///
+    	////////////////////////////////////////////////////////
+    	connections.addAll(complement);
+    	//complement=null;
+    	
+    	
     	System.out.println("Printing complement"+System.lineSeparator());
     	Iterator<Connection> compIter = complement.iterator();
     	while(compIter.hasNext())
     		{
     		System.out.println(compIter.next().toString());
+    		}*/
+    	Iterator<Connection> connIter = connections.iterator();
+    	while(connIter.hasNext())
+    		{
+    		System.out.println(connIter.next().toString());
     		}
+    	
     }
     
     

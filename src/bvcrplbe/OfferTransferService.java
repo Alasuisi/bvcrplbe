@@ -86,12 +86,13 @@ public class OfferTransferService {
 					else passenger.add(thisTran);
 				}
 			Iterator<Transfer> passIter = passenger.iterator();
-			System.out.println("dimensione passenger lista"+passenger.size());
+			System.out.println("dimensione passenger lista "+passenger.size());
 			Transfer toCompute = null;
 			while(passIter.hasNext())
 				{
 					Transfer temp=passIter.next();
-				 if(temp.getTran_id()==121) toCompute=temp;
+					System.out.println("transfer con id "+temp.getTran_id());
+				 if(temp.getTran_id()==118) toCompute=temp;
 				}
 			CSA csa = new CSA(driverTran,toCompute);
 			csa.computeCSA();
