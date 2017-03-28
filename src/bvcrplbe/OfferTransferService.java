@@ -81,7 +81,7 @@ public class OfferTransferService {
 					Transfer thisTran = alliter.next();
 					if(thisTran.getUser_role().equals("driver"))
 						{
-							if(thisTran.getTran_id()>96) driverTran.add(thisTran);
+							if(thisTran.getTran_id()>130) driverTran.add(thisTran);
 						}
 					else passenger.add(thisTran);
 				}

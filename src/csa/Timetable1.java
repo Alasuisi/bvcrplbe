@@ -126,18 +126,30 @@ public class Timetable1 {
     			 		}
     			}
     		}
+    	
+    	
+    	//////////////INERCONNECTIONS NON VA///////////////
+    	/*
+    	System.out.println("checking for interconnections");
     	ArrayList<Connection> temp = new ArrayList<Connection>();
     	Iterator<Connection> connIter = connections.iterator();
-    	Connection previous = null;
-    	while(connIter.hasNext())
+    	int extIndex=0;
+    	int intIndex=1;
+    	int connSize=connections.size();
+    	Connection previous = connections.get(extIndex);
+    	//while(connIter.hasNext())
+    	  while(extIndex<connSize-1)
     		{
-    		 if(previous==null)previous=connIter.next();
-    		 else
+    		System.out.println("dentro primo while");
+    		 //if(previous==null)previous=connIter.next();
+    		 //else
     		 	{
-    			 Iterator<Connection> connIter2 = connections.iterator();
-    			 while(connIter2.hasNext())
+    			 //Iterator<Connection> connIter2 = connections.iterator();
+    			 //while(connIter2.hasNext())
+    		 	   while(intIndex<connSize)
     			 	{
-    				 Connection actual = connIter2.next();
+    				 //Connection actual = connIter2.next();
+    		 		   Connection actual = connections.get(intIndex);
     				 if(previous.getTransferID()!=actual.getTransferID())
     				 	{
     					 TimedPoint2D prevFirst=previous.getFirst_point();
@@ -153,17 +165,98 @@ public class Timetable1 {
     					 long walk21=walkTime(preAct21);
     					 long walk22=walkTime(preAct22);
     					 long touch11 = prevFirst.getTouchTime()+walk11;
+    					 long revTouch11 = actuFirst.getTouchTime()+walk11;
+    					 
     					 long touch12 = prevFirst.getTouchTime()+walk12;
+    					 long revTouch12=actuSecond.getTouchTime()+walk12;
+    					 
     					 long touch21 = prevSecond.getTouchTime()+walk21;
+    					 long revTouch21=actuFirst.getTouchTime()+walk21;
+    					 
     					 long touch22 = prevSecond.getTouchTime()+walk22;
-    					 if(preAct11<passenger.getDet_range())
+    					 long revTouch22 =actuSecond.getTouchTime()+walk22;
+    					 
+    					 if(preAct11<1500) //passenger.getDet_range();
     					 	{
-    						 if(touch11<actuFirst.getTouchTime());
+    						 if(touch11<actuFirst.getTouchTime()) 
+    						 	{
+    							 Connection toAdd = new Connection(prevFirst,actuFirst,previous.getDeparture_station(),actual.getDeparture_station(),passenger.getTran_id()*100);
+    							 connections.add(toAdd);
+    							 System.out.println("preAct11 has an interconnection DIRECT"+toAdd.getDeparture_station() + toAdd.getArrival_station());
+    						 	}
+    						 if(revTouch11<prevFirst.getTouchTime()) 
+    						 	{
+    							 Connection toAdd = new Connection(actuFirst,prevFirst,actual.getDeparture_station(),previous.getDeparture_station(),passenger.getTran_id()*100);
+    							 connections.add(toAdd);
+    							 System.out.println("preAct11 has an interconnection REVERSE "+toAdd.getDeparture_station() +" "+ toAdd.getArrival_station());
+    						 	}
+    						 
+    					 	}
+    					 if(preAct12<1500)
+    					 	{
+    						 if(touch12<actuSecond.getTouchTime()) 
+    						 	{
+    							 Connection toAdd = new Connection(prevFirst,actuSecond,previous.getDeparture_station(),actual.getArrival_station(),passenger.getTran_id()*100);
+    							 connections.add(toAdd);
+    							 System.out.println("preAct12 has an interconnection DIRECT "+toAdd.getDeparture_station() +" "+toAdd.getArrival_station());
+    						 	}
+    						 if(revTouch12<prevFirst.getTouchTime()) 
+    						 	{
+    							 Connection toAdd =new Connection(actuSecond,prevFirst,actual.getArrival_station(),previous.getDeparture_station(),passenger.getTran_id()*100);
+    							 connections.add(toAdd);
+    							 System.out.println("preAct12 has an interconnection REVERSE "+toAdd.getDeparture_station() +" "+toAdd.getArrival_station());
+    						 	}
+    						 
+    					 	}
+    					 if(preAct21<1500)
+    					 	{
+    						 if(touch21<actuFirst.getTouchTime()) 
+    						 	{
+    							 Connection toAdd =new Connection(prevSecond,actuFirst,previous.getArrival_station(),actual.getDeparture_station(),passenger.getTran_id()*100);
+    							 connections.add(toAdd);
+    							 System.out.println("preAct21 has an interconnection DIRECT "+toAdd.getDeparture_station() +" "+toAdd.getArrival_station());
+    						 	}
+    						 if(revTouch21<prevSecond.getTouchTime())  //era prevfirst
+    						 	{
+    							 Connection toAdd=new Connection(actuSecond,prevFirst,actual.getArrival_station(),previous.getDeparture_station(),passenger.getTran_id()*100);
+    							 connections.add(toAdd);
+    							 System.out.println("preAct21 has an interconnection REVERSE "+toAdd.getDeparture_station() +" "+toAdd.getArrival_station());
+    						 	}
+    						 
+    					 	}
+    					 if(preAct22<1500)
+    					 	{
+    						 if(touch22<actuSecond.getTouchTime()) 
+    						 	{
+    							 Connection toAdd =new Connection(prevSecond,actuSecond,previous.getArrival_station(),actual.getArrival_station(),passenger.getTran_id()*100);
+    							 connections.add(toAdd);
+    							 System.out.println("preAct22 has an interconnection DIRECT "+toAdd.getDeparture_station() +" "+toAdd.getArrival_station());
+    						 	}
+    						 if(revTouch22<prevSecond.getTouchTime()) 
+    						 	{
+    							 Connection toAdd = new Connection(actuSecond,prevSecond,actual.getArrival_station(),previous.getArrival_station(),passenger.getTran_id()*100);
+    							 connections.add(toAdd);
+    							 System.out.println("preAct22 has an interconnection REVERSE "+toAdd.getDeparture_station() +" "+toAdd.getArrival_station());
+    						 	}
     					 	}
     				 	}
+    				 intIndex=intIndex+1;
+    				 //System.out.println("internal iteration, index: "+intIndex);
+    				 //previous=actual;
     			 	}
     		 	}
+    		 	extIndex=extIndex+1;
+    		 	intIndex=extIndex+1;
+    		 	previous=connections.get(extIndex);
+    		 	//System.out.println("extIndex: "+extIndex+" intIndex:"+intIndex);
     		}
+    	  //connections.addAll(temp);
+    	   * 
+    	   * 
+    	   * 
+    	   * 
+    	   * 
+    	   */
     	/*
     	System.out.println("Linking source and destination, dest index="+(totalPoints-1));
     	TimedPoint2D source = new TimedPoint2D();
@@ -253,11 +346,12 @@ public class Timetable1 {
     		{
     		System.out.println(compIter.next().toString());
     		}*/
-    	Iterator<Connection> connIter = connections.iterator();
-    	while(connIter.hasNext())
+    	  /*
+    	Iterator<Connection> connIterCheck = connections.iterator();
+    	while(connIterCheck.hasNext())
     		{
-    		System.out.println(connIter.next().toString());
-    		}
+    		System.out.println(connIterCheck.next().toString());
+    		}*/
     	
     }
     
