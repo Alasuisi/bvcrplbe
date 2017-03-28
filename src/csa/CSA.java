@@ -93,9 +93,9 @@ public class CSA {
     	}*/
     public void computeCSA()
     	{
-    	this.compute(timetable.getSourceIndex(), timetable.getDestinationIndex(), passenger.getDep_time());
+    	//this.compute(timetable.getSourceIndex(), timetable.getDestinationIndex(), passenger.getDep_time());
     	long diocaro= 1416879902083L;
-    	//this.compute(0, 102, diocaro);
+    	this.compute(27, 85, diocaro);
     	}
     
   /*  public static void main(String[] args) {

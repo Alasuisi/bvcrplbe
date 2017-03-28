@@ -255,7 +255,7 @@ public class Timetable1 {
     	   * 
     	   * 
     	   * 
-    	   * 
+    	   * older method below
     	   */
     	/*
     	System.out.println("Linking source and destination, dest index="+(totalPoints-1));
@@ -346,13 +346,26 @@ public class Timetable1 {
     		{
     		System.out.println(compIter.next().toString());
     		}*/
-    	  /*
+    	
+    	/*
+    	 * Connection [departure_station=46, arrival_station=47, departure_timestamp=1514201664584, arrival_timestamp=1514201687024, first_point=TimedPoint2D [latitude=41.87335, longitude=12.52858, touchTime=1514201664584], second_point=TimedPoint2D [latitude=41.87272, longitude=12.52755, touchTime=1514201687024], transferID=132]
+    	 * Connection [departure_station=48, arrival_station=49, departure_timestamp=1514202345662, arrival_timestamp=1514202359687, first_point=TimedPoint2D [latitude=41.87224, longitude=12.52622, touchTime=1514202345662], second_point=TimedPoint2D [latitude=41.87274, longitude=12.52561, touchTime=1514202359687], transferID=133]
+    	 * Connection [departure_station=29, arrival_station=30, departure_timestamp=1514203514577, arrival_timestamp=1514203525427, first_point=TimedPoint2D [latitude=41.88947, longitude=12.5034, touchTime=1514203514577], second_point=TimedPoint2D [latitude=41.88975, longitude=12.50321, touchTime=1514203525427], transferID=134]
+    	 * */
+    	  TimedPoint2D point1= new TimedPoint2D(1,2,1514201687024L);
+    	  TimedPoint2D point2= new TimedPoint2D(3,4,1514202345662L);
+    	  TimedPoint2D point3 = new TimedPoint2D(5,6,1514202699687L);
+    	  TimedPoint2D point4 = new TimedPoint2D(7,8,1514203514577L);
+    	  Connection test1 = new Connection(point1,point2,47,48,666);
+    	  Connection test2 = new Connection(point3,point4,83,29,666);
+    	  connections.add(test1);
+    	  connections.add(test2);
     	Iterator<Connection> connIterCheck = connections.iterator();
     	while(connIterCheck.hasNext())
     		{
     		System.out.println(connIterCheck.next().toString());
-    		}*/
-    	
+    		}
+    
     }
     
     
