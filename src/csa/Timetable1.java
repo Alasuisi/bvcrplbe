@@ -61,12 +61,17 @@ public class Timetable1 {
     		    		double sToPath1=evaluateDistance(previous,source);
     		    		if(sToPath1<passenger.getDet_range())
     		    			{
+    		    			
     		    				long sWalktime1=walkTime(sToPath1);
     		    				long timeSkew=previous.getTouchTime()-source.getTouchTime();
     		    				if(sWalktime1<timeSkew)
     		    				{
-    		    					
-    		    					connections.add(new Connection(source,previous,0,index,passenger.getTran_id()));
+    		    					TimedPoint2D updPrev = new TimedPoint2D();
+    		    					updPrev.setLatitude(previous.getLatitude());
+    		    					updPrev.setLongitude(previous.getLongitude());
+    		    					updPrev.setTouchTime(source.getTouchTime()+sWalktime1);
+    		    					System.out.println("diossss "+0+" "+index+sWalktime1+" original time: "+previous.getTouchTime());
+    		    					connections.add(new Connection(source,updPrev,0,index,passenger.getTran_id()));
     		    				}
     		    			}
     		    		}
@@ -78,6 +83,7 @@ public class Timetable1 {
     						{
     						long pWalktime1=walkTime(pToDest1);
     						destination.setTouchTime((previous.getTouchTime()+pWalktime1));
+    						System.out.println(totalPoints);
     						connections.add(new Connection(previous,destination,index,(totalPoints+1),passenger.getTran_id()));
     						}
     				 
@@ -104,8 +110,12 @@ public class Timetable1 {
 		       		    				long timeSkew=pathPoint.getTouchTime()-source.getTouchTime();
 		       		    				if(sWalktime1<timeSkew)
 		       		    				{
-		       		    					
-		       		    					connections.add(new Connection(source,pathPoint,0,index,passenger.getTran_id()));
+		       		    					TimedPoint2D updPath = new TimedPoint2D();
+		    		    					updPath.setLatitude(pathPoint.getLatitude());
+		    		    					updPath.setLongitude(pathPoint.getLongitude());
+		    		    					updPath.setTouchTime(source.getTouchTime()+sWalktime1);
+		    		    					System.out.println("diossss "+0+" "+index+sWalktime1+" original time: "+previous.getTouchTime());
+		       		    					connections.add(new Connection(source,updPath,0,index,passenger.getTran_id()));
 		       		    				}
 		       		    			}
 		       		    		}
@@ -355,11 +365,39 @@ public class Timetable1 {
     	  TimedPoint2D point1= new TimedPoint2D(1,2,1514201687024L);
     	  TimedPoint2D point2= new TimedPoint2D(3,4,1514202345662L);
     	  TimedPoint2D point3 = new TimedPoint2D(5,6,1514202699687L);
-    	  TimedPoint2D point4 = new TimedPoint2D(7,8,1514203514577L);
+    	  TimedPoint2D point4 = new TimedPoint2D(7,8,1514203414577L);
     	  Connection test1 = new Connection(point1,point2,47,48,666);
     	  Connection test2 = new Connection(point3,point4,83,29,666);
-    	  connections.add(test1);
-    	  connections.add(test2);
+    	  int insIndex=0;
+    	  Iterator<Connection> dioboh = connections.iterator();
+    	  ArrayList<Connection> test = new ArrayList<Connection>();
+    	  while(dioboh.hasNext())
+    	  	{
+    		  Connection toAdd=dioboh.next();
+    		  if(toAdd.getDeparture_station()==29)
+    		  	{
+    			  test.add(test2);
+    		  	}
+    		  test.add(toAdd);
+    		  if(toAdd.getArrival_station()==47)
+    		  	{
+    			  test.add(test1);
+    		  	}
+    		  if(toAdd.getArrival_station()==83)
+    		  	{
+    			  test.add(test2);
+    		  	}
+    		  if(toAdd.getDeparture_station()==29)
+  		  		{
+  			  test.add(test2);
+  		  		}
+    		  
+    	  	}
+    	  connections=test;
+    	  //connections.add(0,test1);
+    	  //connections.add(test1);
+    	  //connections.add(test2);
+    	  System.out.println("lunghezza connection "+connections.size());
     	Iterator<Connection> connIterCheck = connections.iterator();
     	while(connIterCheck.hasNext())
     		{
@@ -382,7 +420,7 @@ public class Timetable1 {
     
     private long walkTime(double distance)
     	{
-    	 double meanSpeed = 1.39;
+    	 double meanSpeed = 0.89;
     	 double timeSeconds = distance/meanSpeed;
     	 double millitime =timeSeconds*1000;
     	 if(millitime<0) System.err.println("che e'successo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!?"+distance);

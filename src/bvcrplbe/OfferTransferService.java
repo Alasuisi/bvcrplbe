@@ -28,6 +28,7 @@ import bvcrplbe.domain.UserProfile;
 import bvcrplbe.persistence.TransferDAO;
 import bvcrplbe.persistence.UserProfileDAO;
 import csa.CSA;
+import mcsa.MCSA;
 
 @Path("/OfferRide")
 public class OfferTransferService {
@@ -94,8 +95,10 @@ public class OfferTransferService {
 					System.out.println("transfer con id "+temp.getTran_id());
 				 if(temp.getTran_id()==118) toCompute=temp;
 				}
-			CSA csa = new CSA(driverTran,toCompute);
-			csa.computeCSA();
+			MCSA mcsa = new MCSA(driverTran,toCompute);
+			//csa.computeCSA();
+			mcsa.computeMCSA(48, 0, 0);
+			mcsa.printSolutions();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

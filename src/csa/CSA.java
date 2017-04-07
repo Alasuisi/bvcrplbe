@@ -32,6 +32,7 @@ public class CSA {
         for (Connection connection: timetable.connections) {
             if (connection.departure_timestamp >= earliest_arrival[connection.departure_station] &&
                     connection.arrival_timestamp < earliest_arrival[connection.arrival_station]) {
+            	
                 earliest_arrival[connection.arrival_station] = connection.arrival_timestamp;
                 in_connection[connection.arrival_station] = connection;
 
@@ -95,7 +96,7 @@ public class CSA {
     	{
     	//this.compute(timetable.getSourceIndex(), timetable.getDestinationIndex(), passenger.getDep_time());
     	long diocaro= 1416879902083L;
-    	this.compute(27, 85, diocaro);
+    	this.compute(81, 30, diocaro);
     	}
     
   /*  public static void main(String[] args) {
