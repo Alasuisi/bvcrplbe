@@ -164,9 +164,58 @@ public void setConnectedTo(int connectedTo) {
 @Override
 public String toString() {
 	return "McsaConnection [departure_station=" + departure_station + ", arrival_station=" + arrival_station
-			+ ", departure_timestamp=" + departure_timestamp + ", arrival_timestamp=" + arrival_timestamp
+			+ ", departure_timestamp=" + departure_timestamp + ", arrival_timestamp=" + arrival_timestamp +" DeltaTime="+(arrival_timestamp-departure_timestamp)
 			+ ", first_point=" + first_point + ", second_point=" + second_point + ", transferID=" + transferID
 			+ ", connectedTo=" + connectedTo + "]";
+}
+
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + arrival_station;
+	result = prime * result + (int) (arrival_timestamp ^ (arrival_timestamp >>> 32));
+	result = prime * result + connectedTo;
+	result = prime * result + departure_station;
+	result = prime * result + (int) (departure_timestamp ^ (departure_timestamp >>> 32));
+	result = prime * result + ((first_point == null) ? 0 : first_point.hashCode());
+	result = prime * result + ((second_point == null) ? 0 : second_point.hashCode());
+	result = prime * result + transferID;
+	return result;
+}
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	McsaConnection other = (McsaConnection) obj;
+	if (arrival_station != other.arrival_station)
+		return false;
+	if (arrival_timestamp != other.arrival_timestamp)
+		return false;
+	if (connectedTo != other.connectedTo)
+		return false;
+	if (departure_station != other.departure_station)
+		return false;
+	if (departure_timestamp != other.departure_timestamp)
+		return false;
+	if (first_point == null) {
+		if (other.first_point != null)
+			return false;
+	} else if (!first_point.equals(other.first_point))
+		return false;
+	if (second_point == null) {
+		if (other.second_point != null)
+			return false;
+	} else if (!second_point.equals(other.second_point))
+		return false;
+	if (transferID != other.transferID)
+		return false;
+	return true;
 }
 
 

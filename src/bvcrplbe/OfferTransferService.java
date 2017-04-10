@@ -102,7 +102,7 @@ public class OfferTransferService {
 			mcsa.computeMCSA(0);
 			long t2=System.currentTimeMillis();
 			System.out.println("execution time "+(t2-t1)+" millidio");
-			mcsa.printSolutions(Integer.MAX_VALUE);
+			mcsa.printSolutions(2);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

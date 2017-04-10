@@ -23,8 +23,12 @@ public class MCSA {
 	 */
 	public MCSA(LinkedList<Transfer> driver,Transfer passenger)
 		{
+		long t1 =System.currentTimeMillis();
 		timetable = new McsaTimetable(driver,passenger);
+		long t2 = System.currentTimeMillis();
 		computeConnectionList();
+		long t3= System.currentTimeMillis();
+		System.out.println(System.lineSeparator()+"Creating timetable took "+(t2-t1)+System.lineSeparator()+"Computing the connection list took "+(t3-t2));
 		}
 	
 	/*
@@ -45,7 +49,7 @@ public class MCSA {
 			while(solIter.hasNext())
 				{
 				McsaConnection toPrint = solIter.next();
-				 System.out.println(toPrint.departure_station+"->"+toPrint.arrival_station+" "+toPrint.departure_timestamp+" "+toPrint.arrival_timestamp);
+				 System.out.println(toPrint.departure_station+"->"+toPrint.arrival_station+" "+toPrint.departure_timestamp+" "+toPrint.arrival_timestamp+" "+toPrint.getTransferID()+"->"+toPrint.getConnectedTo());
 				}
 			stop++;
 			}
@@ -129,7 +133,9 @@ public class MCSA {
 		while(copIter.hasNext())
 			{
 			 McsaConnection conToCopy=copIter.next();
-			 copied.add(new McsaConnection(conToCopy.getFirst_point(),conToCopy.getSecond_point(),conToCopy.getDeparture_station(),conToCopy.getArrival_station(),conToCopy.getTransferID()));
+			 McsaConnection copiedCon =new McsaConnection(conToCopy.getFirst_point(),conToCopy.getSecond_point(),conToCopy.getDeparture_station(),conToCopy.getArrival_station(),conToCopy.getTransferID());
+			 copiedCon.setConnectedTo(conToCopy.getConnectedTo());
+			 copied.add(copiedCon);
 			}
 		return copied;
 	}

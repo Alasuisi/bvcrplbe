@@ -46,6 +46,19 @@ public class TimedPoint2D{
 	
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = java.lang.Double.doubleToLongBits(latitude);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = java.lang.Double.doubleToLongBits(longitude);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + (int) (touchTime ^ (touchTime >>> 32));
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -54,9 +67,9 @@ public class TimedPoint2D{
 		if (getClass() != obj.getClass())
 			return false;
 		TimedPoint2D other = (TimedPoint2D) obj;
-		if (latitude != other.latitude)
+		if (java.lang.Double.doubleToLongBits(latitude) != java.lang.Double.doubleToLongBits(other.latitude))
 			return false;
-		if (longitude != other.longitude)
+		if (java.lang.Double.doubleToLongBits(longitude) != java.lang.Double.doubleToLongBits(other.longitude))
 			return false;
 		if (touchTime != other.touchTime)
 			return false;
