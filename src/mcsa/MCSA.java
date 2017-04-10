@@ -31,11 +31,12 @@ public class MCSA {
 	 * Simple method to print the found solutions, simply iterates over che solution
 	 * list of connection list.
 	 */
-	public void printSolutions()
+	public void printSolutions(int n)
 		{
 		System.out.println(System.lineSeparator()+"result list size"+result.size());
 		Iterator<LinkedList<McsaConnection>> resultIterator = result.iterator();
-		while(resultIterator.hasNext())
+		int stop=0;
+		while(resultIterator.hasNext()&& stop<=n)
 			{
 			LinkedList<McsaConnection> solution = resultIterator.next();
 			Collections.reverse(solution);
@@ -46,6 +47,7 @@ public class MCSA {
 				McsaConnection toPrint = solIter.next();
 				 System.out.println(toPrint.departure_station+"->"+toPrint.arrival_station+" "+toPrint.departure_timestamp+" "+toPrint.arrival_timestamp);
 				}
+			stop++;
 			}
 		}
 	
@@ -78,9 +80,9 @@ public class MCSA {
 		if(connection_list[dest_station].isEmpty()) return;
 		else
 			{
-				System.out.println("Connection list not empty");
+				//System.out.println("Connection list not empty");
 				Iterator<McsaConnection> iter = connection_list[dest_station].iterator();
-				System.out.println("iterating over destination station n°:"+dest_station+" of size: "+connection_list[dest_station].size());
+				//System.out.println("iterating over destination station n°:"+dest_station+" of size: "+connection_list[dest_station].size());
 				while(iter.hasNext())
 					{
 					McsaConnection toAdd=iter.next();
@@ -88,16 +90,16 @@ public class MCSA {
 						{
 						if(toAdd.arrival_timestamp<=next_ts)
 							{
-							System.out.println("departure station = source");
+							//System.out.println("departure station = source");
 							LinkedList<McsaConnection> copyRes=deepCopy(tempRes);
 							copyRes.add(toAdd);
 							result.add(copyRes);
 							}else return; 
 						}else if(toAdd.arrival_timestamp<=next_ts)
 							{
-							System.out.println("Not to the source, addding connection to temporary solution and piggodding");
+							//System.out.println("Not to the source, addding connection to temporary solution and piggodding");
 							LinkedList<McsaConnection> copyRes=deepCopy(tempRes);
-							System.out.print("Copied temporary list");
+							//System.out.print("Copied temporary list");
 							copyRes.add(toAdd);
 							doMCSA(toAdd.departure_station,source_station,source_dt,toAdd.departure_timestamp,copyRes);
 							}else return;
@@ -149,7 +151,7 @@ public class MCSA {
 	@SuppressWarnings("unchecked")
 	private void computeConnectionList()
 	{
-	System.out.println("MCSA.JAVA computing connection list, timetable size: "+timetable.connections.size()+", destination index:"+timetable.getDestinationIndex());
+	//System.out.println("MCSA.JAVA computing connection list, timetable size: "+timetable.connections.size()+", destination index:"+timetable.getDestinationIndex());
 	connection_list=new LinkedList[timetable.getDestinationIndex()+1];
 	for(int i=0;i<timetable.getDestinationIndex()+1;i++)
 		{
@@ -161,6 +163,6 @@ public class MCSA {
 		McsaConnection temp=iter.next();
 		connection_list[temp.arrival_station].add(temp);
 		}
-	System.out.println(System.lineSeparator()+"connection list computed");
+	//ystem.out.println(System.lineSeparator()+"connection list computed");
 	}
 }

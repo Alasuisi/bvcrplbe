@@ -51,6 +51,193 @@ public class McsaTimetable {
     	 	}
     	 destinationIndex=index;
     	 
+    	 /*Computing interconnections
+    	  */
+    	 ArrayList<McsaConnection> interList = new ArrayList<McsaConnection>();
+    	 McsaConnection toCheck = null;
+    	 McsaConnection previous =null;
+    	 int extIndex=0;
+    	 int intIndex=1;
+    	 while(extIndex<connections.size())
+    	 	{
+    		 toCheck=connections.get(extIndex);
+    		 while(intIndex<connections.size())
+    		 	{
+    			 McsaConnection actual = connections.get(intIndex);
+    			 System.out.println("tocheck "+toCheck.getTransferID()+" actual"+actual.getTransferID());
+    			 if(toCheck.getTransferID()!=actual.getTransferID())
+    			 	{
+    				 if(previous==null||previous.getTransferID()!=actual.getTransferID())
+    				 	{
+    					 System.out.println("prima pigconnection");
+    					 double FirstToFirstDst = evaluateDistance(toCheck.getFirst_point(),actual.getFirst_point());
+    					 double FirstToSecondDst = evaluateDistance(toCheck.getFirst_point(),actual.getSecond_point());
+    					 double SecondToFirstDst = evaluateDistance(toCheck.getSecond_point(),actual.getFirst_point());
+    					 double SecondToSecondDst =evaluateDistance(toCheck.getSecond_point(),actual.getSecond_point());
+    					 if(FirstToFirstDst<passDet)
+    					 	{
+    						 long FtoFtime = walkTime(FirstToFirstDst);
+    						 long timeSkew = toCheck.getFirst_point().getTouchTime()-actual.getFirst_point().getTouchTime();
+    						 if(FtoFtime<Math.abs(timeSkew))
+    						 	{
+    							 if(timeSkew<0)
+    							 	{
+    								 TimedPoint2D newActual = actual.getFirst_point();
+    								 newActual.setTouchTime(toCheck.getFirst_point().getTouchTime()+FtoFtime);
+    								 McsaConnection toAdd=new McsaConnection(toCheck.getFirst_point(),newActual,toCheck.getDeparture_station(),actual.getDeparture_station(),toCheck.getTransferID());
+    								 toAdd.setConnectedTo(actual.getTransferID());
+    								 interList.add(toAdd);
+    							 	}else
+    							 		{
+    							 		 TimedPoint2D newToCheck=toCheck.getFirst_point();
+    							 		 newToCheck.setTouchTime(actual.getFirst_point().getTouchTime()+FtoFtime);
+    							 		 McsaConnection toAdd = new McsaConnection(actual.getFirst_point(),newToCheck,actual.getDeparture_station(),toCheck.getDeparture_station(),actual.getTransferID());
+    							 		 toAdd.setConnectedTo(toCheck.getTransferID());
+    							 		 interList.add(toAdd);
+    							 		}
+    						 	}
+    					 	}
+    					 
+    					 if(FirstToSecondDst<passDet)
+    					 	{
+    						 long FtoStime = walkTime(FirstToSecondDst);
+    						 long timeSkew = toCheck.getFirst_point().getTouchTime()-actual.getSecond_point().getTouchTime();
+    						 if(FtoStime<Math.abs(timeSkew))
+    						 	{
+    							 if(timeSkew<0)
+    							 	{
+    								 TimedPoint2D newActual = actual.getSecond_point();
+    								 newActual.setTouchTime(toCheck.getFirst_point().getTouchTime()+FtoStime);
+    								 McsaConnection toAdd = new McsaConnection(toCheck.getFirst_point(),newActual,toCheck.getDeparture_station(),actual.getArrival_station(),toCheck.getTransferID());
+    								 toAdd.setConnectedTo(actual.getTransferID());
+    								 interList.add(toAdd);
+    							 	}else
+    							 		{
+    							 		 TimedPoint2D newToCheck = toCheck.getFirst_point();
+    							 		 newToCheck.setTouchTime(actual.getSecond_point().getTouchTime()+FtoStime);
+    							 		 McsaConnection toAdd = new McsaConnection(actual.getSecond_point(),newToCheck,actual.getArrival_station(),toCheck.getDeparture_station(),actual.getTransferID());
+    							 		 toAdd.setConnectedTo(toCheck.getTransferID());
+    							 		 interList.add(toAdd);
+    							 		}
+    						 	}
+    					 	}
+    					 
+    					 if(SecondToFirstDst<passDet)
+    					 	{
+    						 long StoFtime = walkTime(SecondToFirstDst);
+    						 long timeSkew = toCheck.getSecond_point().getTouchTime()-actual.getFirst_point().getTouchTime();
+    						 if(StoFtime<Math.abs(timeSkew))
+    						 	{
+    							 if(timeSkew<0)
+    							 	{
+    								 TimedPoint2D newActual = actual.getFirst_point();
+    								 newActual.setTouchTime(toCheck.getSecond_point().getTouchTime()+StoFtime);
+    								 McsaConnection toAdd = new McsaConnection(toCheck.getSecond_point(),newActual,toCheck.getArrival_station(),actual.getDeparture_station(),toCheck.getTransferID());
+    								 toAdd.setConnectedTo(actual.getTransferID());
+    								 interList.add(toAdd);
+    							 	}else
+    							 		{
+    							 		 TimedPoint2D newToCheck = toCheck.getSecond_point();
+    							 		 newToCheck.setTouchTime(actual.getFirst_point().getTouchTime()+StoFtime);
+    							 		 McsaConnection toAdd = new McsaConnection(actual.getFirst_point(),newToCheck,actual.getDeparture_station(),toCheck.getArrival_station(),actual.getTransferID());
+    							 		 toAdd.setConnectedTo(toCheck.getTransferID());
+    							 		 interList.add(toAdd);
+    							 		}
+    						 	}
+    					 	}
+    					 if(SecondToSecondDst<passDet)
+    					 	{
+    						 long StoStime = walkTime(SecondToSecondDst);
+    						 long timeSkew = toCheck.getSecond_point().getTouchTime()-actual.getSecond_point().getTouchTime();
+    						 if(StoStime<Math.abs(timeSkew))
+    						 	{
+    							 if(timeSkew<0)
+    							 	{
+    								 TimedPoint2D newActual = actual.getSecond_point();
+    								 newActual.setTouchTime(toCheck.getSecond_point().getTouchTime()+StoStime);
+    								 McsaConnection toAdd = new McsaConnection(toCheck.getSecond_point(),newActual,toCheck.getArrival_station(),actual.getArrival_station(),toCheck.getTransferID());
+    								 toAdd.setConnectedTo(actual.getTransferID());
+    								 interList.add(toAdd);
+    							 	}else
+    							 		{
+    							 		 TimedPoint2D newToCheck = toCheck.getSecond_point();
+    							 		 newToCheck.setTouchTime(actual.getSecond_point().getTouchTime()+StoStime);
+    							 		 McsaConnection toAdd = new McsaConnection(actual.getSecond_point(),newToCheck,actual.getArrival_station(),toCheck.getArrival_station(),actual.getTransferID());
+    							 		 toAdd.setConnectedTo(toCheck.getTransferID());
+    							 		 interList.add(toAdd);
+    							 		}
+    						 	}
+    					 	}
+    					 
+    					 
+    					 previous=actual;
+    				 	}else
+    				 		{
+    				 		System.out.println("second diocane");
+    				 		double FirstToSecondDst = evaluateDistance(toCheck.getFirst_point(),actual.getSecond_point());
+    				 		double SecondToSecondDst =evaluateDistance(toCheck.getSecond_point(),actual.getSecond_point());
+    				 		 if(FirstToSecondDst<passDet)
+     					 	{
+     						 long FtoStime = walkTime(FirstToSecondDst);
+     						 long timeSkew = toCheck.getFirst_point().getTouchTime()-actual.getSecond_point().getTouchTime();
+     						 if(FtoStime<Math.abs(timeSkew))
+     						 	{
+     							 if(timeSkew<0)
+     							 	{
+     								 TimedPoint2D newActual = actual.getSecond_point();
+     								 newActual.setTouchTime(toCheck.getFirst_point().getTouchTime()+FtoStime);
+     								 McsaConnection toAdd = new McsaConnection(toCheck.getFirst_point(),newActual,toCheck.getDeparture_station(),actual.getArrival_station(),toCheck.getTransferID());
+     								 toAdd.setConnectedTo(actual.getTransferID());
+     								 interList.add(toAdd);
+     							 	}else
+     							 		{
+     							 		 TimedPoint2D newToCheck = toCheck.getFirst_point();
+     							 		 newToCheck.setTouchTime(actual.getSecond_point().getTouchTime()+FtoStime);
+     							 		 McsaConnection toAdd = new McsaConnection(actual.getSecond_point(),newToCheck,actual.getArrival_station(),toCheck.getDeparture_station(),actual.getTransferID());
+     							 		 toAdd.setConnectedTo(toCheck.getTransferID());
+     							 		 interList.add(toAdd);
+     							 		}
+     						 	}
+     					 	}
+    				 		if(SecondToSecondDst<passDet)
+    					 	{
+    						 long StoStime = walkTime(SecondToSecondDst);
+    						 long timeSkew = toCheck.getSecond_point().getTouchTime()-actual.getSecond_point().getTouchTime();
+    						 if(StoStime<Math.abs(timeSkew))
+    						 	{
+    							 if(timeSkew<0)
+    							 	{
+    								 TimedPoint2D newActual = actual.getSecond_point();
+    								 newActual.setTouchTime(toCheck.getSecond_point().getTouchTime()+StoStime);
+    								 McsaConnection toAdd = new McsaConnection(toCheck.getSecond_point(),newActual,toCheck.getArrival_station(),actual.getArrival_station(),toCheck.getTransferID());
+    								 toAdd.setConnectedTo(actual.getTransferID());
+    								 interList.add(toAdd);
+    							 	}else
+    							 		{
+    							 		 TimedPoint2D newToCheck = toCheck.getSecond_point();
+    							 		 newToCheck.setTouchTime(actual.getSecond_point().getTouchTime()+StoStime);
+    							 		 McsaConnection toAdd = new McsaConnection(actual.getSecond_point(),newToCheck,actual.getArrival_station(),toCheck.getArrival_station(),actual.getTransferID());
+    							 		 toAdd.setConnectedTo(toCheck.getTransferID());
+    							 		 interList.add(toAdd);
+    							 		}
+    						 	}
+    					 	}
+    				 		
+    				 		previous=actual;
+    				 		}
+    			 	}
+    			 intIndex++;
+    			 System.out.println("while INTERNO intIndex++ "+intIndex+" extIndex"+extIndex);
+    		 	}
+    		 extIndex++;
+    		 intIndex=extIndex+1;
+    		 System.out.println("While ESTERNO ExtIndex++ "+extIndex+" IntIndex++ "+intIndex);
+    	 	}
+    	 
+    	 
+    	 /*Linking togheter source and destination, to compatible points of the connections
+    	  *
+    	  */
     	 TimedPoint2D passDep = new TimedPoint2D(passenger.getDep_gps().getX(),passenger.getDep_gps().getY(),passenger.getDep_time());
     	 TimedPoint2D passArr =new TimedPoint2D(passenger.getArr_gps().getX(),passenger.getArr_gps().getY(),0);
     	 ArrayList<McsaConnection>srcDstList = new ArrayList<McsaConnection>();
@@ -145,9 +332,17 @@ public class McsaTimetable {
 	     	{
 	    	 System.out.println(linkIter.next());
 	     	}
+	     System.out.println(System.lineSeparator()+"Printng interconnections piggodded"+System.lineSeparator());
+	     Iterator<McsaConnection> mah = interList.iterator();
+	     while(mah.hasNext())
+	     	{
+	    	 System.out.println(mah.next());
+	     	}
     	 System.out.println(System.lineSeparator()+"MCSATIMETABLE.JAVA arrival station index:"+destinationIndex);
 	        System.out.println("MCSATIMETABLE.JAVA connection list size: "+connections.size());
+	        
 	        connections.addAll(srcDstList);
+	        connections.addAll(interList);
 	     
     	}
     	

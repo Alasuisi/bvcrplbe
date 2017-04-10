@@ -97,8 +97,12 @@ public class OfferTransferService {
 				}
 			MCSA mcsa = new MCSA(driverTran,toCompute);
 			//csa.computeCSA();
-			mcsa.computeMCSA(48, 0, 0);
-			mcsa.printSolutions();
+			//mcsa.computeMCSA(30, 0, 0);
+			long t1=System.currentTimeMillis();
+			mcsa.computeMCSA(0);
+			long t2=System.currentTimeMillis();
+			System.out.println("execution time "+(t2-t1)+" millidio");
+			mcsa.printSolutions(Integer.MAX_VALUE);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
