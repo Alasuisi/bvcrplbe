@@ -49,7 +49,16 @@ public class MCSA {
 			while(solIter.hasNext())
 				{
 				McsaConnection toPrint = solIter.next();
-				 System.out.println(toPrint.departure_station+"->"+toPrint.arrival_station+" "+toPrint.departure_timestamp+" "+toPrint.arrival_timestamp+" "+toPrint.getTransferID()+"->"+toPrint.getConnectedTo());
+				 System.out.println(toPrint.departure_station+"->"+toPrint.arrival_station+" "+toPrint.departure_timestamp+" "+toPrint.arrival_timestamp+" "+toPrint.getTransferID()+"->"+toPrint.getConnectedTo()+" "+toPrint.getFirst_point().getLatitude()+","+toPrint.getFirst_point().getLongitude()+"  "+toPrint.getSecond_point().getLatitude()+","+toPrint.getSecond_point().getLongitude());
+				}
+			solIter=solution.iterator();
+			System.out.println("---Printing points---");
+			McsaConnection first =solIter.next();
+			System.out.println(first.getFirst_point().getLatitude()+","+first.getFirst_point().getLongitude());
+			while(solIter.hasNext())
+				{
+				McsaConnection print=solIter.next();
+				System.out.println(print.getSecond_point().getLatitude()+","+print.getSecond_point().getLongitude());
 				}
 			stop++;
 			}
