@@ -88,7 +88,8 @@ public class MCSA {
 	 *  arrival criterion, but also, the number of traversed stations (easily computed by looking at every solution
 	 *  list size), and more in general, in the carpooling scenario, offers multiple choices to the end user
 	 */
-	void doMCSA(int dest_station,int source_station,long source_dt,long next_ts,LinkedList<McsaConnection> tempRes)
+	
+	private void doMCSA(int dest_station,int source_station,long source_dt,long next_ts,LinkedList<McsaConnection> tempRes)
 	{
 		if(connection_list[dest_station].isEmpty()) return;
 		else
@@ -119,6 +120,53 @@ public class MCSA {
 					}
 			}
 	}
+	public void removeBadOnes()
+		{
+		boolean changedTransfer=false;
+		int changeCount=0;
+		boolean badSolution=false;
+		int transfer=Integer.MAX_VALUE;
+		Iterator<LinkedList<McsaConnection>> resIter = result.iterator();
+		LinkedList<LinkedList<McsaConnection>> cleanRes=new LinkedList<LinkedList<McsaConnection>>();
+		while(resIter.hasNext())
+			{
+			 LinkedList<McsaConnection> solution =resIter.next();
+			 Iterator<McsaConnection> solIter=solution.iterator();
+			 while(solIter.hasNext() && !badSolution)
+			 	{
+				 McsaConnection temp = solIter.next();
+				 if(transfer==Integer.MAX_VALUE) transfer=temp.getTransferID();
+				 else
+				 	{
+					 if(temp.getTransferID()!=transfer)
+					 	{
+						 //System.out.println("MCSA.JAVA changed transfer");
+						 changedTransfer=true;
+						 changeCount++;
+						 transfer=temp.getTransferID();
+					 	}else 
+					 		{
+					 		//System.out.println("MCSA.JAVA not changed transfer");
+					 		changedTransfer=false;
+					 		changeCount=0;
+					 		}
+					 if(changeCount==2 && changedTransfer)badSolution=true;
+				 	}
+			 	}
+			 if(!badSolution) 
+			 	{
+				 
+				 cleanRes.add(solution);
+			 	}
+			 else
+			 	{
+				 //System.out.println("MCSA.JAVA found a bad one");
+				 changedTransfer=false;
+				 badSolution=false;
+			 	}
+			}
+		result=cleanRes;
+		}
 	
 	/* Algorithm for the deep cloning of a list, doing something like:
 	 * List<Objet> copied=null;

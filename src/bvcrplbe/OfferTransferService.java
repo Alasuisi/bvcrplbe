@@ -101,7 +101,11 @@ public class OfferTransferService {
 			long t1=System.currentTimeMillis();
 			mcsa.computeMCSA(0);
 			long t2=System.currentTimeMillis();
-			System.out.println("execution time "+(t2-t1)+" millidio");
+			System.out.println("compute solution time "+(t2-t1)+" millis");
+			long t3 = System.currentTimeMillis();
+			mcsa.removeBadOnes();
+			long t4 = System.currentTimeMillis();
+			System.out.println("removing bad ones time: "+(t4-t3));
 			mcsa.printSolutions(2);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
