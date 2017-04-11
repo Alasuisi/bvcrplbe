@@ -237,7 +237,7 @@ public class McsaTimetable {
      							 		 newToCheck.setLongitude(toCheck.getFirst_point().getLongitude());
      							 				 //toCheck.getFirst_point();
      							 		 long newTouchTime =actual.getSecond_point().getTouchTime()+FtoStime;
-     							 		 System.out.println("new time "+newTouchTime);
+     							 		
      							 		 newToCheck.setTouchTime(newTouchTime);
      							 		//System.out.println(toCheck.getFirst_point().getTouchTime()+" becomes "+newToCheck.getTouchTime());
      							 		 McsaConnection toAdd = new McsaConnection(actual.getSecond_point(),newToCheck,actual.getArrival_station(),toCheck.getDeparture_station(),actual.getTransferID());
@@ -245,11 +245,6 @@ public class McsaTimetable {
      							 		 System.out.println(System.lineSeparator());
      							 		System.out.println("10 check created connection"+toAdd);
      							 		interList.add(toAdd);
-     							 		Iterator<McsaConnection> dio =interList.iterator();
-     							 		while(dio.hasNext())
-     							 			{
-     							 			System.out.println("                           "+dio.next());
-     							 			}
      							 		 
      							 		}
      							System.out.println(System.lineSeparator()+" che minchia succede");
@@ -440,46 +435,51 @@ public class McsaTimetable {
     				 while(iter.hasNext())
     				 	{
     					 thisConn=iter.next();
+    					 System.out.println("toCheck->  "+toCheck.getDeparture_station()+" "+toCheck.getArrival_station()+" "+toCheck.getTransferID());
+    					 System.out.println("thisConn-> "+thisConn.getDeparture_station()+" "+thisConn.getArrival_station()+" "+thisConn.getTransferID());
     					 if(toCheck.getArrival_station()==thisConn.getArrival_station()&&toCheck.getTransferID()==thisConn.getTransferID())
     					 	{
+    						 System.out.println("check if better time");
     						 long resDelta = thisConn.getArrival_timestamp()-thisConn.getDeparture_timestamp();
     						 long toCheckDelta = toCheck.getArrival_timestamp()-toCheck.getDeparture_timestamp();
     						 if(toCheckDelta<resDelta)
     						 	{
     							 toRemove.add(new Integer(index));
-    							 //System.out.println("connection to remove with index "+index+" "+thisConn);
-    							 //System.out.println("connection to add in place "+index+" "+toCheck);
-    						 	}
-    					 	}
+    							 System.out.println("connection to remove with index "+index+" "+thisConn);
+    							 System.out.println("connection to add in place "+index+" "+toCheck);
+    						 	}else System.out.println("not better");
+    					 	}else System.out.println("different");
     					 index++;
     				 	}
-    				 //System.out.println("Remove list has size "+toRemove.size());
+    				 System.out.println("Remove list has size "+toRemove.size());
     				 Collections.reverse(toRemove);
     				 Iterator<Integer> remIter = toRemove.iterator();
     				 while(remIter.hasNext())
     				 	{
     					 int delete = remIter.next().intValue();
-    					 //System.out.println("tryng to remove index "+delete+" from a list of size "+toRemove.size());
+    					 System.out.println("tryng to remove index "+delete+" from a list of size "+toRemove.size());
     					 result.remove(delete);
     				 	}
     				 toRemove=new LinkedList<Integer>();
     				 result.add(toCheck);
-    				 /*System.out.println("result list is now like this");
+    				 System.out.println("result list is now like this");
     				 Iterator<McsaConnection> printIter = result.iterator();
     				 while(printIter.hasNext())
     				 	{
     					 System.out.println(printIter.next());
     				 	}
-    				 System.out.println(System.lineSeparator());*/
+    				 System.out.println(System.lineSeparator());
 
     			 	}else
     			 		{
     			 		 result.add(toCheck);
+    			 		 System.out.println("adde because same transfer but different arrival "+toCheck.getDeparture_station()+" "+toCheck.getArrival_station()+" "+toCheck.getTransferID());
     			 		 arrivalSet.add(toCheck.getArrival_station());
     			 		}
     			}else 
     				{
     				result.add(toCheck);
+    				System.out.println("added because all different "+toCheck.getDeparture_station()+" "+toCheck.getArrival_station()+" "+toCheck.getTransferID());
     				transferSet.add(toCheck.getTransferID());
     				arrivalSet.add(toCheck.getArrival_station());
     				}
