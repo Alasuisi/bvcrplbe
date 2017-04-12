@@ -29,6 +29,9 @@ import bvcrplbe.persistence.TransferDAO;
 import bvcrplbe.persistence.UserProfileDAO;
 import csa.CSA;
 import mcsa.MCSA;
+import mcsa.McsaConnection;
+import mcsa.McsaResult;
+import mcsa.McsaSolution;
 
 @Path("/OfferRide")
 public class OfferTransferService {
@@ -70,7 +73,7 @@ public class OfferTransferService {
 	  
 	  @Path("/CSA")
 	  @GET
-	  public Response testCSA()
+	  public Response testCSA() throws Exception
 	  	{
 		  try {
 			LinkedList<Transfer> allTran = TransferDAO.getAllTransfers();
@@ -82,7 +85,7 @@ public class OfferTransferService {
 					Transfer thisTran = alliter.next();
 					if(thisTran.getUser_role().equals("driver"))
 						{
-							if(thisTran.getTran_id()>120) driverTran.add(thisTran);
+							if(thisTran.getTran_id()>130) driverTran.add(thisTran);
 						}
 					else passenger.add(thisTran);
 				}
@@ -106,7 +109,25 @@ public class OfferTransferService {
 			mcsa.removeBadOnes();
 			long t4 = System.currentTimeMillis();
 			System.out.println("removing bad ones time: "+(t4-t3));
+			
 			mcsa.printSolutions(2);
+			System.out.println(System.lineSeparator());
+			McsaResult res = mcsa.getResults();
+			LinkedList<McsaSolution> solutions = res.getResults();
+			System.out.println("Solution list has lenght: "+solutions.size());
+			Iterator<McsaSolution> iter = solutions.iterator();
+			while(iter.hasNext())
+				{
+				McsaSolution temp =iter.next();
+				System.out.println(System.lineSeparator()+"transfers:"+temp.getTransferSet()+" changes:"+temp.getChanges()+" wait:"+temp.getTotalWaitTime()+" arrival:"+temp.getArrivalTime());
+				LinkedList<McsaConnection> path = temp.getPath();
+				Iterator<McsaConnection> pathIter = path.iterator();
+				while(pathIter.hasNext())
+					{
+					System.out.println(pathIter.next());
+					}
+				}
+			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

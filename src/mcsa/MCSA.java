@@ -14,6 +14,7 @@ public class MCSA {
 	private McsaTimetable timetable;
 	LinkedList<LinkedList<McsaConnection>> result=new LinkedList<LinkedList<McsaConnection>>();
 	LinkedList<McsaConnection>[] connection_list;
+	private long departureTime;
 	
 	/* MCSA main construcor, takes a bufferedReader of strings of this format:
 	 *  departure_Station arrival_Station departure_timestamp arrival_timestamp
@@ -69,10 +70,12 @@ public class MCSA {
 	 */
 	public void computeMCSA(int destinationStation,int departureStation,long departureTime)
 		{
+		 this.departureTime=departureTime;
 		 doMCSA(destinationStation,departureStation,departureTime,Long.MAX_VALUE,new LinkedList<McsaConnection>());
 		}
 	public void computeMCSA(long departureTime)
 		{
+		 this.departureTime=departureTime;
 		 doMCSA(timetable.getDestinationIndex(),0,departureTime,Long.MAX_VALUE,new LinkedList<McsaConnection>());
 		}
 
@@ -228,4 +231,14 @@ public class MCSA {
 		}
 	//ystem.out.println(System.lineSeparator()+"connection list computed");
 	}
+	
+	public McsaResult getResults() throws Exception
+		{
+			McsaResult res = null;
+			if(result!=null)
+				{
+				 res = new McsaResult(result,this.departureTime);
+				}
+			return res;
+		}
 }

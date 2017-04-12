@@ -11,7 +11,7 @@ public class McsaConnection {
     long arrival_timestamp;
     TimedPoint2D first_point, second_point;
 	int transferID;
-	int connectedTo=-1;
+	int connectedTo;
 
 
 	// Connection constructor

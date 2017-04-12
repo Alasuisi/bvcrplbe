@@ -45,7 +45,9 @@ public class McsaTimetable {
     			 else
     			 	{
     				 TimedPoint2D arrival = pathIter.next();
-    				 connections.add(new McsaConnection(departure,arrival,index,index+1,thisTran.getTran_id()));
+    				 McsaConnection toAdd=new McsaConnection(departure,arrival,index,index+1,thisTran.getTran_id());
+    				 toAdd.setConnectedTo(thisTran.getTran_id());
+    				 connections.add(toAdd);
     				 departure=arrival;
     				 index++;
     			 	}
@@ -339,16 +341,16 @@ public class McsaTimetable {
     			 	{
     				 TimedPoint2D pathPoint= thisCon.getFirst_point();
     				 passArr.setTouchTime(desTo1time);
-    				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getDeparture_station(),destinationIndex,passenger.getTran_id());
-    				 toAdd.setConnectedTo(thisCon.getTransferID());
+    				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getDeparture_station(),destinationIndex,thisCon.getTransferID());
+    				 toAdd.setConnectedTo(passenger.getTran_id());
     				 srcDstList.add(toAdd);
     			 	}
     			 if(desTo2dst<=passDet)
     			 	{
     				 TimedPoint2D pathPoint = thisCon.getSecond_point();
     				 passArr.setTouchTime(desTo2time);
-    				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getArrival_station(),destinationIndex,passenger.getTran_id());
-    				 toAdd.setConnectedTo(thisCon.getTransferID());
+    				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getArrival_station(),destinationIndex,thisCon.getTransferID());
+    				 toAdd.setConnectedTo(passenger.getTran_id());
     				 srcDstList.add(toAdd);
     			 	}
     			 lastConTranId=thisCon.getTransferID();
@@ -373,16 +375,16 @@ public class McsaTimetable {
 	     			 	{
 	     				 TimedPoint2D pathPoint = thisCon.getSecond_point();
 	     				 passArr.setTouchTime(desTo2time);
-	     				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getArrival_station(),destinationIndex,passenger.getTran_id());
-	     				 toAdd.setConnectedTo(thisCon.getTransferID());
+	     				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getArrival_station(),destinationIndex,thisCon.getTransferID());
+	     				 toAdd.setConnectedTo(passenger.getTran_id());
 	     				 srcDstList.add(toAdd);
 	     			 	}
     		 		}
     	 	}
     	 
     	 ArrayList<McsaConnection> optimized = optimize(interList);
-    	 
-    	 /*Iterator<McsaConnection> connIter = connections.iterator();
+    	 /*
+    	 Iterator<McsaConnection> connIter = connections.iterator();
     	 while(connIter.hasNext())
     	 	{
     		 System.out.println(connIter.next());
