@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Locale;
 
 import com.google.maps.DirectionsApi;
+import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
 import com.google.maps.model.EncodedPolyline;
 import com.google.maps.model.LatLng;
+import com.google.maps.model.TravelMode;
 
 import bvcrplbe.domain.TimedPoint2D;
 
@@ -50,7 +52,13 @@ public class McsaSegment {
 		 DirectionsResult results=null;
 		 String from=""+interConn.getFirst_point().getLatitude()+","+interConn.getFirst_point().getLongitude()+"";
 		 String to= ""+interConn.getSecond_point().getLatitude()+","+interConn.getSecond_point().getLongitude()+"";
-		 results = DirectionsApi.getDirections(context, from, to).await();
+		 //results = DirectionsApi.getDirections(context, from, to).await();
+		 
+		 DirectionsApiRequest req=DirectionsApi.newRequest(context);
+		 req.mode(TravelMode.WALKING);
+		 req.origin(from);
+		 req.destination(to);
+		 results=req.await();
 		 DirectionsRoute[] routes = results.routes;
 		 EncodedPolyline poly = routes[0].overviewPolyline;
 		 List<LatLng> polyList = poly.decodePath();

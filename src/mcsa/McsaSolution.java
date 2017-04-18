@@ -18,6 +18,7 @@ public class McsaSolution {
 		{
 		 Iterator<McsaConnection> iter = resultList.iterator();
 		 McsaConnection previous =null;
+		 LinkedList<McsaConnection>tempList = new LinkedList<McsaConnection>();
 		 while(iter.hasNext())
 		 	{
 			 McsaConnection temp = iter.next();
@@ -25,9 +26,18 @@ public class McsaSolution {
 			 if(temp.getTransferID()!=temp.getConnectedTo())
 			 	{
 				 changes++;
+				 if(!tempList.isEmpty())
+				 	{
+					 McsaSegment segment2 = new McsaSegment(tempList);
+					 solution.add(segment2);
+					 tempList = new LinkedList<McsaConnection>();
+				 	}
 				 McsaSegment segment = new McsaSegment(temp);
 				 solution.add(segment);
-			 	}
+			 	}else
+			 		{
+			 		tempList.add(temp);
+			 		}
 			 if(previous==null) 
 			 	{
 				 previous=temp;
@@ -72,6 +82,17 @@ public class McsaSolution {
 		return arrivalTime;
 	}
 
+	public LinkedList<McsaSegment> getSolution() {
+		Collections.reverse(solution);
+		return solution;
+	}
+
+	@Override
+	public String toString() {
+		return "McsaSolution [path=" + path + ", solution=" + solution + ", transferSet=" + transferSet + ", changes="
+				+ changes + ", totalWaitTime=" + totalWaitTime + ", arrivalTime=" + arrivalTime + "]";
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -79,6 +100,7 @@ public class McsaSolution {
 		result = prime * result + (int) (arrivalTime ^ (arrivalTime >>> 32));
 		result = prime * result + changes;
 		result = prime * result + ((path == null) ? 0 : path.hashCode());
+		result = prime * result + ((solution == null) ? 0 : solution.hashCode());
 		result = prime * result + (int) (totalWaitTime ^ (totalWaitTime >>> 32));
 		result = prime * result + ((transferSet == null) ? 0 : transferSet.hashCode());
 		return result;
@@ -102,6 +124,11 @@ public class McsaSolution {
 				return false;
 		} else if (!path.equals(other.path))
 			return false;
+		if (solution == null) {
+			if (other.solution != null)
+				return false;
+		} else if (!solution.equals(other.solution))
+			return false;
 		if (totalWaitTime != other.totalWaitTime)
 			return false;
 		if (transferSet == null) {
@@ -112,11 +139,7 @@ public class McsaSolution {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		return "McsaSolution [transferSet=" + transferSet + ", changes=" + changes
-				+ ", totalWaitTime=" + totalWaitTime + ", arrivalTime=" + arrivalTime +", path=" + path +  "]";
-	}
+	
 	
 
 }

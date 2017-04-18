@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
 import bvcrplbe.domain.UserProfile;
 import bvcrplbe.persistence.TransferDAO;
@@ -31,6 +32,7 @@ import csa.CSA;
 import mcsa.MCSA;
 import mcsa.McsaConnection;
 import mcsa.McsaResult;
+import mcsa.McsaSegment;
 import mcsa.McsaSolution;
 
 @Path("/OfferRide")
@@ -109,7 +111,7 @@ public class OfferTransferService {
 			mcsa.removeBadOnes();
 			long t4 = System.currentTimeMillis();
 			System.out.println("removing bad ones time: "+(t4-t3));
-			
+			/////////SOLUTION TEST/////////
 			mcsa.printSolutions(2);
 			System.out.println(System.lineSeparator());
 			McsaResult res = mcsa.getResults();
@@ -127,6 +129,30 @@ public class OfferTransferService {
 					System.out.println(pathIter.next());
 					}
 				}
+			
+			System.out.println(System.lineSeparator()+" TESTING THE NEW SOLUTION OBJECT ");
+			Iterator<McsaSolution> iter2 =solutions.iterator();
+			while(iter2.hasNext())
+				{
+				 McsaSolution thisSol = iter2.next();
+				 LinkedList<McsaSegment> segments = thisSol.getSolution();
+				 System.out.println(System.lineSeparator()+"changes:"+thisSol.getChanges()+" transfers:"+thisSol.getTransferSet()+System.lineSeparator());
+				 Iterator<McsaSegment> segIter = segments.iterator();
+				 while(segIter.hasNext())
+				 	{
+					 McsaSegment segment = segIter.next();
+					 System.out.println("segment from: "+segment.getFromTransferID()+" to: "+segment.getToTransferID());
+					 LinkedList<TimedPoint2D> path = segment.getSegmentPath();
+					 Iterator<TimedPoint2D> pathIter = path.iterator();
+					 while(pathIter.hasNext())
+					 	{
+						 TimedPoint2D toPrint =pathIter.next();
+						 System.out.println(toPrint.getLatitude()+","+toPrint.getLongitude());
+					 	}
+				 	}
+				}
+
+			////////////////////////////////////
 			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
