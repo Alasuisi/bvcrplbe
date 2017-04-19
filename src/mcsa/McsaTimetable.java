@@ -35,6 +35,16 @@ public class McsaTimetable {
     	 	{
     		 boolean[] sneeds = new boolean[4];
     		 Transfer thisTran = driverIter.next();
+    		 if(thisTran.getTran_id()==132)
+    		 	{
+    			 Iterator<TimedPoint2D> cazzus = thisTran.getPath().iterator();
+    			 System.out.println("Stampo sta 132 che non si capisce");
+    			 while(cazzus.hasNext())
+    			 	{
+    				 System.out.println(cazzus.next());
+    			 	}
+    		 	}
+    			 
     		 sneeds[0]=thisTran.isAnimal();
     		 sneeds[1]=thisTran.isHandicap();
     		 sneeds[2]=thisTran.isLuggage();
@@ -304,6 +314,12 @@ public class McsaTimetable {
     	 
     	 /*Linking togheter source and destination, to compatible points of the connections
     	  *
+    	  *
+    	  *ATTENZIONE SONO STATE FATTE MODIFICHE ALLA CREAZIONE DEI TIMEDPOINT QUI; VERIFICARE!!!!!!!!!!
+    	  *!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    	  *!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    	  *!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    	  *
     	  */
     	 TimedPoint2D passDep = new TimedPoint2D(passenger.getDep_gps().getX(),passenger.getDep_gps().getY(),passenger.getDep_time());
     	 TimedPoint2D passArr =new TimedPoint2D(passenger.getArr_gps().getX(),passenger.getArr_gps().getY(),0);
@@ -326,7 +342,10 @@ public class McsaTimetable {
     			 if(srcTo1dst<=passDet)
     				 if(srcTo1time<=thisCon.getFirst_point().getTouchTime())
     				 	{
-    					 TimedPoint2D pathPoint = thisCon.getFirst_point();
+    					// TimedPoint2D pathPoint = thisCon.getFirst_point();
+    					 TimedPoint2D pathPoint = new TimedPoint2D();
+    					 pathPoint.setLatitude(thisCon.getFirst_point().getLatitude());
+    					 pathPoint.setLongitude(thisCon.getFirst_point().getLongitude());
     					 pathPoint.setTouchTime(srcTo1time);
     					 McsaConnection toAdd = new McsaConnection(passDep,pathPoint,source,thisCon.getDeparture_station(),passenger.getTran_id());
     					 toAdd.setConnectedTo(thisCon.getTransferID());
@@ -336,7 +355,10 @@ public class McsaTimetable {
     			 	{
     				 if(srcTo2time<=thisCon.getSecond_point().getTouchTime())
     				 	{
-    					 TimedPoint2D pathPoint = thisCon.getSecond_point();
+    					 //TimedPoint2D pathPoint = thisCon.getSecond_point();
+    					 TimedPoint2D pathPoint = new TimedPoint2D();
+    					 pathPoint.setLatitude(thisCon.getSecond_point().getLatitude());
+    					 pathPoint.setLongitude(thisCon.getSecond_point().getLongitude());
     					 pathPoint.setTouchTime(srcTo2time);
     					 McsaConnection toAdd = new McsaConnection(passDep,pathPoint,source,thisCon.getArrival_station(),passenger.getTran_id());
     					 toAdd.setConnectedTo(thisCon.getTransferID());
@@ -345,7 +367,11 @@ public class McsaTimetable {
     			 	}
     			 if(desTo1dst<=passDet)
     			 	{
-    				 TimedPoint2D pathPoint= thisCon.getFirst_point();
+    				 //TimedPoint2D pathPoint= thisCon.getFirst_point();
+    				 TimedPoint2D pathPoint = new TimedPoint2D();
+    				 pathPoint.setLatitude(thisCon.getFirst_point().getLatitude());
+    				 pathPoint.setLongitude(thisCon.getFirst_point().getLongitude());
+    				 pathPoint.setTouchTime(thisCon.getFirst_point().getTouchTime());
     				 passArr.setTouchTime(desTo1time);
     				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getDeparture_station(),destinationIndex,thisCon.getTransferID());
     				 toAdd.setConnectedTo(passenger.getTran_id());
@@ -353,7 +379,11 @@ public class McsaTimetable {
     			 	}
     			 if(desTo2dst<=passDet)
     			 	{
-    				 TimedPoint2D pathPoint = thisCon.getSecond_point();
+    				 //TimedPoint2D pathPoint = thisCon.getSecond_point();
+    				 TimedPoint2D pathPoint = new TimedPoint2D();
+    				 pathPoint.setLatitude(thisCon.getSecond_point().getLatitude());
+    				 pathPoint.setLongitude(thisCon.getSecond_point().getLongitude());
+    				 pathPoint.setTouchTime(thisCon.getSecond_point().getTouchTime());
     				 passArr.setTouchTime(desTo2time);
     				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getArrival_station(),destinationIndex,thisCon.getTransferID());
     				 toAdd.setConnectedTo(passenger.getTran_id());
@@ -370,7 +400,10 @@ public class McsaTimetable {
 	    			 	{
 	    				 if(srcTo2time<=thisCon.getSecond_point().getTouchTime())
 	    				 	{
-	    					 TimedPoint2D pathPoint = thisCon.getSecond_point();
+	    					 //TimedPoint2D pathPoint = thisCon.getSecond_point();
+	    					 TimedPoint2D pathPoint = new TimedPoint2D();
+	    					 pathPoint.setLatitude(thisCon.getSecond_point().getLatitude());
+	    					 pathPoint.setLongitude(thisCon.getSecond_point().getLongitude());
 	    					 pathPoint.setTouchTime(srcTo2time);
 	    					 McsaConnection toAdd = new McsaConnection(passDep,pathPoint,source,thisCon.getArrival_station(),passenger.getTran_id());
 	    					 toAdd.setConnectedTo(thisCon.getTransferID());
@@ -379,7 +412,11 @@ public class McsaTimetable {
 	    			 	}
     		 		 if(desTo2dst<=passDet)
 	     			 	{
-	     				 TimedPoint2D pathPoint = thisCon.getSecond_point();
+	     				 //TimedPoint2D pathPoint = thisCon.getSecond_point();
+    		 			 TimedPoint2D pathPoint = new TimedPoint2D();
+    		 			 pathPoint.setLatitude(thisCon.getSecond_point().getLatitude());
+    		 			 pathPoint.setLongitude(thisCon.getSecond_point().getLongitude());
+    		 			 pathPoint.setTouchTime(thisCon.getSecond_point().getTouchTime());
 	     				 passArr.setTouchTime(desTo2time);
 	     				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getArrival_station(),destinationIndex,thisCon.getTransferID());
 	     				 toAdd.setConnectedTo(passenger.getTran_id());
@@ -389,7 +426,7 @@ public class McsaTimetable {
     	 	}
     	 
     	 ArrayList<McsaConnection> optimized = optimize(interList);
-    	 /*
+    	 
     	 Iterator<McsaConnection> connIter = connections.iterator();
     	 while(connIter.hasNext())
     	 	{
@@ -412,7 +449,7 @@ public class McsaTimetable {
 	     while(boh.hasNext())
 	     	{
 	    	 System.out.println(boh.next());
-	     	}*/
+	     	}
     	 
 	        
 	        
