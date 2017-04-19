@@ -35,16 +35,6 @@ public class McsaTimetable {
     	 	{
     		 boolean[] sneeds = new boolean[4];
     		 Transfer thisTran = driverIter.next();
-    		 if(thisTran.getTran_id()==132)
-    		 	{
-    			 Iterator<TimedPoint2D> cazzus = thisTran.getPath().iterator();
-    			 System.out.println("Stampo sta 132 che non si capisce");
-    			 while(cazzus.hasNext())
-    			 	{
-    				 System.out.println(cazzus.next());
-    			 	}
-    		 	}
-    			 
     		 sneeds[0]=thisTran.isAnimal();
     		 sneeds[1]=thisTran.isHandicap();
     		 sneeds[2]=thisTran.isLuggage();
@@ -427,7 +417,7 @@ public class McsaTimetable {
     	 
     	 ArrayList<McsaConnection> optimized = optimize(interList);
     	 
-    	 Iterator<McsaConnection> connIter = connections.iterator();
+    	/* Iterator<McsaConnection> connIter = connections.iterator();
     	 while(connIter.hasNext())
     	 	{
     		 System.out.println(connIter.next());
@@ -449,7 +439,7 @@ public class McsaTimetable {
 	     while(boh.hasNext())
 	     	{
 	    	 System.out.println(boh.next());
-	     	}
+	     	}*/
     	 
 	        
 	        

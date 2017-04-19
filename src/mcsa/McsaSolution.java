@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import bvcrplbe.domain.Transfer;
 
@@ -27,10 +28,35 @@ public class McsaSolution {
 	public McsaSolution(LinkedList<McsaConnection> resultList,long departureTime,HashMap<Integer,boolean[]> specialNeeds,Transfer passenger) throws Exception
 		{
 		 long time =departureTime;
+		 /*
 		 animal=passenger.isAnimal();
 		 smoke=passenger.isSmoke();
 		 luggage=passenger.isLuggage();
 		 handicap=passenger.isHandicap();
+		 */
+		 Iterator<HashMap.Entry<Integer,boolean[]>> specialIter=specialNeeds.entrySet().iterator();
+		 boolean[] specialResult = new boolean[4];
+		 for(int i=0;i<specialResult.length;i++)
+		 	{
+			 specialResult[i]=true;
+		 	}
+		 while(specialIter.hasNext())
+		 	{
+			 Entry<Integer, boolean[]> tempEntry = specialIter.next();
+			 boolean[] tempSpecial = tempEntry.getValue();
+			 for(int i=0;i<tempSpecial.length;i++)
+			 	{
+				 if(tempSpecial[i]==false) specialResult[i]=false;
+			 	}
+		 	}
+		 if(!passenger.isAnimal()) specialResult[0]=false;
+		 if(!passenger.isHandicap()) specialResult[0]=false;
+		 if(!passenger.isLuggage()) specialResult[0]=false;
+		 if(!passenger.isSmoke()) specialResult[0]=false;
+		 animal=specialResult[0];
+		 handicap=specialResult[1];
+		 luggage=specialResult[2];
+		 smoke=specialResult[3];
 		 neededSeats=passenger.getOcc_seats();
 		 Iterator<McsaConnection> iter = resultList.iterator();
 		 McsaConnection previous =null;
