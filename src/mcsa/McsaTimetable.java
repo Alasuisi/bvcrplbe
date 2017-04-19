@@ -2,13 +2,10 @@ package mcsa;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.jasper.tagplugins.jstl.core.Set;
 import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
 import org.gavaghan.geodesy.GlobalPosition;
@@ -23,9 +20,12 @@ public class McsaTimetable {
     private int source=0;
     private int destinationIndex=0;
     private int index=0;
+    private HashMap<Integer,boolean[]> specialNeeds=new HashMap<Integer,boolean[]>();
+    private Transfer passengerTransfer=null;
     
     public McsaTimetable(LinkedList<Transfer> drivers, Transfer passenger)
     	{
+    	 passengerTransfer=passenger;
     	 connections= new ArrayList<McsaConnection>();
     	 double passDet=passenger.getDet_range();
     	 
@@ -33,7 +33,13 @@ public class McsaTimetable {
     	 Iterator<Transfer> driverIter = drivers.iterator();
     	 while(driverIter.hasNext())
     	 	{
+    		 boolean[] sneeds = new boolean[4];
     		 Transfer thisTran = driverIter.next();
+    		 sneeds[0]=thisTran.isAnimal();
+    		 sneeds[1]=thisTran.isHandicap();
+    		 sneeds[2]=thisTran.isLuggage();
+    		 sneeds[3]=thisTran.isSmoke();
+    		 specialNeeds.put(new Integer(thisTran.getTran_id()), sneeds);
     		 Iterator<TimedPoint2D> pathIter = thisTran.getPath().iterator();
     		 while(pathIter.hasNext())
     		 	{
@@ -813,6 +819,12 @@ public int getDestinationIndex()
 		return destinationIndex;
 	}
 
+public HashMap<Integer, boolean[]> getSpecialNeeds() {
+	return specialNeeds;
+}
+public Transfer getPassengerTransfer() {
+	return passengerTransfer;
+}
 private long walkTime(double distance)
 	{
 	 double meanSpeed = 1.39;

@@ -104,7 +104,7 @@ public class OfferTransferService {
 			//csa.computeCSA();
 			//mcsa.computeMCSA(30, 0, 0);
 			long t1=System.currentTimeMillis();
-			mcsa.computeMCSA(0);
+			mcsa.computeMCSA(toCompute.getDep_time());
 			long t2=System.currentTimeMillis();
 			System.out.println("compute solution time "+(t2-t1)+" millis");
 			long t3 = System.currentTimeMillis();
@@ -112,7 +112,7 @@ public class OfferTransferService {
 			long t4 = System.currentTimeMillis();
 			System.out.println("removing bad ones time: "+(t4-t3));
 			/////////SOLUTION TEST/////////
-			mcsa.printSolutions(2);
+			/*mcsa.printSolutions(Integer.MAX_VALUE);
 			System.out.println(System.lineSeparator());
 			McsaResult res = mcsa.getResults();
 			LinkedList<McsaSolution> solutions = res.getResults();
@@ -128,20 +128,24 @@ public class OfferTransferService {
 					{
 					System.out.println(pathIter.next());
 					}
-				}
-			
+				}*/
+			McsaResult res = mcsa.getResults();
+			LinkedList<McsaSolution> solutions = res.getResults();
 			System.out.println(System.lineSeparator()+" TESTING THE NEW SOLUTION OBJECT ");
 			Iterator<McsaSolution> iter2 =solutions.iterator();
 			while(iter2.hasNext())
 				{
 				 McsaSolution thisSol = iter2.next();
 				 LinkedList<McsaSegment> segments = thisSol.getSolution();
-				 System.out.println(System.lineSeparator()+"changes:"+thisSol.getChanges()+" transfers:"+thisSol.getTransferSet()+System.lineSeparator());
+				 System.out.println(System.lineSeparator()+"changes:"+thisSol.getChanges()+" transfers:"+thisSol.getTransferSet());
+				 System.out.println("passenger needs: animal="+thisSol.isAnimal()+" handicap="+thisSol.isHandicap()+" luggage="+thisSol.isLuggage()+" smoke="+thisSol.isSmoke());
+				 System.out.println("passenger occupied seats: "+thisSol.getNeededSeats());
 				 Iterator<McsaSegment> segIter = segments.iterator();
 				 while(segIter.hasNext())
 				 	{
 					 McsaSegment segment = segIter.next();
 					 System.out.println("segment from: "+segment.getFromTransferID()+" to: "+segment.getToTransferID());
+					 System.out.println("segment accepted needs: animal="+segment.isAnimal()+" handicap="+segment.isHandicap()+" luggage="+segment.isLuggage()+" smoke="+segment.isSmoke());
 					 LinkedList<TimedPoint2D> path = segment.getSegmentPath();
 					 Iterator<TimedPoint2D> pathIter = path.iterator();
 					 while(pathIter.hasNext())
@@ -151,7 +155,11 @@ public class OfferTransferService {
 					 	}
 				 	}
 				}
-
+			
+			ObjectMapper mapper = new ObjectMapper();
+			String jsonInString;
+			jsonInString=mapper.writeValueAsString(solutions);
+			System.out.println(jsonInString);
 			////////////////////////////////////
 			
 		} catch (ClassNotFoundException e) {

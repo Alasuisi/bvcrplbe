@@ -237,7 +237,7 @@ public class MCSA {
 			McsaResult res = null;
 			if(result!=null)
 				{
-				 res = new McsaResult(result,this.departureTime);
+				 res = new McsaResult(result,this.departureTime,timetable.getSpecialNeeds(),timetable.getPassengerTransfer());
 				}
 			return res;
 		}
