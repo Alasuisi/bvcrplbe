@@ -26,6 +26,7 @@ public class McsaSolution {
 	
 	public McsaSolution(LinkedList<McsaConnection> resultList,long departureTime,HashMap<Integer,boolean[]> specialNeeds,Transfer passenger) throws Exception
 		{
+		 long time =departureTime;
 		 animal=passenger.isAnimal();
 		 smoke=passenger.isSmoke();
 		 luggage=passenger.isLuggage();
@@ -46,27 +47,30 @@ public class McsaSolution {
 					 McsaSegment segment2 = new McsaSegment(tempList,specialNeeds);
 					 solution.add(segment2);
 					 tempList = new LinkedList<McsaConnection>();
+					
 				 	}
-				 McsaSegment segment = new McsaSegment(temp,passenger);
+				 McsaSegment segment = new McsaSegment(temp,passenger,time);
 				 solution.add(segment);
 			 	}else
 			 		{
 			 		tempList.add(temp);
+			 		time=temp.getArrival_timestamp(); /////DA CONTROLLARE SE CI VUOLE QUESTO O L'ALTRO
 			 		}
 			 if(previous==null) 
 			 	{
 				 previous=temp;
-				 long wait = temp.getDeparture_timestamp()-departureTime;
-				 totalWaitTime=totalWaitTime+wait;
-				 //System.out.println("MCSASOLUTION  waitTimeNull="+wait+" totalNull="+totalWaitTime+" tempDepTime="+temp.getDeparture_timestamp()+" depTime="+departureTime);
+				 //long wait = temp.getDeparture_timestamp()-departureTime;
+				 //totalWaitTime=totalWaitTime+wait;
+				 //System.out.println("MCSASOLUTION "+temp.getTransferID()+" "+temp.getConnectedTo()+" "+temp.getDeparture_station()+" "+temp.getArrival_station() +" waitTimeNull="+wait+" totalNull="+totalWaitTime+" tempDepTime="+temp.getDeparture_timestamp()+" depTime="+departureTime);
 			 	}
 			 else
 			 	{
-				 if(previous.getArrival_timestamp()!=temp.getDeparture_timestamp())
+				 if(previous.getArrival_timestamp()!=temp.getDeparture_timestamp()) //previous.getArrival_timestamp()!=temp.getDeparture_timestamp()
 				 	{
-					 long wait = temp.getDeparture_timestamp()-previous.getArrival_timestamp();
-					 totalWaitTime=totalWaitTime+wait;
-					 //System.out.println("MCSASOLUTION  waitTime="+wait+" total="+totalWaitTime);
+					 
+					 //long wait = temp.getDeparture_timestamp()-previous.getArrival_timestamp();
+					 //totalWaitTime=totalWaitTime+wait;
+					 //System.out.println("MCSASOLUTION " +temp.getTransferID()+" "+temp.getConnectedTo()+" "+" "+temp.getDeparture_station()+" "+temp.getArrival_station() + "waitTime="+wait+" total="+totalWaitTime+" "+previous.getArrival_timestamp()+" "+temp.getDeparture_timestamp());
 					 previous=temp;
 				 	}
 			 	}
@@ -77,7 +81,25 @@ public class McsaSolution {
 		 	}
 		 //Collections.reverse(resultList);
 		 path=resultList;
-		 Collections.reverse(solution);
+		 
+		 McsaSegment temp = null;
+		 Iterator<McsaSegment> segIter = solution.iterator();
+		 while(segIter.hasNext())
+		 	{
+			 if(temp==null)
+			 	{
+				 temp=segIter.next();
+			 	}else
+			 		{
+			 		 McsaSegment toRead = segIter.next();
+			 		 long tempWaiting = toRead.getSegmentDeparture()-temp.getSegmentArrival();
+			 		 totalWaitTime=totalWaitTime+tempWaiting;
+			 		 toRead.setDepartureWaitTime(tempWaiting);
+			 		 temp=toRead;
+			 		}
+		 	}
+		 System.out.println(System.lineSeparator());
+		 //Collections.reverse(solution);
 		}
 
 	public int getNeededSeats() {

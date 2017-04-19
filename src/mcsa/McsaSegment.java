@@ -7,11 +7,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import org.gavaghan.geodesy.Ellipsoid;
+import org.gavaghan.geodesy.GeodeticCalculator;
+import org.gavaghan.geodesy.GlobalPosition;
+
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
+import com.google.maps.model.DirectionsLeg;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.DirectionsStep;
 import com.google.maps.model.EncodedPolyline;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.TravelMode;
@@ -26,6 +32,10 @@ public class McsaSegment {
 	private boolean handicap;
 	private boolean luggage;
 	private boolean smoke;
+	private long segmentDeparture;
+	private long segmentArrival;
+	private long departureWaitTime;
+	private long segmentDuration;
 	LinkedList<TimedPoint2D> segmentPath=new LinkedList<TimedPoint2D>();
 	
 	public McsaSegment(LinkedList<McsaConnection> conList,HashMap<Integer,boolean[]> specialNeeds)
@@ -38,6 +48,7 @@ public class McsaSegment {
 		 firstPoint.setLatitude(first.getFirst_point().getLatitude());
 		 firstPoint.setLongitude(first.getFirst_point().getLongitude());
 		 firstPoint.setTouchTime(first.getFirst_point().getTouchTime());
+		 segmentDeparture=firstPoint.getTouchTime();
 		 segmentPath.add(firstPoint);
 		 int tranID = first.getTransferID();
 		 boolean[] sneeds = specialNeeds.get(new Integer(tranID));
@@ -53,10 +64,31 @@ public class McsaSegment {
 			 toAdd.setLongitude(conn.getSecond_point().getLongitude());
 			 toAdd.setTouchTime(conn.getSecond_point().getTouchTime());
 			 segmentPath.add(toAdd);
+			 if(!iter.hasNext())
+			 	{
+				 segmentArrival=toAdd.getTouchTime();
+			 	}
 		 	}
+		 /*
+		 System.out.println(System.lineSeparator()+"MCSASEGMENT Printing mcsaSegment"+System.lineSeparator());
+		 Iterator<TimedPoint2D> titer = segmentPath.iterator();
+		 while(titer.hasNext())
+		 	{
+			 System.out.println(titer.next());
+		 	}
+		 System.out.println(System.lineSeparator()+"END MCSA SEGMENT"+System.lineSeparator());*/
+		 segmentDuration=segmentArrival-segmentDeparture;
 		}
 	
-	public McsaSegment(McsaConnection interConn,Transfer passenger) throws Exception
+	public long getSegmentDeparture() {
+		return segmentDeparture;
+	}
+
+	public long getSegmentArrival() {
+		return segmentArrival;
+	}
+
+	public McsaSegment(McsaConnection interConn,Transfer passenger,long time) throws Exception
 		{
 		 fromTransferID=interConn.getTransferID();
 		 toTransferID=interConn.getConnectedTo();
@@ -64,6 +96,7 @@ public class McsaSegment {
 		 handicap=passenger.isHandicap();
 		 luggage=passenger.isLuggage();
 		 smoke=passenger.isSmoke();
+		 segmentDeparture=time;
 		 GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyBA-NgbRwnecHN3cApbnZoaCZH0ld66fT4");
 		 DirectionsResult results=null;
 		 String from=""+interConn.getFirst_point().getLatitude()+","+interConn.getFirst_point().getLongitude()+"";
@@ -76,6 +109,9 @@ public class McsaSegment {
 		 req.destination(to);
 		 results=req.await();
 		 DirectionsRoute[] routes = results.routes;
+		 //DirectionsLeg lines=routes[0].legs[0];
+		 //DirectionsStep[] steps = lines.steps;
+		 //segmentArrival =segmentDeparture+(lines.duration.inSeconds*1000);
 		 EncodedPolyline poly = routes[0].overviewPolyline;
 		 List<LatLng> polyList = poly.decodePath();
 		 Iterator<LatLng> polIter = polyList.iterator();
@@ -83,6 +119,12 @@ public class McsaSegment {
 		 nf.setMaximumFractionDigits(5);    
 		 nf.setMinimumFractionDigits(5);
 		 nf.setGroupingUsed(false);
+		 LatLng firstLatLng =polIter.next();
+		 TimedPoint2D firstPoint= new TimedPoint2D();
+		 firstPoint.setLatitude(new Double(nf.format(firstLatLng.lat)));
+		 firstPoint.setLongitude(new Double(nf.format(firstLatLng.lng)));
+		 segmentPath.add(firstPoint);
+		 LatLng lastLatLng = null;
 		 while(polIter.hasNext())
 		 	{
 			 TimedPoint2D toAdd = new TimedPoint2D();
@@ -90,8 +132,49 @@ public class McsaSegment {
 			 toAdd.setLatitude(new Double(nf.format(actual.lat)));
 			 toAdd.setLongitude(new Double(nf.format(actual.lng)));
 			 segmentPath.add(toAdd);
+			 if(!polIter.hasNext())
+			 	{
+				 lastLatLng=actual;
+			 	}
 		 	}
+		 segmentArrival=segmentDeparture+(travelTime(evaluateDistance(firstLatLng,lastLatLng)));
+		 segmentDuration=segmentArrival-segmentDeparture;
 		}
+	
+	
+
+	private long travelTime(double distance)
+	{
+	 double meanSpeed = 1.39;
+	 double timeSeconds = distance/meanSpeed;
+	 double millitime =timeSeconds*1000;
+	 if(millitime<0) System.err.println("che e'successo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!?"+distance);
+	 return Math.round(millitime);
+	}
+	
+	private double evaluateDistance(LatLng previous,LatLng actual)
+	{
+	/*double dlon = pPoint.getLongitude()-dPoint.getLongitude();
+	double dlat = pPoint.getLatitude()-dPoint.getLatitude();
+	double a = Math.pow((Math.sin(dlat/2)),2) + Math.cos(dPoint.getLatitude());
+	
+			dlon = lon2 - lon1 
+			dlat = lat2 - lat1 
+			a = (sin(dlat/2))^2 + cos(lat1) * cos(lat2) * (sin(dlon/2))^2 
+			c = 2 * atan2( sqrt(a), sqrt(1-a) ) 
+			d = R * c (where R is the radius of the Earth)*/
+	GeodeticCalculator geoCalc = new GeodeticCalculator();
+
+	Ellipsoid reference = Ellipsoid.WGS84;  
+
+	GlobalPosition pointA = new GlobalPosition(previous.lat, previous.lng, 0.0); // Point A
+
+	GlobalPosition userPos = new GlobalPosition(actual.lat, actual.lng, 0.0); // Point B
+
+	double distance = geoCalc.calculateGeodeticCurve(reference, userPos, pointA).getEllipsoidalDistance(); // Distance between Point A and Point B
+	return distance;
+	}
+	
 
 	public int getFromTransferID() {
 		return fromTransferID;
@@ -103,6 +186,17 @@ public class McsaSegment {
 
 	public LinkedList<TimedPoint2D> getSegmentPath() {
 		return segmentPath;
+	}
+
+	public long getDepartureWaitTime() {
+		return departureWaitTime;
+	}
+
+	protected void setDepartureWaitTime(long departureWaitTime) {
+		this.departureWaitTime = departureWaitTime;
+	}
+	public long getSegmentDuration() {
+		return segmentDuration;
 	}
 
 	public boolean isAnimal() {
