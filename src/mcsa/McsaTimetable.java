@@ -417,7 +417,7 @@ public class McsaTimetable {
     	 
     	 ArrayList<McsaConnection> optimized = optimize(interList);
     	 
-    	/* Iterator<McsaConnection> connIter = connections.iterator();
+    	 Iterator<McsaConnection> connIter = connections.iterator();
     	 while(connIter.hasNext())
     	 	{
     		 System.out.println(connIter.next());
@@ -439,7 +439,7 @@ public class McsaTimetable {
 	     while(boh.hasNext())
 	     	{
 	    	 System.out.println(boh.next());
-	     	}*/
+	     	}
     	 
 	        
 	        
@@ -447,6 +447,7 @@ public class McsaTimetable {
 	        connections.addAll(srcDstList);
 	        
 	        connections.addAll(optimized);
+	        //connections.addAll(interList);
 	        System.out.println(System.lineSeparator()+"MCSATIMETABLE.JAVA arrival station index:"+destinationIndex);
 	        System.out.println("MCSATIMETABLE.JAVA connection list size: "+connections.size());
 	     

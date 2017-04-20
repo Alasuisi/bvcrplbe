@@ -1,6 +1,7 @@
 package mcsa;
 
 import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -48,7 +49,7 @@ public class McsaSegment {
 		 firstPoint.setLatitude(first.getFirst_point().getLatitude());
 		 firstPoint.setLongitude(first.getFirst_point().getLongitude());
 		 firstPoint.setTouchTime(first.getFirst_point().getTouchTime());
-		 segmentDeparture=firstPoint.getTouchTime();
+		 segmentArrival=firstPoint.getTouchTime(); ////era segmentDeparture
 		 segmentPath.add(firstPoint);
 		 int tranID = first.getTransferID();
 		 boolean[] sneeds = specialNeeds.get(new Integer(tranID));
@@ -56,6 +57,7 @@ public class McsaSegment {
 		 handicap=sneeds[1];
 		 luggage=sneeds[2];
 		 smoke=sneeds[3];
+		 
 		 while(iter.hasNext())
 		 	{
 			 McsaConnection conn = iter.next();
@@ -66,9 +68,11 @@ public class McsaSegment {
 			 segmentPath.add(toAdd);
 			 if(!iter.hasNext())
 			 	{
-				 segmentArrival=toAdd.getTouchTime();
+				 segmentDeparture=toAdd.getTouchTime(); //era segmentArrival
 			 	}
 		 	}
+		 Collections.reverse(segmentPath);
+		
 		 /*
 		 System.out.println(System.lineSeparator()+"MCSASEGMENT Printing mcsaSegment"+System.lineSeparator());
 		 Iterator<TimedPoint2D> titer = segmentPath.iterator();
@@ -96,11 +100,16 @@ public class McsaSegment {
 		 handicap=passenger.isHandicap();
 		 luggage=passenger.isLuggage();
 		 smoke=passenger.isSmoke();
-		 segmentDeparture=time;
-		 GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyBA-NgbRwnecHN3cApbnZoaCZH0ld66fT4");
+		 segmentDeparture=interConn.getDeparture_timestamp();
+		 segmentArrival=interConn.getArrival_timestamp();
+		 //segmentDeparture=time;
+		 String alternative="AIzaSyBt2BW_V8EvbbFp5t1Qh_U06-7lx3ZhsMI";
+		 String original="AIzaSyBA-NgbRwnecHN3cApbnZoaCZH0ld66fT4";
+		 GeoApiContext context = new GeoApiContext().setApiKey(alternative);
 		 DirectionsResult results=null;
 		 String from=""+interConn.getFirst_point().getLatitude()+","+interConn.getFirst_point().getLongitude()+"";
 		 String to= ""+interConn.getSecond_point().getLatitude()+","+interConn.getSecond_point().getLongitude()+"";
+		 System.out.println("MCSASEGMENT from: "+interConn.getFirst_point().toString()+" to: "+interConn.getSecond_point().toString());
 		 //results = DirectionsApi.getDirections(context, from, to).await();
 		 
 		 DirectionsApiRequest req=DirectionsApi.newRequest(context);
@@ -119,6 +128,7 @@ public class McsaSegment {
 		 nf.setMaximumFractionDigits(5);    
 		 nf.setMinimumFractionDigits(5);
 		 nf.setGroupingUsed(false);
+		 System.out.println("MCSASEGMENT polylist lenght:"+polyList.size());
 		 LatLng firstLatLng =polIter.next();
 		 TimedPoint2D firstPoint= new TimedPoint2D();
 		 firstPoint.setLatitude(new Double(nf.format(firstLatLng.lat)));
@@ -132,12 +142,13 @@ public class McsaSegment {
 			 toAdd.setLatitude(new Double(nf.format(actual.lat)));
 			 toAdd.setLongitude(new Double(nf.format(actual.lng)));
 			 segmentPath.add(toAdd);
-			 if(!polIter.hasNext())
-			 	{
-				 lastLatLng=actual;
-			 	}
+			 lastLatLng=actual;
 		 	}
-		 segmentArrival=segmentDeparture+(travelTime(evaluateDistance(firstLatLng,lastLatLng)));
+		/* if(polyList.size()==1)
+		 	{
+			 segmentArrival=segmentDeparture+(travelTime(evaluateDistance(firstLatLng,firstLatLng)));
+		 	}else segmentArrival=segmentDeparture+(travelTime(evaluateDistance(firstLatLng,lastLatLng)));
+		 */
 		 segmentDuration=segmentArrival-segmentDeparture;
 		}
 	
@@ -154,6 +165,7 @@ public class McsaSegment {
 	
 	private double evaluateDistance(LatLng previous,LatLng actual)
 	{
+		System.out.println("MCSASEGMENT evaluate distance input previousNull:"+(previous==null)+" actualNull:"+(actual==null));
 	/*double dlon = pPoint.getLongitude()-dPoint.getLongitude();
 	double dlat = pPoint.getLatitude()-dPoint.getLatitude();
 	double a = Math.pow((Math.sin(dlat/2)),2) + Math.cos(dPoint.getLatitude());

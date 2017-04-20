@@ -112,7 +112,7 @@ public class OfferTransferService {
 			long t4 = System.currentTimeMillis();
 			System.out.println("removing bad ones time: "+(t4-t3));
 			/////////SOLUTION TEST/////////
-			mcsa.printSolutions(Integer.MAX_VALUE);
+			//mcsa.printSolutions(Integer.MAX_VALUE);
 			System.out.println(System.lineSeparator());
 			/*McsaResult res = mcsa.getResults();
 			LinkedList<McsaSolution> solutions = res.getResults();

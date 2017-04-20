@@ -15,6 +15,7 @@ public class McsaSolution {
 	private int neededSeats=0;
 	private long arrivalTime=0;
 	private long totalWaitTime=0;
+	private long totalTripTime=0;
 	private boolean animal;
 	private boolean smoke;
 	private boolean luggage;
@@ -70,12 +71,14 @@ public class McsaSolution {
 				 changes++;
 				 if(!tempList.isEmpty())
 				 	{
+					 //Collections.reverse(tempList);/// un po random qeusta cosa
 					 McsaSegment segment2 = new McsaSegment(tempList,specialNeeds);
 					 solution.add(segment2);
 					 tempList = new LinkedList<McsaConnection>();
 					
 				 	}
 				 McsaSegment segment = new McsaSegment(temp,passenger,time);
+				 System.out.println("MCSASEGMENT called new segment depTime:"+departureTime+" time:"+time);
 				 solution.add(segment);
 			 	}else
 			 		{
@@ -100,13 +103,15 @@ public class McsaSolution {
 					 previous=temp;
 				 	}
 			 	}
-			 if(!iter.hasNext())
+			 /*if(!iter.hasNext())
 			 	{
 				 arrivalTime=temp.getArrival_timestamp();
-			 	}
+			 	}*/
 		 	}
+		 
 		 //Collections.reverse(resultList);
 		 path=resultList;
+		 Collections.reverse(solution);
 		 
 		 McsaSegment temp = null;
 		 Iterator<McsaSegment> segIter = solution.iterator();
@@ -122,9 +127,11 @@ public class McsaSolution {
 			 		 totalWaitTime=totalWaitTime+tempWaiting;
 			 		 toRead.setDepartureWaitTime(tempWaiting);
 			 		 temp=toRead;
+			 		 if(!segIter.hasNext()) arrivalTime=toRead.getSegmentArrival();
 			 		}
 		 	}
-		 System.out.println(System.lineSeparator());
+		 
+		 totalTripTime=arrivalTime-departureTime;
 		 //Collections.reverse(solution);
 		}
 
@@ -155,6 +162,10 @@ public class McsaSolution {
 	public LinkedList<McsaSegment> getSolution() {
 		//Collections.reverse(solution);
 		return solution;
+	}
+
+	public long getTotalTripTime() {
+		return totalTripTime;
 	}
 
 	public boolean isAnimal() {
