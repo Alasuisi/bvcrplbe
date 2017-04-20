@@ -23,6 +23,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import bvcrplbe.domain.Passenger;
+import bvcrplbe.domain.Pool;
 import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
 import bvcrplbe.domain.UserProfile;
@@ -258,6 +260,39 @@ public class OfferTransferService {
 			}
 			//return Response.status(Status.OK).entity("da mettere").build();
 		  
+	  	}
+	  @Path("/pool/{poolid}")
+	  @GET
+	  @Produces(MediaType.APPLICATION_JSON)
+	  public Response getPool(@PathParam("poolid") int poolid)
+	  	{
+		  TimedPoint2D a = new TimedPoint2D(33.234,55.324234,1234124312);
+		  TimedPoint2D s = new TimedPoint2D(33.234,55.324234,1234124312);
+		  TimedPoint2D d = new TimedPoint2D(33.234,55.324234,1234124312);
+		  TimedPoint2D f = new TimedPoint2D(33.234,55.324234,1234124312);
+		  LinkedList<TimedPoint2D> path = new LinkedList<TimedPoint2D>();
+		  path.add(a);
+		  path.add(s);
+		  path.add(d);
+		  path.add(f);
+		  Passenger q = new Passenger(100, a, d);
+		  Passenger w = new Passenger(123, s, d);
+		  Passenger e = new Passenger(145, s, f);
+		  LinkedList<Passenger> passengers = new LinkedList<Passenger>();
+		  passengers.add(q);
+		  passengers.add(w);
+		  passengers.add(e);
+		  Pool pool = new Pool(23, 89, path, passengers);
+		  ObjectMapper mapper = new ObjectMapper();
+		  String responseString=null;
+		  try {
+			responseString = mapper.writeValueAsString(pool);
+		} catch (JsonProcessingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		  
+		  return Response.status(Status.OK).entity(responseString).build();
 	  	}
 	  
 	  /*

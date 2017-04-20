@@ -13,9 +13,11 @@ public class McsaResult {
  public McsaResult(LinkedList<LinkedList<McsaConnection>> resList,long departureTime,HashMap<Integer,boolean[]> specialNeeds,Transfer passenger) throws Exception
  	{
 	  Iterator<LinkedList<McsaConnection>> iter = resList.iterator();
+	  int counter=0;
 	  while(iter.hasNext())
 	  	{
-		  McsaSolution thisSol = new McsaSolution(iter.next(),departureTime,specialNeeds,passenger);
+		  McsaSolution thisSol = new McsaSolution(iter.next(),departureTime,specialNeeds,passenger,counter);
+		  counter++;
 		  results.add(thisSol);
 	  	}
  	}

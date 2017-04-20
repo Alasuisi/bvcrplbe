@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import bvcrplbe.domain.Transfer;
 
 public class McsaSolution {
+	private int solutionID;
 	private int changes=0;
 	private int neededSeats=0;
 	private long arrivalTime=0;
@@ -26,8 +27,9 @@ public class McsaSolution {
 	
 	
 	
-	public McsaSolution(LinkedList<McsaConnection> resultList,long departureTime,HashMap<Integer,boolean[]> specialNeeds,Transfer passenger) throws Exception
+	public McsaSolution(LinkedList<McsaConnection> resultList,long departureTime,HashMap<Integer,boolean[]> specialNeeds,Transfer passenger,int solID) throws Exception
 		{
+		 solutionID=solID;
 		 long time =departureTime;
 		 /*
 		 animal=passenger.isAnimal();
@@ -166,6 +168,10 @@ public class McsaSolution {
 
 	public long getTotalTripTime() {
 		return totalTripTime;
+	}
+
+	public int getSolutionID() {
+		return solutionID;
 	}
 
 	public boolean isAnimal() {

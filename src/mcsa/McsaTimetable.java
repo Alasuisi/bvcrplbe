@@ -362,8 +362,12 @@ public class McsaTimetable {
     				 pathPoint.setLatitude(thisCon.getFirst_point().getLatitude());
     				 pathPoint.setLongitude(thisCon.getFirst_point().getLongitude());
     				 pathPoint.setTouchTime(thisCon.getFirst_point().getTouchTime());
-    				 passArr.setTouchTime(desTo1time);
-    				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getDeparture_station(),destinationIndex,thisCon.getTransferID());
+    				 TimedPoint2D destPoint= new TimedPoint2D();
+    				 destPoint.setLatitude(passenger.getArr_gps().getX());
+    				 destPoint.setLongitude(passenger.getArr_gps().getY());
+    				 destPoint.setTouchTime(desTo1time);
+    				 //passArr.setTouchTime(desTo1time);
+    				 McsaConnection toAdd = new McsaConnection(pathPoint,destPoint,thisCon.getDeparture_station(),destinationIndex,thisCon.getTransferID());
     				 toAdd.setConnectedTo(passenger.getTran_id());
     				 srcDstList.add(toAdd);
     			 	}
@@ -374,8 +378,9 @@ public class McsaTimetable {
     				 pathPoint.setLatitude(thisCon.getSecond_point().getLatitude());
     				 pathPoint.setLongitude(thisCon.getSecond_point().getLongitude());
     				 pathPoint.setTouchTime(thisCon.getSecond_point().getTouchTime());
-    				 passArr.setTouchTime(desTo2time);
-    				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getArrival_station(),destinationIndex,thisCon.getTransferID());
+    				 TimedPoint2D destPoint = new TimedPoint2D(passenger.getArr_gps().getX(),passenger.getArr_gps().getY(),desTo2time);
+    				 //passArr.setTouchTime(desTo2time);
+    				 McsaConnection toAdd = new McsaConnection(pathPoint,destPoint,thisCon.getArrival_station(),destinationIndex,thisCon.getTransferID());
     				 toAdd.setConnectedTo(passenger.getTran_id());
     				 srcDstList.add(toAdd);
     			 	}
@@ -407,8 +412,9 @@ public class McsaTimetable {
     		 			 pathPoint.setLatitude(thisCon.getSecond_point().getLatitude());
     		 			 pathPoint.setLongitude(thisCon.getSecond_point().getLongitude());
     		 			 pathPoint.setTouchTime(thisCon.getSecond_point().getTouchTime());
-	     				 passArr.setTouchTime(desTo2time);
-	     				 McsaConnection toAdd = new McsaConnection(pathPoint,passArr,thisCon.getArrival_station(),destinationIndex,thisCon.getTransferID());
+    		 			 TimedPoint2D destPoint = new TimedPoint2D(passenger.getArr_gps().getX(),passenger.getArr_gps().getY(),desTo2time);
+	     				 //passArr.setTouchTime(desTo2time);
+	     				 McsaConnection toAdd = new McsaConnection(pathPoint,destPoint,thisCon.getArrival_station(),destinationIndex,thisCon.getTransferID());
 	     				 toAdd.setConnectedTo(passenger.getTran_id());
 	     				 srcDstList.add(toAdd);
 	     			 	}
