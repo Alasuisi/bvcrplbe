@@ -28,6 +28,7 @@ import bvcrplbe.domain.Pool;
 import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
 import bvcrplbe.domain.UserProfile;
+import bvcrplbe.persistence.McsaSolutionDAO;
 import bvcrplbe.persistence.TransferDAO;
 import bvcrplbe.persistence.UserProfileDAO;
 import csa.CSA;
@@ -133,6 +134,7 @@ public class OfferTransferService {
 				}*/
 			McsaResult res = mcsa.getResults();
 			LinkedList<McsaSolution> solutions = res.getResults();
+			McsaSolutionDAO.saveSolutions(solutions, 118);
 			System.out.println(System.lineSeparator()+" TESTING THE NEW SOLUTION OBJECT ");
 			Iterator<McsaSolution> iter2 =solutions.iterator();
 			while(iter2.hasNext())
