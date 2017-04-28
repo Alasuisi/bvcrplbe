@@ -31,6 +31,7 @@ import com.google.gson.JsonParser;
 import com.google.maps.model.LatLng;
 
 import bvcrplbe.ConnectionManager;
+import bvcrplbe.DaoException;
 import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
 import bvcrplbe.domain.UserProfile;
@@ -251,6 +252,127 @@ public class TransferDAO implements Serializable{
 				
 				}
 			return result;
+			}
+		
+		private static String READ_MY_TRANSFER_REQUEST = "SELECT * FROM transfer WHERE \"User_Role\" = '{\"role\":\"passenger\"}' AND \"User_ID\" = ? AND \"Transfer_ID\" = ? ";
+		public static Transfer getMySearchRequest(int userId, int transferID) throws SQLException, DaoException, JSONException, IOException
+			{
+			Connection con=null;
+			PreparedStatement pstm=null;
+			ResultSet rs=null;
+			Transfer result=null;
+			ConnectionManager manager = new ConnectionManager();
+			con=manager.connect();
+			pstm=con.prepareStatement(READ_MY_TRANSFER_REQUEST);
+			pstm.setInt(1, userId);
+			pstm.setInt(2, transferID);
+			rs=pstm.executeQuery();
+			if(rs.isBeforeFirst())
+				{
+				rs.next();
+				result= new Transfer();
+				result.setTran_id(rs.getInt(1));
+				 result.setUser_id(rs.getInt(2));
+				 result.setProf_id(rs.getInt(3));
+				 result.setClass_id(rs.getShort(4));
+				 result.setReser_id(rs.getInt(5));
+				 result.setPool_id(rs.getInt(6));
+				 JSONObject roleJson = new JSONObject(rs.getString(7));
+				 result.setUser_role(roleJson.getString("role"));
+				 result.setDep_addr(rs.getString(8));
+				 result.setArr_addr(rs.getString(9));
+				 PGpoint depGps = new PGpoint(rs.getString(10));
+				 Point2D.Double depPoint = new Point2D.Double(depGps.x, depGps.y);
+				 result.setDep_gps(depPoint);
+				 PGpoint arrGps = new PGpoint(rs.getString(11));
+				 Point2D.Double arrPoint = new Point2D.Double(arrGps.x, arrGps.y);
+				 result.setArr_gps(arrPoint);
+				 Timestamp depTimestamp = rs.getTimestamp(12);
+				 result.setDep_time(depTimestamp.getTime());
+				 result.setType(rs.getString(13));
+				 result.setOcc_seats(rs.getInt(14));
+				 result.setAva_seats(rs.getInt(15));
+				 result.setAnimal(rs.getBoolean(16));
+				 result.setHandicap(rs.getBoolean(17));
+				 result.setSmoke(rs.getBoolean(18));
+				 result.setLuggage(rs.getBoolean(19));
+				 result.setStatus(rs.getString(20));
+				 result.setPrice(rs.getDouble(21));
+				 
+				 String pathString =rs.getString(22);
+				 ObjectMapper mapper = new ObjectMapper();
+				 LinkedList<TimedPoint2D> pathFromJson =mapper.readValue(pathString, new TypeReference<LinkedList<TimedPoint2D>>() {});
+				 
+				 result.setPath(pathFromJson);
+				 result.setDet_range(rs.getDouble(23));
+				 result.setRide_details(rs.getString(24));
+				}else throw new DaoException("No result, the combination of userid and tranferid is not associated to any ride request in the database");
+			 return result;
+			}
+		
+		private static String READ_ALL_OFFERINGS= " SELECT * FROM transfer WHERE \"User_Role\"= '{\"role\":\"driver\"}' AND \"Transfer_ID\">130";
+		public static LinkedList<Transfer> readAllOfferings() throws SQLException, JSONException, IOException
+			{
+			Connection con=null;
+			PreparedStatement pstm=null;
+			ResultSet rs=null;
+			LinkedList<Transfer> result=null;
+			ConnectionManager manager = new ConnectionManager();
+			con=manager.connect();
+			pstm=con.prepareStatement(READ_ALL_OFFERINGS);
+			rs=pstm.executeQuery();
+			if(rs.isBeforeFirst())
+				{
+				rs.next();
+				result=new LinkedList<Transfer>();
+				while(!rs.isAfterLast())
+					{
+					Transfer toAdd = new Transfer();
+					 toAdd.setTran_id(rs.getInt(1));
+					 toAdd.setUser_id(rs.getInt(2));
+					 toAdd.setProf_id(rs.getInt(3));
+					 toAdd.setClass_id(rs.getShort(4));
+					 toAdd.setReser_id(rs.getInt(5));
+					 toAdd.setPool_id(rs.getInt(6));
+					 JSONObject roleJson = new JSONObject(rs.getString(7));
+					 toAdd.setUser_role(roleJson.getString("role"));
+					 toAdd.setDep_addr(rs.getString(8));
+					 toAdd.setArr_addr(rs.getString(9));
+					 PGpoint depGps = new PGpoint(rs.getString(10));
+					 Point2D.Double depPoint = new Point2D.Double(depGps.x, depGps.y);
+					 toAdd.setDep_gps(depPoint);
+					 PGpoint arrGps = new PGpoint(rs.getString(11));
+					 Point2D.Double arrPoint = new Point2D.Double(arrGps.x, arrGps.y);
+					 toAdd.setArr_gps(arrPoint);
+					 Timestamp depTimestamp = rs.getTimestamp(12);
+					 toAdd.setDep_time(depTimestamp.getTime());
+					 toAdd.setType(rs.getString(13));
+					 toAdd.setOcc_seats(rs.getInt(14));
+					 toAdd.setAva_seats(rs.getInt(15));
+					 toAdd.setAnimal(rs.getBoolean(16));
+					 toAdd.setHandicap(rs.getBoolean(17));
+					 toAdd.setSmoke(rs.getBoolean(18));
+					 toAdd.setLuggage(rs.getBoolean(19));
+					 toAdd.setStatus(rs.getString(20));
+					 toAdd.setPrice(rs.getDouble(21));
+					 
+					 String pathString =rs.getString(22);
+					 ObjectMapper mapper = new ObjectMapper();
+					 LinkedList<TimedPoint2D> pathFromJson =mapper.readValue(pathString, new TypeReference<LinkedList<TimedPoint2D>>() {});
+					 
+					 toAdd.setPath(pathFromJson);
+					 toAdd.setDet_range(rs.getDouble(23));
+					 toAdd.setRide_details(rs.getString(24));
+					 result.add(toAdd);
+					 rs.next();
+					}
+				if(rs!=null) rs.close();
+				if(pstm!=null) pstm.close();
+				if(con!=null) con.close();
+				}
+			manager=null;
+			return result;
+			
 			}
 		
 		//private static String READ_TRANSFERS_IN_RANGE= "SELECT * FROM transfer WHERE \"Departure_GPS\"[0]>=? AND \"Departure_GPS\"[1]>=? AND \"Arrival_GPS\"[0]<=? AND \"Arrival_GPS\"[1]<=?";

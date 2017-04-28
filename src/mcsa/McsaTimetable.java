@@ -422,7 +422,7 @@ public class McsaTimetable {
     	 	}
     	 
     	 ArrayList<McsaConnection> optimized = optimize(interList);
-    	 
+    	 /*
     	 Iterator<McsaConnection> connIter = connections.iterator();
     	 while(connIter.hasNext())
     	 	{
@@ -445,7 +445,7 @@ public class McsaTimetable {
 	     while(boh.hasNext())
 	     	{
 	    	 System.out.println(boh.next());
-	     	}
+	     	}*/
     	 
 	        
 	        
