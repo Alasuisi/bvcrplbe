@@ -1,9 +1,13 @@
 package mcsa;
 
 import java.io.BufferedReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Stack;
 
 import bvcrplbe.domain.Transfer;
 
@@ -78,6 +82,16 @@ public class MCSA {
 		 this.departureTime=departureTime;
 		 doMCSA(timetable.getDestinationIndex(),0,departureTime,Long.MAX_VALUE,new LinkedList<McsaConnection>());
 		}
+	/*public void computeMCSA(int destinationStation,int departureStation,long departureTime)
+	{
+	 this.departureTime=departureTime;
+	 doMCSA(destinationStation,departureStation,departureTime,Long.MAX_VALUE,new ArrayList<int[]>());
+	}
+	public void computeMCSA(long departureTime)
+	{
+	 this.departureTime=departureTime;
+	 doMCSA(timetable.getDestinationIndex(),0,departureTime,Long.MAX_VALUE,new ArrayList<int[]>());
+	}*/
 
 	/* This is the real Multi Connection Scan Algorithm and is structured in such a way that,
 	 * if a station is reachable by multiple other stations, then every possible branch gets
@@ -111,6 +125,8 @@ public class MCSA {
 							LinkedList<McsaConnection> copyRes=deepCopy(tempRes);
 							copyRes.add(toAdd);
 							result.add(copyRes);
+							tempRes=null;
+							return;
 							}else return; 
 						}else if(toAdd.arrival_timestamp<=next_ts)
 							{
@@ -123,6 +139,240 @@ public class MCSA {
 					}
 			}
 	}
+	public void removeDeadEnds(HashSet<Integer> emptySet)
+		{
+		 int emptyCount=emptySet.size();
+		 Iterator<Integer> empIter = emptySet.iterator();
+		 while(empIter.hasNext())
+		 	{
+			 int badStation = empIter.next().intValue();
+			 System.out.println(badStation);
+		 	}
+		 
+		 for(int i=1;i<connection_list.length;i++)
+		 	{
+			 Iterator<McsaConnection> connIter = connection_list[i].iterator();
+			 LinkedList<McsaConnection> cleaned = new LinkedList<McsaConnection>();
+			 while(connIter.hasNext())
+			 	{
+				 McsaConnection thisCon =connIter.next();
+				 if(!emptySet.contains(new Integer(thisCon.getDeparture_station())))
+				 	{
+					 cleaned.add(thisCon);
+				 	}
+			 	}
+			 if(cleaned.size()==0) emptySet.add(new Integer(i));
+			 connection_list[i]=cleaned;
+		 	}
+		 if(emptySet.size()!=emptyCount) 
+		 	{
+			 System.out.println("Calling egain removeDeadEnds");
+			 removeDeadEnds(emptySet);
+		 	}else System.out.print("Finished removing dead ends");
+		 
+		}
+	
+	
+	public void McsaIterative(long source_dt)
+		{
+		System.out.println("connection list lenght: "+connection_list.length);
+		for(int i=0;i<connection_list.length;i++)
+			{
+			 System.out.println("station number "+i+" has "+connection_list[i].size()+" outgoing connection");
+			 Iterator<McsaConnection> conIter = connection_list[i].iterator();
+			 while(conIter.hasNext())
+			 	{
+				 McsaConnection con = conIter.next();
+				 System.out.println("   "+con.getDeparture_station()+"  "+con.getArrival_station());
+			 	}
+			}
+		 int dest_station=timetable.getDestinationIndex();
+		 int source_station=timetable.getSourceIndex();
+		 LinkedList<McsaConnection> temp= new LinkedList<McsaConnection>();
+		 int[] visitStatus = new int[connection_list.length];
+		 int[] endVisit = new int[connection_list.length];
+		 HashSet<Integer> emptySet= new HashSet<Integer>();
+		 String endString="endVisit   [ ";
+		 for(int i=0;i<visitStatus.length;i++)
+		 	{
+			 visitStatus[i]=0;
+			 endVisit[i]=(connection_list[i].size());
+			 if(endVisit[i]==0 && i!=source_station) emptySet.add(new Integer(i));
+			 endString=endString+endVisit[i]+" , ";
+		 	}
+		 endString=endString+"]";
+		 removeDeadEnds(emptySet);
+		 /////printing again cleaned connection list
+		 System.out.println(System.lineSeparator()+"Printing cleaned connection list");
+		 for(int i=0;i<connection_list.length;i++)
+			{
+			 System.out.println("station number "+i+" has "+connection_list[i].size()+" outgoing connection");
+			 Iterator<McsaConnection> conIter = connection_list[i].iterator();
+			 while(conIter.hasNext())
+			 	{
+				 McsaConnection con = conIter.next();
+				 System.out.println("   "+con.getDeparture_station()+"  "+con.getArrival_station());
+			 	}
+			}
+		 ///////////////////////////////////////////
+		 
+		 
+		 int visiting = dest_station;
+		// int previous=0;
+		 Stack<Integer> visitList = new Stack<Integer>();
+		 while(visiting != source_station)
+		 	{
+			 System.out.println("cazzo di size: "+connection_list[visiting].size());
+			 if(connection_list[visiting].size()!=0 && visitStatus[visiting]<endVisit[visiting]) ///errore messo apposta qui
+				 {
+					 McsaConnection con = connection_list[visiting].get(visitStatus[visiting]);
+					 visitList.push(new Integer(visiting));
+					 System.out.println("con is null: "+con==null);
+					// previous=con.getArrival_station();
+					 visiting=con.getDeparture_station();
+					 System.out.println(con.toString());
+					 System.out.println("next visit "+visiting);
+					 temp.add(con);
+				 }else 
+				 	{
+					 System.out.println("uguali? "+Arrays.equals(visitStatus, endVisit));
+					 if(!Arrays.equals(visitStatus, endVisit)){
+						 System.out.println("Punto morto, aumento un cazzo di indice");
+						 temp = new LinkedList<McsaConnection>();
+						 boolean branchPointFound=false;
+						 while(!branchPointFound)
+						 	{
+							 int index=visitList.pop().intValue();
+							 if(visitStatus[index]!=endVisit[index])
+							 	{
+								 visitStatus[index]++;
+								 visiting=dest_station;
+								 branchPointFound=true;
+							 	}
+						 	}
+						 String begin="visitStatus[ ";
+						 for(int i=0;i<visitStatus.length;i++)
+						 	{
+							 begin=begin+visitStatus[i]+" , ";
+						 	}
+						 begin=begin+"]";
+						 System.out.println(endString);
+						 System.out.println(begin);
+						// visitStatus[previous]++;
+						 //visiting=previous;
+					 }else
+					 	{
+						 System.out.println("Soluzione ad cazzum2 "+System.lineSeparator());
+						 Iterator<McsaConnection> test = temp.iterator();
+						 while(test.hasNext())
+						 	{
+							 System.out.println(test.next().toString());
+						 	}
+					 	}
+				 	}
+		 	}
+		 System.out.println("Soluzione ad cazzum "+System.lineSeparator());
+		 Iterator<McsaConnection> test = temp.iterator();
+		 McsaConnection first = test.next();
+		 System.out.println(first.getFirst_point().getLatitude()+","+first.getFirst_point().getLongitude());
+		 System.out.println(first.getSecond_point().getLatitude()+","+first.getSecond_point().getLongitude());
+		 while(test.hasNext())
+		 	{
+			 McsaConnection toPrint = test.next();
+			 System.out.println(toPrint.getSecond_point().getLatitude()+","+toPrint.getSecond_point().getLongitude());
+		 	}
+		 /*int visiting=dest_station;
+		   do
+		 	{
+			 int visiting2 =dest_station;
+			 do
+			 	{
+				 if(visiting2!=-1)
+				 	{
+					 System.out.println("cazzo di size: "+connection_list[visiting2].size());
+					 McsaConnection con = connection_list[visiting2].get(visitStatus[visiting2]);
+					 System.out.println("con is null: "+con==null);
+					 //inserire qui le condizioni per l'inserimento
+					 temp.add(con);
+					 visiting2=con.getDeparture_station();
+					 System.out.println(con.toString());
+					 System.out.println("next visit "+visiting2);
+				 	}else System.out.println("PORCAMADONNAAAAAAAAAAAAAAAAAAAAAAAAAAAAH");
+			 	}while(visiting2==source_station || visiting2==-1);
+			 System.out.println("in the end visitn2="+visiting2+" and source="+source_station);
+		 	}
+		 	while(visitStatus!=endVisit);*/
+		 	
+		}
+	
+	/*ArrayList<ArrayList<int[]>> solIndexes = new ArrayList<ArrayList<int[]>>();
+	private void doMCSA(int dest_station,int source_station,long source_dt,long next_ts,ArrayList<int[]> tempRes)
+	{
+		if(connection_list[dest_station].isEmpty()) return;
+		else
+			{
+				//System.out.println("Connection list not empty");
+				Iterator<McsaConnection> iter = connection_list[dest_station].iterator();
+				//System.out.println("iterating over destination station n°:"+dest_station+" of size: "+connection_list[dest_station].size());
+				int listIndex=0;
+				while(iter.hasNext())
+					{
+					McsaConnection toAdd=iter.next();
+					if(toAdd.departure_station==source_station)
+						{
+						if(toAdd.arrival_timestamp<=next_ts)
+							{
+							int[] conIndex = new int[2];
+							conIndex[0]=dest_station;
+							conIndex[1]=listIndex;
+							ArrayList<int[]> copyRes = new ArrayList<int[]>();
+							Iterator<int[]> tempIter = tempRes.iterator();
+							while(tempIter.hasNext())
+								{
+								 int[] toRead = tempIter.next();
+								 int[] toCopy = new int[2];
+								 toCopy[0]=toRead[0];
+								 toCopy[1]=toRead[1];
+								 copyRes.add(toCopy);
+								}
+							copyRes.add(conIndex);
+							solIndexes.add(copyRes);
+							listIndex++;
+							//System.out.println("departure station = source");
+							//LinkedList<McsaConnection> copyRes=deepCopy(tempRes);
+							//copyRes.add(toAdd);
+							//result.add(copyRes);
+							//tempRes=null;
+							//return;
+							}else return; 
+						}else if(toAdd.arrival_timestamp<=next_ts)
+							{
+							int[] conIndex = new int[2];
+							conIndex[0]=dest_station;
+							conIndex[1]=listIndex;
+							ArrayList<int[]> copyRes = new ArrayList<int[]>();
+							Iterator<int[]> tempIter = tempRes.iterator();
+							while(tempIter.hasNext())
+								{
+								int[] toRead = tempIter.next();
+								int[] toCopy = new int[2];
+								toCopy[0]=toRead[0];
+								toCopy[1]=toRead[1];
+								copyRes.add(toCopy);
+								}
+							copyRes.add(conIndex);
+							//System.out.println("Not to the source, addding connection to temporary solution and piggodding");
+							//LinkedList<McsaConnection> copyRes=deepCopy(tempRes);
+							//System.out.print("Copied temporary list");
+							//copyRes.add(toAdd);
+							doMCSA(toAdd.departure_station,source_station,source_dt,toAdd.departure_timestamp,copyRes);
+							listIndex++;
+							}else return;
+					}
+			}
+	}*/
+	
+	
 	public void removeBadOnes()
 		{
 		boolean changedTransfer=false;
@@ -241,4 +491,28 @@ public class MCSA {
 				}
 			return res;
 		}
+	
+	/*public McsaResult getResults() throws Exception
+		{
+		 Iterator<ArrayList<int[]>> indexIter = solIndexes.iterator();
+		 while(indexIter.hasNext())
+		 	{
+			 ArrayList<int[]> thisSolIndexes = indexIter.next();
+			 LinkedList<McsaConnection> conList = new LinkedList<McsaConnection>();
+			 Iterator<int[]> indexes = thisSolIndexes.iterator();
+			 while(indexes.hasNext())
+			 	{
+				 int[] thisIndex = indexes.next();
+				 McsaConnection conn = connection_list[thisIndex[0]].get(thisIndex[1]);
+				 conList.add(conn);
+			 	}
+			 result.add(conList);
+		 	}
+		 McsaResult res = null;
+			if(result!=null)
+				{
+				 res = new McsaResult(result,this.departureTime,timetable.getSpecialNeeds(),timetable.getPassengerTransfer());
+				}
+			return res;
+		}*/
 }

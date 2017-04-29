@@ -75,31 +75,32 @@ public class SearchTransferService {
 		 System.out.println(passenger.toString());
 		 
 		 MCSA mcsa = new MCSA(drivers,passenger);
-		 mcsa.computeMCSA(passenger.getDep_time());
-		 mcsa.removeBadOnes();
+		 mcsa.McsaIterative(passenger.getDep_time());
+		// mcsa.computeMCSA(passenger.getDep_time());
+		 //mcsa.removeBadOnes();
 		 McsaResult result=null;
 		 try {
-			result = mcsa.getResults();
+			//result = mcsa.getResults();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Multipath Connection Scan Algorithm: FAIL"+System.lineSeparator()+e.getMessage()).build();
 		}
 		 LinkedList<McsaSolution> solutionList = result.getResults();
-		 try {
-			McsaSolutionDAO.saveSolutions(solutionList, passenger.getTran_id());
+		 //try {
+			//McsaSolutionDAO.saveSolutions(solutionList, passenger.getTran_id());
 			Iterator<McsaSolution> iter = solutionList.iterator();
 			while(iter.hasNext())
 				{
 				 System.out.println(iter.next().toString());
 				}
 			
-		} catch (JsonProcessingException e) {
+		/*} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Parser error:"+System.lineSeparator()+e.getMessage()).build();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("SQL error:"+System.lineSeparator()+e.getMessage()+System.lineSeparator()+e.getSQLState()).build();
-		}
+		}*/
 		 String responseString=null;
 		 try {
 			responseString = mapper.writeValueAsString(solutionList);
