@@ -173,6 +173,9 @@ public class MCSA {
 		}
 	
 	
+	
+	
+	
 	public void McsaIterative(long source_dt)
 		{
 		System.out.println("connection list lenght: "+connection_list.length);
@@ -223,8 +226,9 @@ public class MCSA {
 		// int previous=0;
 		 Stack<Integer> visitList = new Stack<Integer>();
 		// while(!Arrays.equals(visitStatus, endVisit))
-		 int count=1000;
-		 while(count!=0)
+		 int count=100;
+		 System.out.println("total visit dest station="+totalVisit[dest_station]+" endvisit dest station="+endVisit[dest_station]);
+		 while(totalVisit[dest_station]!=endVisit[dest_station])
 		 	{
 			 System.out.println("nuova ricerca soluzione, partendo dalla stazione "+visiting);
 			 while(visiting != source_station)
@@ -232,7 +236,7 @@ public class MCSA {
 				 System.out.println("cazzo di size: "+connection_list[visiting].size());
 				 if(connection_list[visiting].size()!=0)
 				 	{
-					 if(visitStatus[visiting]<=endVisit[visiting]) ///aggiunto -1 qui
+					 if(visitStatus[visiting]<endVisit[visiting]) ///aggiunto -1 qui, tolto =
 					 {
 						 System.out.println("visitSatus[visiting]="+visitStatus[visiting]+" endVisit[visiting]="+endVisit[visiting]+" visiting="+visiting);
 						 McsaConnection con = connection_list[visiting].get(visitStatus[visiting]);
@@ -281,7 +285,7 @@ public class MCSA {
 			 while(!done)
 			 	{
 				 int index = visitList.peek();
-				 if(visitStatus[index]==endVisit[index]) //c'era -1 qui
+				 if(visitStatus[index]==endVisit[index]-1) //c'era -1 qui
 				 	{
 					 leftIndexes.add(new Integer(index));
 					 visitList.pop();
@@ -301,7 +305,7 @@ public class MCSA {
 				 visitStatus[resetIndex]=0;
 				 System.out.println("resetting index="+resetIndex);
 			 	}
-			
+			 visiting=dest_station;
 			 /////////////////////////////////////////////////////
 			 /*
 			 while(!visitList.isEmpty())
@@ -351,6 +355,10 @@ public class MCSA {
 				 System.out.println(toPrint.getArrival_station()+"     "+toPrint.getSecond_point().getLatitude()+","+toPrint.getSecond_point().getLongitude());
 			 	}
 			 count--;
+			 LinkedList<McsaConnection> solution = deepCopywCheck(temp);
+			 if(solution!=null)result.add(solution);
+			 System.out.println(result.size());
+			 temp=new LinkedList<McsaConnection>();
 		 	}
 		 
 		 /*int visiting=dest_station;
@@ -374,7 +382,7 @@ public class MCSA {
 			 System.out.println("in the end visitn2="+visiting2+" and source="+source_station);
 		 	}
 		 	while(visitStatus!=endVisit);*/
-		 	
+		 	System.out.println("final result list size= "+result.size());
 		}
 	
 	/*ArrayList<ArrayList<int[]>> solIndexes = new ArrayList<ArrayList<int[]>>();
@@ -522,6 +530,27 @@ public class MCSA {
 		return copied;
 	}
 	
+	private static LinkedList<McsaConnection> deepCopywCheck(LinkedList<McsaConnection> listToCopy)
+	{
+		LinkedList<McsaConnection> copied=new LinkedList<McsaConnection>();
+		Iterator<McsaConnection> copIter = listToCopy.iterator();
+		McsaConnection previous=null;
+		while(copIter.hasNext())
+			{
+			 McsaConnection conToCopy=copIter.next();
+			 if(previous!=null)
+			 	{
+				 if(previous.getDeparture_timestamp()<conToCopy.getArrival_timestamp()) return null;
+			 	}
+			 McsaConnection copiedCon =new McsaConnection(conToCopy.getFirst_point(),conToCopy.getSecond_point(),conToCopy.getDeparture_station(),conToCopy.getArrival_station(),conToCopy.getTransferID());
+			 copiedCon.setConnectedTo(conToCopy.getConnectedTo());
+			 copied.add(copiedCon);
+			 previous=copiedCon;
+			 System.out.println("deepcopycheck arr"+copiedCon.getArrival_station()+" dep"+copiedCon.getDeparture_station()+ " arr_ts "+copiedCon.getArrival_timestamp()+" dep_ts "+copiedCon.getDeparture_timestamp());
+			}
+		return copied;
+	}
+	
 	/* Initialize support structures and populate the connection list with the elements
 	 * of the timetable; connection_list is an array, where every element of the array
 	 * is a variable length list of connections, a cell in position i of the array, encodes
@@ -556,11 +585,12 @@ public class MCSA {
 	
 	public McsaResult getResults() throws Exception
 		{
+		System.out.println("calling getResults");
 			McsaResult res = null;
 			if(result!=null)
 				{
 				 res = new McsaResult(result,this.departureTime,timetable.getSpecialNeeds(),timetable.getPassengerTransfer());
-				}
+				}else System.out.println("WHAAAAAAAAAAAAAAAAAT?!?! result is null");
 			return res;
 		}
 	
