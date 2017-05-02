@@ -59,6 +59,7 @@ public class McsaTimetable {
     			 	}
     		 	}
     		 index++;
+    		 departure=null; ///aggiunta questa correzione
     	 	}
     	 destinationIndex=index;
     	 

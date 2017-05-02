@@ -328,7 +328,7 @@ public class MCSA {
 			 	{
 				 int resetIndex = leftIndexes.removeFirst();
 				 visitStatus[resetIndex]=0;
-				 System.out.println("resetting index="+resetIndex);
+				 //System.out.println("resetting index="+resetIndex);
 			 	}
 			 visiting=dest_station;
 			 /////////////////////////////////////////////////////
@@ -373,14 +373,14 @@ public class MCSA {
 			 Iterator<McsaConnection> test = temp.iterator();
 			 McsaConnection first = test.next();
 			 //System.out.println(first.getDeparture_station()+"      "+first.getFirst_point().getLatitude()+","+first.getFirst_point().getLongitude());
-			 System.out.println(first.getSecond_point().getLatitude()+","+first.getSecond_point().getLongitude());
+			 System.out.println(first.getDeparture_station()+" "+first.getArrival_station()+"  "+first.getSecond_point().getLatitude()+","+first.getSecond_point().getLongitude());
 			 while(test.hasNext())
 			 	{
 				 McsaConnection toPrint = test.next();
-				 System.out.println(toPrint.getSecond_point().getLatitude()+","+toPrint.getSecond_point().getLongitude());
+				 System.out.println(toPrint.getDeparture_station()+" "+toPrint.getArrival_station()+"   "+toPrint.getSecond_point().getLatitude()+","+toPrint.getSecond_point().getLongitude());
 				 if(!test.hasNext())
 				 	{
-					 System.out.println(toPrint.getFirst_point().getLatitude()+","+toPrint.getFirst_point().getLongitude());
+					 System.out.println(toPrint.getDeparture_station()+" "+toPrint.getArrival_station()+"   "+toPrint.getFirst_point().getLatitude()+","+toPrint.getFirst_point().getLongitude());
 				 	}
 			 	}
 			 count--;
