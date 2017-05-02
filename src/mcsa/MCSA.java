@@ -16,7 +16,7 @@ import bvcrplbe.domain.Transfer;
 public class MCSA {
 	
 	private McsaTimetable timetable;
-	LinkedList<LinkedList<McsaConnection>> result=new LinkedList<LinkedList<McsaConnection>>();
+	public LinkedList<LinkedList<McsaConnection>> result=new LinkedList<LinkedList<McsaConnection>>();
 	LinkedList<McsaConnection>[] connection_list;
 	private long departureTime;
 	
@@ -127,7 +127,11 @@ public class MCSA {
 							result.add(copyRes);
 							tempRes=null;
 							return;
-							}else return; 
+							}else 
+								{
+								System.out.println("incompatible departure/arival timestamp");
+									return; 
+								}
 						}else if(toAdd.arrival_timestamp<=next_ts)
 							{
 							//System.out.println("Not to the source, addding connection to temporary solution and piggodding");
@@ -135,7 +139,10 @@ public class MCSA {
 							//System.out.print("Copied temporary list");
 							copyRes.add(toAdd);
 							doMCSA(toAdd.departure_station,source_station,source_dt,toAdd.departure_timestamp,copyRes);
-							}else return;
+							}else {
+								System.out.println("incompatible departure/arival timestamp");
+								return; 
+							}
 					}
 			}
 	}
@@ -228,9 +235,10 @@ public class MCSA {
 		// while(!Arrays.equals(visitStatus, endVisit))
 		 int count=100;
 		 System.out.println("total visit dest station="+totalVisit[dest_station]+" endvisit dest station="+endVisit[dest_station]);
-		 while(totalVisit[dest_station]!=endVisit[dest_station])
+		 while(totalVisit[dest_station]!=endVisit[dest_station] && count>0)
 		 	{
 			 System.out.println("nuova ricerca soluzione, partendo dalla stazione "+visiting);
+			 McsaConnection from=null;
 			 while(visiting != source_station)
 			 	{
 				 System.out.println("cazzo di size: "+connection_list[visiting].size());
@@ -247,6 +255,19 @@ public class MCSA {
 						 visiting=con.getDeparture_station();
 						 System.out.println(con.toString());
 						 System.out.println("next visit "+visiting);
+						 if(from==null)
+						 	{
+							 from=con;
+						 	}else
+						 		{
+						 		 long fromDeparture=from.getDeparture_timestamp();
+						 		 long thisArrival=con.getArrival_timestamp();
+						 		 long wait = fromDeparture-thisArrival;
+						 		 if(wait<0)
+						 		 	{
+						 			 System.out.println("QUESTA CONNECTION ANDREBBE SCARTATA "+wait);
+						 		 	}else System.out.println("OK");
+						 		}
 						 temp.add(con);
 					 }
 				 	}/*else 
@@ -347,12 +368,16 @@ public class MCSA {
 			 System.out.println("Soluzione ad cazzum "+System.lineSeparator());
 			 Iterator<McsaConnection> test = temp.iterator();
 			 McsaConnection first = test.next();
-			 System.out.println(first.getDeparture_station()+"      "+first.getFirst_point().getLatitude()+","+first.getFirst_point().getLongitude());
-			 System.out.println(first.getArrival_station()+"      "+first.getSecond_point().getLatitude()+","+first.getSecond_point().getLongitude());
+			 //System.out.println(first.getDeparture_station()+"      "+first.getFirst_point().getLatitude()+","+first.getFirst_point().getLongitude());
+			 System.out.println(first.getSecond_point().getLatitude()+","+first.getSecond_point().getLongitude());
 			 while(test.hasNext())
 			 	{
 				 McsaConnection toPrint = test.next();
-				 System.out.println(toPrint.getArrival_station()+"     "+toPrint.getSecond_point().getLatitude()+","+toPrint.getSecond_point().getLongitude());
+				 System.out.println(toPrint.getSecond_point().getLatitude()+","+toPrint.getSecond_point().getLongitude());
+				 if(!test.hasNext())
+				 	{
+					 System.out.println(toPrint.getFirst_point().getLatitude()+","+toPrint.getFirst_point().getLongitude());
+				 	}
 			 	}
 			 count--;
 			 LinkedList<McsaConnection> solution = deepCopywCheck(temp);
@@ -383,6 +408,30 @@ public class MCSA {
 		 	}
 		 	while(visitStatus!=endVisit);*/
 		 	System.out.println("final result list size= "+result.size());
+		 	LinkedList<McsaConnection> tempCheck=null;
+		 	Iterator<LinkedList<McsaConnection>> checkIter = result.iterator();
+		 	while(checkIter.hasNext())
+		 		{
+		 		if(tempCheck==null)
+		 			{
+		 			tempCheck=checkIter.next();
+		 			}else
+		 				{
+		 				 LinkedList<McsaConnection>check2=checkIter.next();
+		 				 if(tempCheck.equals(check2)) 
+		 				 	{
+		 					 System.out.println("DUE SOLUZIONI UGUALI");
+		 					 tempCheck=check2;
+		 					 checkIter.next();
+		 				 	}
+		 				 else
+		 				 {
+		 					System.out.println("DUE SOLUZIONI dIVERSE");
+		 					 tempCheck=check2;
+		 					 checkIter.next();
+		 				 }
+		 				}
+		 		}
 		}
 	
 	/*ArrayList<ArrayList<int[]>> solIndexes = new ArrayList<ArrayList<int[]>>();

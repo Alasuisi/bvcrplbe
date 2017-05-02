@@ -27,6 +27,7 @@ import bvcrplbe.domain.Transfer;
 import bvcrplbe.persistence.McsaSolutionDAO;
 import bvcrplbe.persistence.TransferDAO;
 import mcsa.MCSA;
+import mcsa.McsaConnection;
 import mcsa.McsaResult;
 import mcsa.McsaSolution;
 
@@ -76,8 +77,10 @@ public class SearchTransferService {
 		 
 		 MCSA mcsa = new MCSA(drivers,passenger);
 		 mcsa.McsaIterative(passenger.getDep_time());
-		// mcsa.computeMCSA(passenger.getDep_time());
-		 //mcsa.removeBadOnes();
+		 //mcsa.computeMCSA(passenger.getDep_time());
+		 mcsa.removeBadOnes();
+		 LinkedList<LinkedList<McsaConnection>> result2 = mcsa.result;
+		 System.out.println("Cleaned solutions size" +result2.size());
 		 McsaResult result=null;
 		 try {
 			//result = mcsa.getResults();
