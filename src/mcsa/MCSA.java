@@ -193,16 +193,17 @@ public class MCSA {
 		 int[] endVisit = new int[connection_list.length];
 		 int[] totalVisit= new int[connection_list.length];
 		 HashSet<Integer> emptySet= new HashSet<Integer>();
+		 removeDeadEnds(emptySet);
 		 String endString="endVisit   [ ";
 		 for(int i=0;i<visitStatus.length;i++)
 		 	{
 			 visitStatus[i]=0;
-			 endVisit[i]=(connection_list[i].size());
+			 endVisit[i]=(connection_list[i].size()); ///avevo tolto -1 qui
 			 if(endVisit[i]==0 && i!=source_station) emptySet.add(new Integer(i));
 			 endString=endString+endVisit[i]+" , ";
 		 	}
 		 endString=endString+"]";
-		 removeDeadEnds(emptySet);
+		 
 		 /////printing again cleaned connection list
 		 System.out.println(System.lineSeparator()+"Printing cleaned connection list");
 		 for(int i=0;i<connection_list.length;i++)
@@ -221,23 +222,30 @@ public class MCSA {
 		 int visiting = dest_station;
 		// int previous=0;
 		 Stack<Integer> visitList = new Stack<Integer>();
-		 while(!Arrays.equals(visitStatus, endVisit))
+		// while(!Arrays.equals(visitStatus, endVisit))
+		 int count=1000;
+		 while(count!=0)
 		 	{
+			 System.out.println("nuova ricerca soluzione, partendo dalla stazione "+visiting);
 			 while(visiting != source_station)
 			 	{
 				 System.out.println("cazzo di size: "+connection_list[visiting].size());
-				 if(connection_list[visiting].size()!=0 && visitStatus[visiting]<endVisit[visiting])
+				 if(connection_list[visiting].size()!=0)
+				 	{
+					 if(visitStatus[visiting]<=endVisit[visiting]) ///aggiunto -1 qui
 					 {
+						 System.out.println("visitSatus[visiting]="+visitStatus[visiting]+" endVisit[visiting]="+endVisit[visiting]+" visiting="+visiting);
 						 McsaConnection con = connection_list[visiting].get(visitStatus[visiting]);
 						 visitList.push(new Integer(visiting));
 						 System.out.println("con is null: "+con==null);
 						// previous=con.getArrival_station();
-						 visitStatus[visiting]++; //////qualcosa qui
+						// visitStatus[visiting]++; //////qualcosa qui
 						 visiting=con.getDeparture_station();
 						 System.out.println(con.toString());
 						 System.out.println("next visit "+visiting);
 						 temp.add(con);
-					 }/*else 
+					 }
+				 	}/*else 
 					 	{
 						 System.out.println("uguali? "+Arrays.equals(visitStatus, endVisit));
 						 if(!Arrays.equals(visitStatus, endVisit)){
@@ -273,7 +281,7 @@ public class MCSA {
 			 while(!done)
 			 	{
 				 int index = visitList.peek();
-				 if(visitStatus[index]==endVisit[index]-1)
+				 if(visitStatus[index]==endVisit[index]) //c'era -1 qui
 				 	{
 					 leftIndexes.add(new Integer(index));
 					 visitList.pop();
@@ -291,6 +299,7 @@ public class MCSA {
 			 	{
 				 int resetIndex = leftIndexes.removeFirst();
 				 visitStatus[resetIndex]=0;
+				 System.out.println("resetting index="+resetIndex);
 			 	}
 			
 			 /////////////////////////////////////////////////////
@@ -320,15 +329,17 @@ public class MCSA {
 				 begin=begin+visitStatus[i]+" , ";
 			 	}
 			 begin=begin+"]";
-			 String begin2="totalVisit [";
+			 String begin2="totalVisit [ ";
 			 for(int i=0;i<totalVisit.length;i++)
 			 	{
 				 begin2=begin2+totalVisit[i]+" , ";
 			 	}
 			 begin2=begin2+"]";
+			 
 			 System.out.println(endString);
 			 System.out.println(begin);
-			 System.out.print(begin2);
+			 System.out.println(begin2);
+			
 			 System.out.println("Soluzione ad cazzum "+System.lineSeparator());
 			 Iterator<McsaConnection> test = temp.iterator();
 			 McsaConnection first = test.next();
@@ -339,7 +350,7 @@ public class MCSA {
 				 McsaConnection toPrint = test.next();
 				 System.out.println(toPrint.getArrival_station()+"     "+toPrint.getSecond_point().getLatitude()+","+toPrint.getSecond_point().getLongitude());
 			 	}
-			 
+			 count--;
 		 	}
 		 
 		 /*int visiting=dest_station;
