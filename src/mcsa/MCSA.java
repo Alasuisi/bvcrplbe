@@ -412,30 +412,7 @@ public class MCSA {
 		 	}
 		 	while(visitStatus!=endVisit);*/
 		 	System.out.println("final result list size= "+result.size());
-		 	LinkedList<McsaConnection> tempCheck=null;
-		 	Iterator<LinkedList<McsaConnection>> checkIter = result.iterator();
-		 	while(checkIter.hasNext())
-		 		{
-		 		if(tempCheck==null)
-		 			{
-		 			tempCheck=checkIter.next();
-		 			}else
-		 				{
-		 				 LinkedList<McsaConnection>check2=checkIter.next();
-		 				 if(tempCheck.equals(check2)) 
-		 				 	{
-		 					 System.out.println("DUE SOLUZIONI UGUALI");
-		 					 tempCheck=check2;
-		 					 checkIter.next();
-		 				 	}
-		 				 else
-		 				 {
-		 					System.out.println("DUE SOLUZIONI dIVERSE");
-		 					 tempCheck=check2;
-		 					 checkIter.next();
-		 				 }
-		 				}
-		 		}
+		 	
 		}
 	
 	/*ArrayList<ArrayList<int[]>> solIndexes = new ArrayList<ArrayList<int[]>>();

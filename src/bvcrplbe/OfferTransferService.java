@@ -107,7 +107,9 @@ public class OfferTransferService {
 			//csa.computeCSA();
 			//mcsa.computeMCSA(30, 0, 0);
 			long t1=System.currentTimeMillis();
-			mcsa.computeMCSA(toCompute.getDep_time());
+			mcsa.removeDeadEnds();
+			//mcsa.computeMCSA(toCompute.getDep_time());
+			mcsa.McsaIterative(toCompute.getDep_time());
 			long t2=System.currentTimeMillis();
 			System.out.println("compute solution time "+(t2-t1)+" millis");
 			long t3 = System.currentTimeMillis();
@@ -132,9 +134,36 @@ public class OfferTransferService {
 					System.out.println(pathIter.next());
 					}
 				}*/
+			
+			LinkedList<LinkedList<McsaConnection>> result = mcsa.result;
+			Iterator<LinkedList<McsaConnection>> mah =result.iterator();
+			while(mah.hasNext())
+				{
+				System.out.println(System.lineSeparator()+"printing a solution");
+				LinkedList<McsaConnection> sol = mah.next();
+				Iterator<McsaConnection> mah2 =sol.iterator();
+				boolean first=true;
+				while(mah2.hasNext())
+					{
+					McsaConnection con= mah2.next();
+					 if(first)
+					 	{
+						 System.out.println(con.getFirst_point().getLatitude()+","+con.getFirst_point().getLongitude());
+						 System.out.println(con.getSecond_point().getLatitude()+","+con.getSecond_point().getLongitude());
+						 first=false;
+					 	}else
+					 		{
+					 		System.out.println(con.getSecond_point().getLatitude()+","+con.getSecond_point().getLongitude());
+					 		}
+					}
+				
+				}
+			
+		/////DA RIMETTERE QUESTO
+			/*
 			McsaResult res = mcsa.getResults();
 			LinkedList<McsaSolution> solutions = res.getResults();
-			McsaSolutionDAO.saveSolutions(solutions, 118);
+			//McsaSolutionDAO.saveSolutions(solutions, 118);
 			System.out.println(System.lineSeparator()+" TESTING THE NEW SOLUTION OBJECT ");
 			Iterator<McsaSolution> iter2 =solutions.iterator();
 			while(iter2.hasNext())
@@ -163,7 +192,7 @@ public class OfferTransferService {
 			ObjectMapper mapper = new ObjectMapper();
 			String jsonInString;
 			jsonInString=mapper.writeValueAsString(solutions);
-			System.out.println(jsonInString);
+			System.out.println(jsonInString);*/
 			////////////////////////////////////
 			
 		} catch (ClassNotFoundException e) {

@@ -83,9 +83,12 @@ public class McsaTimetable {
     					 //System.out.println("prima pigconnection");
     					 double FirstToFirstDst = evaluateDistance(toCheck.getFirst_point(),actual.getFirst_point());
     					 double FirstToSecondDst = evaluateDistance(toCheck.getFirst_point(),actual.getSecond_point());
+    					 double FirstToDestination=evaluateDistance(toCheck.getFirst_point(),passenger.getArr_gps());
+    					 
     					 double SecondToFirstDst = evaluateDistance(toCheck.getSecond_point(),actual.getFirst_point());
     					 double SecondToSecondDst =evaluateDistance(toCheck.getSecond_point(),actual.getSecond_point());
-    					 if(FirstToFirstDst<passDet)
+    					 double SecondToDestination = evaluateDistance(toCheck.getSecond_point(),passenger.getArr_gps());
+    					 if(FirstToFirstDst<passDet && FirstToFirstDst<FirstToDestination)
     					 	{
     						 long FtoFtime = walkTime(FirstToFirstDst);
     						 long timeSkew = toCheck.getFirst_point().getTouchTime()-actual.getFirst_point().getTouchTime();
@@ -119,7 +122,7 @@ public class McsaTimetable {
     						 	}
     					 	}
     					 
-    					 if(FirstToSecondDst<passDet)
+    					 if(FirstToSecondDst<passDet && FirstToSecondDst<FirstToDestination)
     					 	{
     						 long FtoStime = walkTime(FirstToSecondDst);
     						 long timeSkew = toCheck.getFirst_point().getTouchTime()-actual.getSecond_point().getTouchTime();
@@ -151,7 +154,7 @@ public class McsaTimetable {
     						 	}
     					 	}
     					 
-    					 if(SecondToFirstDst<passDet)
+    					 if(SecondToFirstDst<passDet && SecondToDestination<SecondToFirstDst)
     					 	{
     						 long StoFtime = walkTime(SecondToFirstDst);
     						 long timeSkew = toCheck.getSecond_point().getTouchTime()-actual.getFirst_point().getTouchTime();
@@ -182,7 +185,7 @@ public class McsaTimetable {
     							 		}
     						 	}
     					 	}
-    					 if(SecondToSecondDst<passDet)
+    					 if(SecondToSecondDst<passDet && SecondToSecondDst<SecondToDestination)
     					 	{
     						 long StoStime = walkTime(SecondToSecondDst);
     						 long timeSkew = toCheck.getSecond_point().getTouchTime()-actual.getSecond_point().getTouchTime();
@@ -220,8 +223,10 @@ public class McsaTimetable {
     				 		{
     				 		//System.out.println("second diocane");
     				 		double FirstToSecondDst = evaluateDistance(toCheck.getFirst_point(),actual.getSecond_point());
+    				 		double FirstToDestination=evaluateDistance(toCheck.getFirst_point(),passenger.getArr_gps());
     				 		double SecondToSecondDst =evaluateDistance(toCheck.getSecond_point(),actual.getSecond_point());
-    				 		 if(FirstToSecondDst<passDet)
+    				 		 double SecondToDestination = evaluateDistance(toCheck.getSecond_point(),passenger.getArr_gps());
+    				 		 if(FirstToSecondDst<passDet && FirstToSecondDst<FirstToDestination)
      					 	{
      						 long FtoStime = walkTime(FirstToSecondDst);
      						 long timeSkew = toCheck.getFirst_point().getTouchTime()-actual.getSecond_point().getTouchTime();
@@ -258,7 +263,7 @@ public class McsaTimetable {
      							//System.out.println(System.lineSeparator()+" che minchia succede");
      						 	}
      					 	}
-    				 		if(SecondToSecondDst<passDet)
+    				 		if(SecondToSecondDst<passDet && SecondToSecondDst<SecondToDestination)
     					 	{
     						 long StoStime = walkTime(SecondToSecondDst);
     						 long timeSkew = toCheck.getSecond_point().getTouchTime()-actual.getSecond_point().getTouchTime();
@@ -422,7 +427,7 @@ public class McsaTimetable {
     	 	}
     	 
     	 ArrayList<McsaConnection> optimized = optimize(interList);
-    	 /*
+    	 
     	 Iterator<McsaConnection> connIter = connections.iterator();
     	 while(connIter.hasNext())
     	 	{
@@ -445,7 +450,7 @@ public class McsaTimetable {
 	     while(boh.hasNext())
 	     	{
 	    	 System.out.println(boh.next());
-	     	}*/
+	     	}
     	 
 	        
 	        
