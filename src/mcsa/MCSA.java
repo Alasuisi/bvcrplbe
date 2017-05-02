@@ -146,7 +146,11 @@ public class MCSA {
 					}
 			}
 	}
-	public void removeDeadEnds(HashSet<Integer> emptySet)
+	public void removeDeadEnds()
+		{
+		removeDeadEnds(new HashSet<Integer>());
+		}
+	private void removeDeadEnds(HashSet<Integer> emptySet)
 		{
 		 int emptyCount=emptySet.size();
 		 Iterator<Integer> empIter = emptySet.iterator();

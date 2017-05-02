@@ -76,14 +76,14 @@ public class SearchTransferService {
 		 System.out.println(passenger.toString());
 		 
 		 MCSA mcsa = new MCSA(drivers,passenger);
-		 mcsa.McsaIterative(passenger.getDep_time());
-		 //mcsa.computeMCSA(passenger.getDep_time());
+		 //mcsa.McsaIterative(passenger.getDep_time());
+		 mcsa.computeMCSA(passenger.getDep_time());
 		 mcsa.removeBadOnes();
 		 LinkedList<LinkedList<McsaConnection>> result2 = mcsa.result;
 		 System.out.println("Cleaned solutions size" +result2.size());
 		 McsaResult result=null;
 		 try {
-			//result = mcsa.getResults();
+			result = mcsa.getResults();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Multipath Connection Scan Algorithm: FAIL"+System.lineSeparator()+e.getMessage()).build();
