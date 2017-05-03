@@ -495,6 +495,13 @@ public class MCSA {
 			{
 			 LinkedList<McsaConnection> solution =resIter.next();
 			 Iterator<McsaConnection> solIter=solution.iterator();
+			 System.out.println(System.lineSeparator()+"PREPRINTING SOLUTION POINTS");
+			 while(solIter.hasNext())
+			 	{
+				 McsaConnection temp = solIter.next();
+				 if(temp.getTransferID()!=temp.getConnectedTo())System.out.println("CHANGED TRANSFER!!!!!!!!!!!!!!!!!!!!");
+				 System.out.println(temp.getFirst_point().getLatitude()+" "+temp.getFirst_point().getLongitude()+"-->"+temp.getSecond_point().getLatitude()+" "+temp.getSecond_point().getLongitude()+" TRID "+temp.getTransferID()+"->"+temp.getConnectedTo());
+			 	}
 			 while(solIter.hasNext() && !badSolution)
 			 	{
 				 McsaConnection temp = solIter.next();

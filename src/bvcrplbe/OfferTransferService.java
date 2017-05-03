@@ -136,7 +136,7 @@ public class OfferTransferService {
 				}*/
 			
 			LinkedList<LinkedList<McsaConnection>> result = mcsa.result;
-			Iterator<LinkedList<McsaConnection>> mah =result.iterator();
+			/*Iterator<LinkedList<McsaConnection>> mah =result.iterator();
 			while(mah.hasNext())
 				{
 				System.out.println(System.lineSeparator()+"printing a solution");
@@ -157,10 +157,10 @@ public class OfferTransferService {
 					 		}
 					}
 				
-				}
+				}*/
 			
 		/////DA RIMETTERE QUESTO
-			/*
+			
 			McsaResult res = mcsa.getResults();
 			LinkedList<McsaSolution> solutions = res.getResults();
 			//McsaSolutionDAO.saveSolutions(solutions, 118);
@@ -192,7 +192,7 @@ public class OfferTransferService {
 			ObjectMapper mapper = new ObjectMapper();
 			String jsonInString;
 			jsonInString=mapper.writeValueAsString(solutions);
-			System.out.println(jsonInString);*/
+			System.out.println(jsonInString);
 			////////////////////////////////////
 			
 		} catch (ClassNotFoundException e) {

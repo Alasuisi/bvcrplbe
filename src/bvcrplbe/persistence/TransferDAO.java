@@ -310,7 +310,7 @@ public class TransferDAO implements Serializable{
 			 return result;
 			}
 		
-		private static String READ_ALL_OFFERINGS= " SELECT * FROM transfer WHERE \"User_Role\"= '{\"role\":\"driver\"}' AND \"Transfer_ID\">120 AND \"Transfer_ID\"<135"; //AND \"Transfer_ID\">130
+		private static String READ_ALL_OFFERINGS= " SELECT * FROM transfer WHERE \"User_Role\"= '{\"role\":\"driver\"}' AND \"Transfer_ID\">120 AND \"Transfer_ID\"<135"; //AND \"Transfer_ID\">120 AND \"Transfer_ID\"<135
 		public static LinkedList<Transfer> readAllOfferings() throws SQLException, JSONException, IOException
 			{
 			Connection con=null;
