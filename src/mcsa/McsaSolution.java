@@ -74,7 +74,7 @@ public class McsaSolution {
 				 if(!tempList.isEmpty())
 				 	{
 					 //Collections.reverse(tempList);/// un po random qeusta cosa
-					 if(tempList.size()<4)
+					 /*if(tempList.size()<3)
 					 	{
 						 System.out.println("DAFUQQQQQQQQQQQQQQ la lista delle connessioni è piccola: dimensione="+tempList.size());
 						 Iterator<McsaConnection> mah = tempList.iterator();
@@ -82,14 +82,14 @@ public class McsaSolution {
 						 	{
 							 System.out.println(mah.next().toString());
 						 	}
-					 	}
+					 	}*/
 					 McsaSegment segment2 = new McsaSegment(tempList,specialNeeds);
 					 solution.add(segment2);
 					 tempList = new LinkedList<McsaConnection>();
 					
 				 	}
-				 System.out.println(System.lineSeparator()+"MCSASEGMENT called new segment depTime:"+departureTime+" time:"+time);
-				 System.out.println(temp.getDeparture_station()+" "+temp.getArrival_station()+" "+temp.getFirst_point().toString()+" "+temp.getSecond_point().toString()+" "+temp.getTransferID()+"->"+temp.getConnectedTo());
+				 //System.out.println(System.lineSeparator()+"MCSASEGMENT called new segment depTime:"+departureTime+" time:"+time);
+				 //System.out.println(temp.getDeparture_station()+" "+temp.getArrival_station()+" "+temp.getFirst_point().toString()+" "+temp.getSecond_point().toString()+" "+temp.getTransferID()+"->"+temp.getConnectedTo());
 				 McsaSegment segment = new McsaSegment(temp,passenger,time,false);
 				 solution.add(segment);
 			 	}else

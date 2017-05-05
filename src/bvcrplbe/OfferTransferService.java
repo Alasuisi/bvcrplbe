@@ -107,16 +107,19 @@ public class OfferTransferService {
 			MCSA mcsa = new MCSA(driverTran,toCompute);
 			//csa.computeCSA();
 			//mcsa.computeMCSA(30, 0, 0);
-			long t1=System.currentTimeMillis();
+			long t0=System.currentTimeMillis();
 			mcsa.removeDeadEnds();
+			long t1=System.currentTimeMillis();
 			mcsa.computeMCSA(toCompute.getDep_time());
 			//mcsa.McsaIterative(toCompute.getDep_time());
 			long t2=System.currentTimeMillis();
-			System.out.println("compute solution time "+(t2-t1)+" millis");
+			System.out.println("compute solution time "+(t2-t1)+" ms");
 			long t3 = System.currentTimeMillis();
 			mcsa.removeBadOnes();
 			long t4 = System.currentTimeMillis();
-			System.out.println("removing bad ones time: "+(t4-t3));
+			System.out.println("removing bad ones time: "+(t4-t3)+" ms");
+			System.out.println("removing dead ends time:"+(t1-t0)+" ms");
+			System.out.println("Total computation time: "+(t4-t0)+" ms");
 			/////////SOLUTION TEST/////////
 			//mcsa.printSolutions(Integer.MAX_VALUE);
 			System.out.println(System.lineSeparator());
@@ -165,6 +168,7 @@ public class OfferTransferService {
 			McsaResult res = mcsa.getResults();
 			LinkedList<McsaSolution> solutions = res.getResults();
 			//McsaSolutionDAO.saveSolutions(solutions, 118);
+			/*
 			System.out.println(System.lineSeparator()+" TESTING THE NEW SOLUTION OBJECT ");
 			Iterator<McsaSolution> iter2 =solutions.iterator();
 			while(iter2.hasNext())
@@ -188,7 +192,7 @@ public class OfferTransferService {
 						 System.out.println(toPrint.getLatitude()+","+toPrint.getLongitude());
 					 	}
 				 	}
-				}
+				}*/
 			
 			ObjectMapper mapper = new ObjectMapper();
 			String jsonInString;

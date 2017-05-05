@@ -111,7 +111,7 @@ public class McsaSegment {
 			 DirectionsResult results=null;
 			 String from=""+interConn.getFirst_point().getLatitude()+","+interConn.getFirst_point().getLongitude()+"";
 			 String to= ""+interConn.getSecond_point().getLatitude()+","+interConn.getSecond_point().getLongitude()+"";
-			 System.out.println("MCSASEGMENT from: "+interConn.getFirst_point().toString()+" to: "+interConn.getSecond_point().toString());
+			 ///////////////////////////////////////////System.out.println("MCSASEGMENT from: "+interConn.getFirst_point().toString()+" to: "+interConn.getSecond_point().toString());
 			 //results = DirectionsApi.getDirections(context, from, to).await();
 			 
 			 DirectionsApiRequest req=DirectionsApi.newRequest(context);
@@ -130,7 +130,7 @@ public class McsaSegment {
 			 nf.setMaximumFractionDigits(5);    
 			 nf.setMinimumFractionDigits(5);
 			 nf.setGroupingUsed(false);
-			 System.out.println("MCSASEGMENT polylist lenght:"+polyList.size());
+			//////////////////////////////////////// System.out.println("MCSASEGMENT polylist lenght:"+polyList.size());
 			 LatLng firstLatLng =polIter.next();
 			 TimedPoint2D firstPoint= new TimedPoint2D();
 			 firstPoint.setLatitude(new Double(nf.format(firstLatLng.lat)));

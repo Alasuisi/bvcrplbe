@@ -153,12 +153,12 @@ public class MCSA {
 	private void removeDeadEnds(HashSet<Integer> emptySet)
 		{
 		 int emptyCount=emptySet.size();
-		 Iterator<Integer> empIter = emptySet.iterator();
+		 /*Iterator<Integer> empIter = emptySet.iterator();
 		 while(empIter.hasNext())
 		 	{
 			 int badStation = empIter.next().intValue();
 			 System.out.println(badStation);
-		 	}
+		 	}*/
 		 
 		 for(int i=1;i<connection_list.length;i++)
 		 	{
@@ -179,7 +179,7 @@ public class MCSA {
 		 	{
 			 System.out.println("Calling egain removeDeadEnds");
 			 removeDeadEnds(emptySet);
-		 	}else System.out.print("Finished removing dead ends");
+		 	}else System.out.print("Finished removing dead ends"+System.lineSeparator());
 		 
 		}
 	
