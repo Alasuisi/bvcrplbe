@@ -482,8 +482,42 @@ public class MCSA {
 			}
 	}*/
 	
-	
 	public void removeBadOnes()
+		{
+		Iterator<LinkedList<McsaConnection>> resIter = result.iterator();
+		LinkedList<LinkedList<McsaConnection>> cleanRes = new LinkedList<LinkedList<McsaConnection>>();
+		while(resIter.hasNext())
+			{
+			HashSet<Integer> tranSet = new HashSet<Integer>();
+			LinkedList<McsaConnection> thisSol = resIter.next();
+			Iterator<McsaConnection> solIter = thisSol.iterator();
+			McsaConnection back=solIter.next();
+			McsaConnection middle=solIter.next();
+			boolean badSolution=false;
+			while(solIter.hasNext() && !badSolution)
+				{
+				 McsaConnection front = solIter.next();
+				 tranSet.add(new Integer(back.getTransferID()));
+				 tranSet.add(new Integer(back.getConnectedTo()));
+				 tranSet.add(new Integer(middle.getTransferID()));
+				 tranSet.add(new Integer(middle.getConnectedTo()));
+				 tranSet.add(new Integer(front.getTransferID()));
+				 tranSet.add(new Integer(front.getConnectedTo()));
+				 if(tranSet.size()>2) badSolution=true;
+				 else 
+				 	{
+					 tranSet= new HashSet<Integer>();
+					 back=middle;
+					 middle=front;
+				 	}
+				}
+			if(!badSolution) cleanRes.add(thisSol);
+			
+			}
+		result=cleanRes;
+		}
+	
+	public void OLDremoveBadOnes()
 		{
 		boolean changedTransfer=false;
 		int changeCount=0;
@@ -495,13 +529,15 @@ public class MCSA {
 			{
 			 LinkedList<McsaConnection> solution =resIter.next();
 			 Iterator<McsaConnection> solIter=solution.iterator();
+			 /*
 			 System.out.println(System.lineSeparator()+"PREPRINTING SOLUTION POINTS");
 			 while(solIter.hasNext())
 			 	{
 				 McsaConnection temp = solIter.next();
-				 if(temp.getTransferID()!=temp.getConnectedTo())System.out.println("CHANGED TRANSFER!!!!!!!!!!!!!!!!!!!!");
+				 if(temp.getTransferID()!=temp.getConnectedTo())System.out.println("!!!!!!!!!!!!!!!!!!!!CHANGED TRANSFER!!!!!!!!!!!!!!!!!!!!");
 				 System.out.println(temp.getFirst_point().getLatitude()+" "+temp.getFirst_point().getLongitude()+"-->"+temp.getSecond_point().getLatitude()+" "+temp.getSecond_point().getLongitude()+" TRID "+temp.getTransferID()+"->"+temp.getConnectedTo());
 			 	}
+			 solIter=solution.iterator();*/
 			 while(solIter.hasNext() && !badSolution)
 			 	{
 				 McsaConnection temp = solIter.next();
@@ -514,12 +550,17 @@ public class MCSA {
 						 changedTransfer=true;
 						 changeCount++;
 						 transfer=temp.getTransferID();
-					 	}else 
+					 	}else if(temp.getConnectedTo()!=transfer)
 					 		{
-					 		//System.out.println("MCSA.JAVA not changed transfer");
-					 		changedTransfer=false;
-					 		changeCount=0;
-					 		}
+					 		 changedTransfer=true;
+					 		 changeCount++;
+					 		 transfer=temp.getConnectedTo();
+					 		}else 
+						 		{
+						 		//System.out.println("MCSA.JAVA not changed transfer");
+						 		changedTransfer=false;
+						 		changeCount=0;
+						 		}
 					 if(changeCount==2 && changedTransfer)badSolution=true;
 				 	}
 			 	}

@@ -92,7 +92,7 @@ public class McsaSegment {
 		return segmentArrival;
 	}
 
-	public McsaSegment(McsaConnection interConn,Transfer passenger,long time) throws Exception
+	public McsaSegment(McsaConnection interConn,Transfer passenger,long time,boolean useGoogle) throws Exception
 		{
 		 fromTransferID=interConn.getTransferID();
 		 toTransferID=interConn.getConnectedTo();
@@ -103,52 +103,59 @@ public class McsaSegment {
 		 segmentDeparture=interConn.getDeparture_timestamp();
 		 segmentArrival=interConn.getArrival_timestamp();
 		 //segmentDeparture=time;
-		 String alternative="AIzaSyBt2BW_V8EvbbFp5t1Qh_U06-7lx3ZhsMI";
-		 String original="AIzaSyBA-NgbRwnecHN3cApbnZoaCZH0ld66fT4";
-		 GeoApiContext context = new GeoApiContext().setApiKey(alternative);
-		 DirectionsResult results=null;
-		 String from=""+interConn.getFirst_point().getLatitude()+","+interConn.getFirst_point().getLongitude()+"";
-		 String to= ""+interConn.getSecond_point().getLatitude()+","+interConn.getSecond_point().getLongitude()+"";
-		 System.out.println("MCSASEGMENT from: "+interConn.getFirst_point().toString()+" to: "+interConn.getSecond_point().toString());
-		 //results = DirectionsApi.getDirections(context, from, to).await();
-		 
-		 DirectionsApiRequest req=DirectionsApi.newRequest(context);
-		 req.mode(TravelMode.WALKING);
-		 req.origin(from);
-		 req.destination(to);
-		 results=req.await();
-		 DirectionsRoute[] routes = results.routes;
-		 //DirectionsLeg lines=routes[0].legs[0];
-		 //DirectionsStep[] steps = lines.steps;
-		 //segmentArrival =segmentDeparture+(lines.duration.inSeconds*1000);
-		 EncodedPolyline poly = routes[0].overviewPolyline;
-		 List<LatLng> polyList = poly.decodePath();
-		 Iterator<LatLng> polIter = polyList.iterator();
-		 NumberFormat nf = NumberFormat.getNumberInstance(Locale.UK);
-		 nf.setMaximumFractionDigits(5);    
-		 nf.setMinimumFractionDigits(5);
-		 nf.setGroupingUsed(false);
-		 System.out.println("MCSASEGMENT polylist lenght:"+polyList.size());
-		 LatLng firstLatLng =polIter.next();
-		 TimedPoint2D firstPoint= new TimedPoint2D();
-		 firstPoint.setLatitude(new Double(nf.format(firstLatLng.lat)));
-		 firstPoint.setLongitude(new Double(nf.format(firstLatLng.lng)));
-		 segmentPath.add(firstPoint);
-		 LatLng lastLatLng = null;
-		 while(polIter.hasNext())
+		 if(useGoogle)
+		 {
+			 String alternative="AIzaSyBt2BW_V8EvbbFp5t1Qh_U06-7lx3ZhsMI";
+			 String original="AIzaSyBA-NgbRwnecHN3cApbnZoaCZH0ld66fT4";
+			 GeoApiContext context = new GeoApiContext().setApiKey(alternative);
+			 DirectionsResult results=null;
+			 String from=""+interConn.getFirst_point().getLatitude()+","+interConn.getFirst_point().getLongitude()+"";
+			 String to= ""+interConn.getSecond_point().getLatitude()+","+interConn.getSecond_point().getLongitude()+"";
+			 System.out.println("MCSASEGMENT from: "+interConn.getFirst_point().toString()+" to: "+interConn.getSecond_point().toString());
+			 //results = DirectionsApi.getDirections(context, from, to).await();
+			 
+			 DirectionsApiRequest req=DirectionsApi.newRequest(context);
+			 req.mode(TravelMode.WALKING);
+			 req.origin(from);
+			 req.destination(to);
+			 results=req.await();
+			 DirectionsRoute[] routes = results.routes;
+			 //DirectionsLeg lines=routes[0].legs[0];
+			 //DirectionsStep[] steps = lines.steps;
+			 //segmentArrival =segmentDeparture+(lines.duration.inSeconds*1000);
+			 EncodedPolyline poly = routes[0].overviewPolyline;
+			 List<LatLng> polyList = poly.decodePath();
+			 Iterator<LatLng> polIter = polyList.iterator();
+			 NumberFormat nf = NumberFormat.getNumberInstance(Locale.UK);
+			 nf.setMaximumFractionDigits(5);    
+			 nf.setMinimumFractionDigits(5);
+			 nf.setGroupingUsed(false);
+			 System.out.println("MCSASEGMENT polylist lenght:"+polyList.size());
+			 LatLng firstLatLng =polIter.next();
+			 TimedPoint2D firstPoint= new TimedPoint2D();
+			 firstPoint.setLatitude(new Double(nf.format(firstLatLng.lat)));
+			 firstPoint.setLongitude(new Double(nf.format(firstLatLng.lng)));
+			 segmentPath.add(firstPoint);
+			 LatLng lastLatLng = null;
+			 while(polIter.hasNext())
+			 	{
+				 TimedPoint2D toAdd = new TimedPoint2D();
+				 LatLng actual = polIter.next();
+				 toAdd.setLatitude(new Double(nf.format(actual.lat)));
+				 toAdd.setLongitude(new Double(nf.format(actual.lng)));
+				 segmentPath.add(toAdd);
+				 lastLatLng=actual;
+			 	}
+			/* if(polyList.size()==1)
+			 	{
+				 segmentArrival=segmentDeparture+(travelTime(evaluateDistance(firstLatLng,firstLatLng)));
+			 	}else segmentArrival=segmentDeparture+(travelTime(evaluateDistance(firstLatLng,lastLatLng)));
+			 */
+		 }else
 		 	{
-			 TimedPoint2D toAdd = new TimedPoint2D();
-			 LatLng actual = polIter.next();
-			 toAdd.setLatitude(new Double(nf.format(actual.lat)));
-			 toAdd.setLongitude(new Double(nf.format(actual.lng)));
-			 segmentPath.add(toAdd);
-			 lastLatLng=actual;
+			 segmentPath.add(interConn.getFirst_point());
+			 segmentPath.add(interConn.getSecond_point());
 		 	}
-		/* if(polyList.size()==1)
-		 	{
-			 segmentArrival=segmentDeparture+(travelTime(evaluateDistance(firstLatLng,firstLatLng)));
-		 	}else segmentArrival=segmentDeparture+(travelTime(evaluateDistance(firstLatLng,lastLatLng)));
-		 */
 		 segmentDuration=segmentArrival-segmentDeparture;
 		}
 	

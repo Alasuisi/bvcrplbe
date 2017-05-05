@@ -90,7 +90,8 @@ public class OfferTransferService {
 					Transfer thisTran = alliter.next();
 					if(thisTran.getUser_role().equals("driver"))
 						{
-							if(thisTran.getTran_id()>130) driverTran.add(thisTran);
+							//if(thisTran.getTran_id()>130) driverTran.add(thisTran);
+						driverTran.add(thisTran);
 						}
 					else passenger.add(thisTran);
 				}
@@ -108,8 +109,8 @@ public class OfferTransferService {
 			//mcsa.computeMCSA(30, 0, 0);
 			long t1=System.currentTimeMillis();
 			mcsa.removeDeadEnds();
-			//mcsa.computeMCSA(toCompute.getDep_time());
-			mcsa.McsaIterative(toCompute.getDep_time());
+			mcsa.computeMCSA(toCompute.getDep_time());
+			//mcsa.McsaIterative(toCompute.getDep_time());
 			long t2=System.currentTimeMillis();
 			System.out.println("compute solution time "+(t2-t1)+" millis");
 			long t3 = System.currentTimeMillis();
