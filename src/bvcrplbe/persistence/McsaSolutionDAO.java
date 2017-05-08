@@ -89,6 +89,7 @@ public class McsaSolutionDAO implements Serializable {
 						 LinkedList<McsaSegment> solutionSegments = mapper.readValue(jsonSolutionDetail, new TypeReference<LinkedList<McsaSegment>>(){});
 						 s.setSolution(solutionSegments);
 						 result.add(s);
+						 rs.next();
 					 	}
 					}
 				rs=null;
