@@ -25,8 +25,69 @@ public class McsaSolution {
 	private LinkedHashSet<Integer> transferSet =new LinkedHashSet<Integer>();
 	private LinkedList<McsaSegment> solution = new LinkedList<McsaSegment>();
 	
+	public McsaSolution(){};
+
 	
-	
+	public void setSolutionID(int solutionID) {
+		this.solutionID = solutionID;
+	}
+
+
+	public void setChanges(int changes) {
+		this.changes = changes;
+	}
+
+
+	public void setNeededSeats(int neededSeats) {
+		this.neededSeats = neededSeats;
+	}
+
+
+	public void setArrivalTime(long arrivalTime) {
+		this.arrivalTime = arrivalTime;
+	}
+
+
+	public void setTotalWaitTime(long totalWaitTime) {
+		this.totalWaitTime = totalWaitTime;
+	}
+
+
+	public void setTotalTripTime(long totalTripTime) {
+		this.totalTripTime = totalTripTime;
+	}
+
+
+	public void setAnimal(boolean animal) {
+		this.animal = animal;
+	}
+
+
+	public void setSmoke(boolean smoke) {
+		this.smoke = smoke;
+	}
+
+
+	public void setLuggage(boolean luggage) {
+		this.luggage = luggage;
+	}
+
+
+	public void setHandicap(boolean handicap) {
+		this.handicap = handicap;
+	}
+
+
+	public void setTransferSet(LinkedHashSet<Integer> transferSet) {
+		this.transferSet = transferSet;
+	}
+
+
+	public void setSolution(LinkedList<McsaSegment> solution) {
+		this.solution = solution;
+	}
+
+
 	public McsaSolution(LinkedList<McsaConnection> resultList,long departureTime,HashMap<Integer,boolean[]> specialNeeds,Transfer passenger,int solID) throws Exception
 		{
 		 solutionID=solID;
@@ -76,7 +137,7 @@ public class McsaSolution {
 					 //Collections.reverse(tempList);/// un po random qeusta cosa
 					 /*if(tempList.size()<3)
 					 	{
-						 System.out.println("DAFUQQQQQQQQQQQQQQ la lista delle connessioni è piccola: dimensione="+tempList.size());
+						 System.out.println("DAFUQQQQQQQQQQQQQQ la lista delle connessioni ï¿½ piccola: dimensione="+tempList.size());
 						 Iterator<McsaConnection> mah = tempList.iterator();
 						 while(mah.hasNext())
 						 	{

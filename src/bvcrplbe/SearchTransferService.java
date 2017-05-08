@@ -34,10 +34,10 @@ import mcsa.McsaSolution;
 @Path("/SearchRide")
 public class SearchTransferService {
 	
-	@Path("/search")
+	//@Path("/search")
 	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.TEXT_PLAIN)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response SearchRide(String transferString)
 		{
 		System.out.println("CALLED SEARCHRIDE");
@@ -45,6 +45,7 @@ public class SearchTransferService {
 		 LinkedList<Transfer> drivers=null;
 		 ObjectMapper mapper = new ObjectMapper();
 		 try {
+			 System.out.println("ma che ho in ingresso?  "+transferString);
 			passenger = mapper.readValue(transferString, Transfer.class);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -65,7 +66,7 @@ public class SearchTransferService {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Parser error:"+System.lineSeparator()+e.getMessage()).build();
 		}
-		 
+		 /*
 		 System.out.println("DRIVERLIST"+System.lineSeparator());
 		 Iterator<Transfer> tranItre = drivers.iterator();
 		 while(tranItre.hasNext())
@@ -73,10 +74,11 @@ public class SearchTransferService {
 			 System.out.println(tranItre.next().toString());
 		 	}
 		 System.out.println(System.lineSeparator()+"PASSENGER TRANSFER"+System.lineSeparator());
-		 System.out.println(passenger.toString());
+		 System.out.println(passenger.toString());*/
 		 
 		 MCSA mcsa = new MCSA(drivers,passenger);
 		 //mcsa.McsaIterative(passenger.getDep_time());
+		 mcsa.removeDeadEnds();
 		 mcsa.computeMCSA(passenger.getDep_time());
 		 mcsa.removeBadOnes();
 		 LinkedList<LinkedList<McsaConnection>> result2 = mcsa.result;
@@ -89,25 +91,26 @@ public class SearchTransferService {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Multipath Connection Scan Algorithm: FAIL"+System.lineSeparator()+e.getMessage()).build();
 		}
 		 LinkedList<McsaSolution> solutionList = result.getResults();
-		 //try {
-			//McsaSolutionDAO.saveSolutions(solutionList, passenger.getTran_id());
-			Iterator<McsaSolution> iter = solutionList.iterator();
+		 try {
+			McsaSolutionDAO.saveSolutions(solutionList, passenger.getTran_id());
+			/*
+		 	Iterator<McsaSolution> iter = solutionList.iterator();
 			while(iter.hasNext())
 				{
 				 System.out.println(iter.next().toString());
-				}
+				}*/
 			
-		/*} catch (JsonProcessingException e) {
+		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Parser error:"+System.lineSeparator()+e.getMessage()).build();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("SQL error:"+System.lineSeparator()+e.getMessage()+System.lineSeparator()+e.getSQLState()).build();
-		}*/
+		}
 		 String responseString=null;
 		 try {
 			responseString = mapper.writeValueAsString(solutionList);
-			System.out.println(responseString);
+			//System.out.println(responseString);
 		} catch (JsonProcessingException e) {
 		
 			e.printStackTrace();
@@ -116,7 +119,45 @@ public class SearchTransferService {
 		 return Response.status(Status.OK).entity(responseString).build();
 		}	
 	
-	@Path("/myrequest/{userid}/{transferid}")
+	
+	@Path("{user_id}/{transfer_id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response redMySolutions(@PathParam("user_id") int user,@PathParam("transfer_id") int transfer)
+		{
+		System.out.println("called readMySolutions");
+		LinkedList<McsaSolution> result=null;
+		 try {
+			result = McsaSolutionDAO.readSolutions(user, transfer);
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("JSON parsing internal error:"+System.lineSeparator()+e.getMessage()).build();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("JSON mapping internal error:"+System.lineSeparator()+e.getMessage()).build();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return Response.status(Status.NOT_ACCEPTABLE).entity("Unable to fulfill request due to incorrect user/transfer objects matching"+System.lineSeparator()+e.getSQLState()+System.lineSeparator()+e.getMessage()).build();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("JSON conversion to domain objects failed!"+System.lineSeparator()+e.getMessage()).build();
+		}
+		 ObjectMapper mapper = new ObjectMapper();
+		 String responseString=null;
+		 try {
+			 System.out.println("sto per mappare");
+			responseString = mapper.writeValueAsString(result);
+			System.out.println("mappato");
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error serializing response entity:"+System.lineSeparator()+e.getMessage()).build();
+		}
+		 return Response.status(Status.OK).entity(responseString).build();
+		}
+	
+	
+	
+	@Path("myrequest/{userid}/{transferid}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response readMyRequest(@PathParam("userid") int user,@PathParam("transferid") int transfer)

@@ -1,19 +1,26 @@
 package bvcrplbe.persistence;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
 import org.postgresql.util.PGobject;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import bvcrplbe.ConnectionManager;
+import bvcrplbe.domain.TimedPoint2D;
 import mcsa.McsaSegment;
 import mcsa.McsaSolution;
 
@@ -25,8 +32,84 @@ public class McsaSolutionDAO implements Serializable {
 	private static final long serialVersionUID = -5057669235697699612L;
 	
 	
+	private static final String GET_COMPUTED_SOLUTION = "SELECT * FROM solution WHERE transfer_id=?";
+	private static final String CHECK_TRANSFER_EXISTANCE = "select count(*) from transfer where \"User_ID\"=? AND \"Transfer_ID\"=?;";
+	public static LinkedList<McsaSolution> readSolutions(int userid,int transferid) throws SQLException, IOException
+		{
+		Connection con = null;
+		PreparedStatement pstm = null;
+		ConnectionManager manager = new ConnectionManager();
+		ResultSet rs = null;
+		con=manager.connect();
+		pstm=con.prepareStatement(CHECK_TRANSFER_EXISTANCE);
+		pstm.setInt(1, userid);
+		pstm.setInt(2, transferid);
+		rs = pstm.executeQuery();
+		rs.next();
+		int rows=rs.getInt(1);
+		System.out.println("rows="+rows);
+		if(rows!=1)
+			{
+			rs=null;
+			pstm=null;
+			manager.close();
+			manager=null;
+			con.close();
+			con=null;
+			throw new SQLException("Get solution failed preliminary check: there are "+rows+" transfer associated to the provided user ID, which is wrong");
+			}else
+				{
+				pstm=con.prepareStatement(GET_COMPUTED_SOLUTION);
+				pstm.setInt(1, transferid);
+				rs = pstm.executeQuery();
+				LinkedList<McsaSolution> result = new LinkedList<McsaSolution>();
+				if(rs.isBeforeFirst())
+					{
+					 rs.next();
+					 ObjectMapper mapper = new ObjectMapper();
+					 while(!rs.isAfterLast())
+					 	{
+						 McsaSolution s = new McsaSolution();
+						 s.setSolutionID(rs.getInt(2));
+						 s.setChanges(rs.getInt(3));
+						 s.setNeededSeats(rs.getInt(4));
+						 s.setArrivalTime(rs.getLong(5));
+						 s.setTotalWaitTime(rs.getLong(6));
+						 s.setTotalTripTime(rs.getLong(7));
+						 s.setAnimal(rs.getBoolean(8));
+						 s.setSmoke(rs.getBoolean(9));
+						 s.setLuggage(rs.getBoolean(10));
+						 s.setHandicap(rs.getBoolean(11));
+						 String jsonTransferSet = rs.getString(12);
+						 System.out.println("DIOSTRINGA "+jsonTransferSet);
+						 LinkedHashSet<Integer> transferSet = mapper.readValue(jsonTransferSet, new TypeReference<LinkedHashSet<Integer>>(){});
+						 s.setTransferSet(transferSet);
+						 String jsonSolutionDetail = rs.getString(13);
+						 System.out.println("DIOSTRINGA2 "+jsonSolutionDetail);
+						 LinkedList<McsaSegment> solutionSegments = mapper.readValue(jsonSolutionDetail, new TypeReference<LinkedList<McsaSegment>>(){});
+						 s.setSolution(solutionSegments);
+						 result.add(s);
+					 	}
+					}
+				rs=null;
+				pstm=null;
+				manager.close();
+				manager=null;
+				con.close();
+				con=null;
+				Iterator<McsaSolution> iter = result.iterator();
+				while(iter.hasNext())
+					{
+					System.out.println("MCSASOLUTIONDAO "+iter.next().toString());
+					}
+				return result;
+				}
+		
+		}
+	
 	private static final String INSERT_SOLUTION = "INSERT INTO solution(transfer_id,solution_id,changes,needed_seats,arrival_time,total_waittime,total_triptime,animal,smoke,luggage,"
 			+ "handicap,transfer_set,solution_details) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String DELETE_SOUTION = "DELETE FROM solution WHERE transfer_id=?";
 	
 	public static void saveSolutions(LinkedList<McsaSolution> solutionList, int transferId) throws SQLException, JsonProcessingException
 		{
@@ -34,6 +117,9 @@ public class McsaSolutionDAO implements Serializable {
 			PreparedStatement pstm = null;
 			ConnectionManager manager = new ConnectionManager();
 			conn=manager.connect();
+			pstm=conn.prepareStatement(DELETE_SOUTION);
+			pstm.setInt(1, transferId);
+			pstm.execute();
 			pstm=conn.prepareStatement(INSERT_SOLUTION);
 			Iterator<McsaSolution> solIter = solutionList.iterator();
 			while(solIter.hasNext())

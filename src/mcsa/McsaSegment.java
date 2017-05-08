@@ -27,6 +27,24 @@ import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
 
 public class McsaSegment {
+	public McsaSegment(){};
+	public McsaSegment(int fromTransferID, int toTransferID, boolean animal, boolean handicap, boolean luggage,
+			boolean smoke, long segmentDeparture, long segmentArrival, long departureWaitTime, long segmentDuration,
+			LinkedList<TimedPoint2D> segmentPath) {
+		super();
+		this.fromTransferID = fromTransferID;
+		this.toTransferID = toTransferID;
+		this.animal = animal;
+		this.handicap = handicap;
+		this.luggage = luggage;
+		this.smoke = smoke;
+		this.segmentDeparture = segmentDeparture;
+		this.segmentArrival = segmentArrival;
+		this.departureWaitTime = departureWaitTime;
+		this.segmentDuration = segmentDuration;
+		this.segmentPath = segmentPath;
+	}
+
 	private int fromTransferID;
 	private int toTransferID;
 	private boolean animal;
@@ -233,6 +251,7 @@ public class McsaSegment {
 	public boolean isSmoke() {
 		return smoke;
 	}
+
 
 	@Override
 	public String toString() {
