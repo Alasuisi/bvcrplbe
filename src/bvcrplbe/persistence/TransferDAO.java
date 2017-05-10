@@ -31,7 +31,6 @@ import com.google.gson.JsonParser;
 import com.google.maps.model.LatLng;
 
 import bvcrplbe.ConnectionManager;
-import bvcrplbe.DaoException;
 import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
 import bvcrplbe.domain.UserProfile;

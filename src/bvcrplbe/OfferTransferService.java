@@ -28,7 +28,9 @@ import bvcrplbe.domain.Pool;
 import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
 import bvcrplbe.domain.UserProfile;
+import bvcrplbe.persistence.DaoException;
 import bvcrplbe.persistence.McsaSolutionDAO;
+import bvcrplbe.persistence.PoolDAO;
 import bvcrplbe.persistence.TransferDAO;
 import bvcrplbe.persistence.UserProfileDAO;
 import csa.CSA;
@@ -274,11 +276,15 @@ public class OfferTransferService {
 				int transId;
 				try {
 					transId = TransferDAO.insert(toAdd);
+					PoolDAO.writePool(toAdd);
 				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 					return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
-				}
+				} catch(DaoException e)
+					{
+					return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+					}
 				String strTranId = new Integer(transId).toString();
 				return Response.status(Status.CREATED).entity(strTranId).build();
 			} catch (JsonParseException e) {

@@ -1,4 +1,4 @@
-package bvcrplbe;
+package bvcrplbe.persistence;
 
 public class DaoException extends Exception {
 

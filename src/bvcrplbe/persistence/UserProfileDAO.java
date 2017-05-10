@@ -10,7 +10,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import bvcrplbe.ConnectionManager;
-import bvcrplbe.DaoException;
 import bvcrplbe.domain.UserProfile;
 
 

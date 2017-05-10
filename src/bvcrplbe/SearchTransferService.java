@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import bvcrplbe.domain.Transfer;
+import bvcrplbe.persistence.DaoException;
 import bvcrplbe.persistence.McsaSolutionDAO;
 import bvcrplbe.persistence.TransferDAO;
 import mcsa.MCSA;
@@ -123,7 +124,7 @@ public class SearchTransferService {
 	@Path("{user_id}/{transfer_id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response redMySolutions(@PathParam("user_id") int user,@PathParam("transfer_id") int transfer)
+	public Response readMySolutions(@PathParam("user_id") int user,@PathParam("transfer_id") int transfer)
 		{
 		System.out.println("called readMySolutions");
 		LinkedList<McsaSolution> result=null;
@@ -162,6 +163,7 @@ public class SearchTransferService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response readMyRequest(@PathParam("userid") int user,@PathParam("transferid") int transfer)
 		{
+		System.out.println("CALLED readMyRequest");
 		Transfer passenger=null;
 		 try {
 			passenger = TransferDAO.getMySearchRequest(user, transfer);

@@ -81,11 +81,9 @@ public class McsaSolutionDAO implements Serializable {
 						 s.setLuggage(rs.getBoolean(10));
 						 s.setHandicap(rs.getBoolean(11));
 						 String jsonTransferSet = rs.getString(12);
-						 System.out.println("DIOSTRINGA "+jsonTransferSet);
 						 LinkedHashSet<Integer> transferSet = mapper.readValue(jsonTransferSet, new TypeReference<LinkedHashSet<Integer>>(){});
 						 s.setTransferSet(transferSet);
 						 String jsonSolutionDetail = rs.getString(13);
-						 System.out.println("DIOSTRINGA2 "+jsonSolutionDetail);
 						 LinkedList<McsaSegment> solutionSegments = mapper.readValue(jsonSolutionDetail, new TypeReference<LinkedList<McsaSegment>>(){});
 						 s.setSolution(solutionSegments);
 						 result.add(s);
@@ -98,11 +96,6 @@ public class McsaSolutionDAO implements Serializable {
 				manager=null;
 				con.close();
 				con=null;
-				Iterator<McsaSolution> iter = result.iterator();
-				while(iter.hasNext())
-					{
-					System.out.println("MCSASOLUTIONDAO "+iter.next().toString());
-					}
 				return result;
 				}
 		
