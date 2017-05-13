@@ -107,6 +107,8 @@ public class McsaSolutionDAO implements Serializable {
 																   + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	private static String READ_SEATS = "SELECT (\"Occupied_Seats\"),(\"Available_Seats\") FROM transfer WHERE \"Transfer_ID\"=?";
 	private static String UPDATE_SEATS = "UPDATE transfer SET \"Occupied_Seats\"=\"Occupied_Seats\"+? WHERE \"Transfer_ID\"=?";
+	private static String CHECK_OLD = "SELECT count(*) FROM booked_solutions WHERE transfer_id=?";
+	private static String DELETE_OLD = "DELETE FROM booked_solutions WHERE transfer_id=?";
 	public static void bookSolution(int userid, int tranid, int solid,String callback) throws SQLException, IOException, DaoException
 		{
 		 LinkedList<McsaSolution> list =readSolutions(userid,tranid);
@@ -127,6 +129,7 @@ public class McsaSolutionDAO implements Serializable {
 		 Connection con=null;
 		 PreparedStatement pstm=null;
 		 ConnectionManager manager = new ConnectionManager();
+		 ResultSet rs=null;
 		 con=manager.connect();
 		 HashSet<Integer> tranSet =toBook.getTransferSet();
 		 Iterator<Integer> setIter = tranSet.iterator();
@@ -137,7 +140,7 @@ public class McsaSolutionDAO implements Serializable {
 			 if(thisTran!=tranid)
 			 {
 				 pstm.setInt(1, thisTran);
-				 ResultSet rs = pstm.executeQuery();
+				 rs = pstm.executeQuery();
 				 if(rs.isBeforeFirst())
 				 	{
 					 rs.next();
@@ -152,10 +155,38 @@ public class McsaSolutionDAO implements Serializable {
 						 pstm.setInt(1, toBook.getNeededSeats());
 						 pstm.setInt(2, thisTran);
 						 pstm.executeUpdate();
+						 Iterator<McsaSegment> segIter = toBook.getSolution().iterator();
+						 while(segIter.hasNext())
+						 	{
+							 McsaSegment segment = segIter.next();
+							 if(segment.getFromTransferID()==segment.getToTransferID())
+							 	{
+								 if(segment.getFromTransferID()==thisTran&&segment.getToTransferID()==thisTran)
+								 	{
+									 PoolDAO.updatePassengers(con, pstm, segment, thisTran, tranid);
+								 	}
+							 	}
+						 	}
 					 	}
 				 	}else throw new DaoException("Empty result set");
 		 		}
 		 	}
+		 pstm=con.prepareStatement(CHECK_OLD);
+		 pstm.setInt(1, tranid);
+		 rs=pstm.executeQuery();
+		 if(rs.isBeforeFirst())
+		 	{
+			 rs.next();
+			 int count = rs.getInt(1);
+			 if(count>1) throw new DaoException("Unexpected results, there were more than a booked solution for transfer: "+tranid);
+			 if(count==1)
+			 	{
+				 pstm=con.prepareStatement(DELETE_OLD);
+				 pstm.setInt(1, tranid);
+				 pstm.executeUpdate();
+			 	}
+		 	}else throw new DaoException("Something went wrong when evaluating presence of already booked solution for this transfe: "+tranid);
+		 
 		 
 		 pstm=con.prepareStatement(BOOK_SOLUTION);
 		 pstm.setInt(1, tranid);

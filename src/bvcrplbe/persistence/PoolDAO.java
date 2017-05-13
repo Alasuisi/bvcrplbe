@@ -21,6 +21,7 @@ import bvcrplbe.domain.Passenger;
 import bvcrplbe.domain.Pool;
 import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
+import mcsa.McsaSegment;
 
 public class PoolDAO implements Serializable{
 
@@ -69,6 +70,38 @@ public class PoolDAO implements Serializable{
 		return null;
 		}
 	
+	
+	private static String READ_PASSENGERS = "SELECT (passenger_list) from pool WHERE pool_id=?";
+	private static String UPDATE_PASSENGERS = "UPDATE pool SET passenger_list=? where pool_id=?";
+	public static void updatePassengers(Connection con,PreparedStatement pstm, McsaSegment segment, int poolid,int passTranId) throws SQLException, DaoException, JsonParseException, JsonMappingException, IOException
+		{
+			pstm=con.prepareStatement(READ_PASSENGERS);
+			pstm.setInt(1, poolid);
+			ResultSet rs = pstm.executeQuery();
+			if(rs.isBeforeFirst())
+				{
+				 rs.next();
+				 String passengersString = rs.getString(1);
+				 LinkedList<Passenger> passList=null;
+				 ObjectMapper mapper = new ObjectMapper();
+				 if(passengersString!=null)
+				 	{
+					 passList = mapper.readValue(passengersString, new TypeReference<LinkedList<Passenger>>(){});
+				 	}else passList= new LinkedList<Passenger>();
+				 
+				 Passenger toAdd = new Passenger(passTranId,segment.getSegmentPath().getFirst(),segment.getSegmentPath().getLast());
+				 passList.add(toAdd);
+				 String updateList = mapper.writeValueAsString(passList);
+				 pstm=con.prepareStatement(UPDATE_PASSENGERS);
+				 PGobject listJson = new PGobject();
+				 listJson.setType("json");
+				 listJson.setValue(updateList);
+				 pstm.setObject(1, listJson);
+				 pstm.setInt(2, poolid);
+				 pstm.executeUpdate();
+				}else throw new DaoException("Problem reading passenger list of driver pool");
+			
+		}
 	
 	private static String CREATE_POOL= "INSERT INTO pool(pool_id,driver_id,driver_path) VALUES (?,?,?)";
 	private static String CHECK_DRIVER = "select count(*) from transfer where \"User_ID\"=? AND \"Transfer_ID\"=? AND \"User_Role\"= '{\"role\": \"driver\"}'";
