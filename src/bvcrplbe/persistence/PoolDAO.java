@@ -1,5 +1,6 @@
 package bvcrplbe.persistence;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,10 +10,15 @@ import java.util.LinkedList;
 
 import org.postgresql.util.PGobject;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import bvcrplbe.ConnectionManager;
+import bvcrplbe.domain.Passenger;
+import bvcrplbe.domain.Pool;
 import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
 
@@ -23,6 +29,45 @@ public class PoolDAO implements Serializable{
 	 */
 	private static final long serialVersionUID = 5629709939884942236L;
 	
+	private static String READ_POOL = "SELECT * FROM pool WHERE pool_id=? AND driver_id=?";
+	public static Pool readPool(int userid,int tranid) throws SQLException, JsonParseException, JsonMappingException, IOException
+		{
+		Connection con=null;
+		PreparedStatement pstm=null;
+		ResultSet rs = null;
+		ConnectionManager manager = new ConnectionManager();
+		con = manager.connect();
+		pstm=con.prepareStatement(READ_POOL);
+		pstm.setInt(1, tranid);
+		pstm.setInt(2, userid);
+		rs=pstm.executeQuery();
+		if(rs.isBeforeFirst())
+			{
+				rs.next();
+				int poolid = rs.getInt(1);
+				int driverid = rs.getInt(2);
+				String pathString = rs.getString(3);
+				String passString = rs.getString(4);
+				ObjectMapper mapper = new ObjectMapper();
+				LinkedList<TimedPoint2D> path =mapper.readValue(pathString, new TypeReference<LinkedList<TimedPoint2D>>() {});
+				LinkedList<Passenger> pass = new LinkedList<Passenger>();
+				if(passString!=null)
+					{
+					pass = mapper.readValue(passString, new TypeReference<LinkedList<Passenger>>(){});
+					}
+				Pool result = new Pool(poolid, driverid, path, pass);
+				rs.close();
+				pstm.close();
+				con.close();
+				manager.close();
+				return result;
+			}
+		rs.close();
+		pstm.close();
+		con.close();
+		manager.close();
+		return null;
+		}
 	
 	
 	private static String CREATE_POOL= "INSERT INTO pool(pool_id,driver_id,driver_path) VALUES (?,?,?)";

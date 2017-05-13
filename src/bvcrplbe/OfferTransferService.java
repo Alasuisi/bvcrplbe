@@ -42,6 +42,7 @@ import mcsa.McsaSolution;
 
 @Path("/OfferRide")
 public class OfferTransferService {
+	
 	  @Path("{latSta}/{lonSta}/{latEnd}/{lonEnd}")
 	  @GET
 	  @Produces(MediaType.APPLICATION_JSON)
@@ -303,10 +304,36 @@ public class OfferTransferService {
 			//return Response.status(Status.OK).entity("da mettere").build();
 		  
 	  	}
-	  @Path("/pool/{poolid}")
+	  
+	  @Path("/pool/{userid}/{transferid}")
 	  @GET
 	  @Produces(MediaType.APPLICATION_JSON)
-	  public Response getPool(@PathParam("poolid") int poolid)
+	  public Response getPool(@PathParam("userid") int userid, @PathParam("transferid") int poolid)
+	  	{
+		  Pool result=null;
+		  try {
+			  	result = PoolDAO.readPool(userid, poolid);
+			  } catch (SQLException | IOException e) {
+							e.printStackTrace();
+							if(e instanceof SQLException)return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error retrieving pool object:"+System.lineSeparator()+e.getMessage()).build();
+							if(e instanceof IOException) return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error deserializing pool object"+System.lineSeparator()+e.getMessage()).build();
+			  }
+		  ObjectMapper mapper = new ObjectMapper();
+		  String resvalue=null;
+		  try {
+			   resvalue = mapper.writeValueAsString(result);
+			  } catch (JsonProcessingException e) {
+					e.printStackTrace();
+					return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error serializing response content"+System.lineSeparator()+e.getMessage()).build();
+			  }
+		  return Response.status(Status.OK).entity(resvalue).build();
+	  	}
+	  
+	  /*
+	  @Path("/pool/{userid}/{transferid}")
+	  @GET
+	  @Produces(MediaType.APPLICATION_JSON)
+	  public Response getPool(@PathParam("userid") int userid, @PathParam("transferid") int poolid)
 	  	{
 		  TimedPoint2D a = new TimedPoint2D(33.234,55.324234,1234124312);
 		  TimedPoint2D s = new TimedPoint2D(33.234,55.324234,1234124312);
@@ -335,7 +362,7 @@ public class OfferTransferService {
 		}
 		  
 		  return Response.status(Status.OK).entity(responseString).build();
-	  	}
+	  	}*/
 	  
 	  /*
 	  @Path("/test/{userid}")

@@ -101,6 +101,97 @@ public class McsaSolutionDAO implements Serializable {
 		
 		}
 	
+	private static String BOOK_SOLUTION ="INSERT INTO booked_solutions(transfer_id,solution_id,changes,needed_seats,"
+																   + "arrival_time,total_waittime,total_triptime,animal,smoke,luggage,"
+																   + "handicap,transfer_set,solution_details,callback_url) "
+																   + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static String READ_SEATS = "SELECT (\"Occupied_Seats\"),(\"Available_Seats\") FROM transfer WHERE \"Transfer_ID\"=?";
+	private static String UPDATE_SEATS = "UPDATE transfer SET \"Occupied_Seats\"=\"Occupied_Seats\"+? WHERE \"Transfer_ID\"=?";
+	public static void bookSolution(int userid, int tranid, int solid,String callback) throws SQLException, IOException, DaoException
+		{
+		 LinkedList<McsaSolution> list =readSolutions(userid,tranid);
+		 if(list.size()==0) throw new DaoException("You ar trying to book a solution, but no computed solution exists");
+		 Iterator<McsaSolution> iter = list.iterator();
+		 McsaSolution toBook=null;
+		 boolean found=false;
+		 while(iter.hasNext() && !found)
+		 	{
+			 McsaSolution temp = iter.next();
+			 if(temp.getSolutionID()==solid)
+			 	{
+				 toBook=temp;
+				 found=true;
+			 	}
+		 	}
+		 
+		 Connection con=null;
+		 PreparedStatement pstm=null;
+		 ConnectionManager manager = new ConnectionManager();
+		 con=manager.connect();
+		 HashSet<Integer> tranSet =toBook.getTransferSet();
+		 Iterator<Integer> setIter = tranSet.iterator();
+		 while(setIter.hasNext())
+		 	{
+			 pstm=con.prepareStatement(READ_SEATS);
+			 int thisTran = setIter.next().intValue();
+			 if(thisTran!=tranid)
+			 {
+				 pstm.setInt(1, thisTran);
+				 ResultSet rs = pstm.executeQuery();
+				 if(rs.isBeforeFirst())
+				 	{
+					 rs.next();
+					 int freeSeats = rs.getInt(2)-rs.getInt(1);
+					 if (freeSeats<toBook.getNeededSeats()) 
+					 	{
+						 throw new DaoException("not enough free seats in transfer: "+thisTran+". Someone may already have booked the remaining seats");
+					 	}
+					 else
+					 	{
+						 pstm=con.prepareStatement(UPDATE_SEATS);
+						 pstm.setInt(1, toBook.getNeededSeats());
+						 pstm.setInt(2, thisTran);
+						 pstm.executeUpdate();
+					 	}
+				 	}else throw new DaoException("Empty result set");
+		 		}
+		 	}
+		 
+		 pstm=con.prepareStatement(BOOK_SOLUTION);
+		 pstm.setInt(1, tranid);
+		 pstm.setInt(2, toBook.getSolutionID());
+		 pstm.setInt(3, toBook.getChanges());
+		 pstm.setInt(4, toBook.getNeededSeats());
+		 pstm.setLong(5, toBook.getArrivalTime());
+		 pstm.setLong(6, toBook.getTotalWaitTime());
+		 pstm.setLong(7, toBook.getTotalTripTime());
+		 pstm.setBoolean(8, toBook.isAnimal());
+		 pstm.setBoolean(9, toBook.isSmoke());
+		 pstm.setBoolean(10, toBook.isLuggage());
+		 pstm.setBoolean(11, toBook.isHandicap());
+		 ObjectMapper mapper = new ObjectMapper();
+		 String transferString = mapper.writeValueAsString(toBook.getTransferSet());
+		 PGobject transferJson = new PGobject();
+		 transferJson.setType("json");
+		 transferJson.setValue(transferString);
+		 pstm.setObject(12, transferJson);
+		 String solString = mapper.writeValueAsString(toBook.getSolution());
+		 PGobject solJson = new PGobject();
+		 solJson.setType("json");
+		 solJson.setValue(solString);
+		 pstm.setObject(13, solJson);
+		 pstm.setString(14, callback);
+		 pstm.executeUpdate();
+		 pstm=con.prepareStatement(DELETE_SOUTION);
+		 pstm.setInt(1, tranid);
+		 pstm.executeUpdate();
+		 con.commit();
+		 pstm.close();
+		 con.close();
+         manager.close();
+		 
+		}
+	
 	private static final String INSERT_SOLUTION = "INSERT INTO solution(transfer_id,solution_id,changes,needed_seats,arrival_time,total_waittime,total_triptime,animal,smoke,luggage,"
 			+ "handicap,transfer_set,solution_details) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	private static final String DELETE_SOUTION = "DELETE FROM solution WHERE transfer_id=?";
