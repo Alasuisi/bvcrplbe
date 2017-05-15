@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.postgresql.util.PGobject;
@@ -87,6 +88,12 @@ public class PoolDAO implements Serializable{
 				 if(passengersString!=null)
 				 	{
 					 passList = mapper.readValue(passengersString, new TypeReference<LinkedList<Passenger>>(){});
+					 Iterator<Passenger> iter = passList.iterator();
+					 while(iter.hasNext())
+					 	{
+						 Passenger thisPass = iter.next();
+						 if(thisPass.getTransferID()==passTranId) throw new DaoException("There is already a reservation, for passenger transfer "+passTranId+ " with the driver with transfer "+poolid);
+					 	}
 				 	}else passList= new LinkedList<Passenger>();
 				 
 				 Passenger toAdd = new Passenger(passTranId,segment.getSegmentPath().getFirst(),segment.getSegmentPath().getLast());
