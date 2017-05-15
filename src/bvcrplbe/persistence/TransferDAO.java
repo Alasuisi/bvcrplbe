@@ -47,8 +47,8 @@ public class TransferDAO implements Serializable{
 																			+ "\"Arrival_GPS\",\"Departure_Time\",\"Type\",\"Occupied_Seats\",\"Available_Seats\",\"Animal\",\"Handicap\",\"Smoke\",\"Luggage\",\"Status\",\"Price\",\"Path\",\"Detour_range\",\"Ride_Details\")"
 																			+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";*/
 		private static final String INSERT_TRANSFER = "INSERT INTO Transfer(\"User_ID\",\"Profile_ID\",\"Class_ID\",\"Reservation_ID\",\"Pool_ID\",\"User_Role\",\"Departure_Address\",\"Arrival_Address\",\"Departure_GPS\","
-				+ "\"Arrival_GPS\",\"Departure_Time\",\"Type\",\"Occupied_Seats\",\"Available_Seats\",\"Animal\",\"Handicap\",\"Smoke\",\"Luggage\",\"Status\",\"Price\",\"Path\",\"Detour_Range\",\"Ride_Details\")"
-				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "\"Arrival_GPS\",\"Departure_Time\",\"Type\",\"Occupied_Seats\",\"Available_Seats\",\"Animal\",\"Handicap\",\"Smoke\",\"Luggage\",\"Status\",\"Price\",\"Path\",\"Detour_Range\",\"Ride_Details\",\"Callback_URI\")"
+				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		
 		public static int insert(Transfer transfer) throws SQLException, JsonParseException, JsonMappingException, IOException, ClassNotFoundException
 		{
@@ -108,6 +108,7 @@ public class TransferDAO implements Serializable{
 			pstm.setObject(21, pathpg);
 			pstm.setDouble(22,transfer.getDet_range());
 			pstm.setString(23, transfer.getRide_details());
+			pstm.setString(24, transfer.getCallback_uri());
 			pstm.executeUpdate();
 			ResultSet chiave = pstm.getGeneratedKeys();
 			con.commit();
@@ -170,6 +171,7 @@ public class TransferDAO implements Serializable{
 					 toAdd.setPath(pathFromJson);
 					 toAdd.setDet_range(rs.getDouble(23));
 					 toAdd.setRide_details(rs.getString(24));
+					 toAdd.setCallback_uri(rs.getString(25));
 					 result.add(toAdd);
 					 rs.next();
 					 }
@@ -242,6 +244,7 @@ public class TransferDAO implements Serializable{
 					 toAdd.setPath(pathFromJson);
 					 toAdd.setDet_range(rs.getDouble(23));
 					 toAdd.setRide_details(rs.getString(24));
+					 toAdd.setCallback_uri(rs.getString(25));
 					 result.add(toAdd);
 					 rs.next();
 					 }
@@ -305,6 +308,7 @@ public class TransferDAO implements Serializable{
 				 result.setPath(pathFromJson);
 				 result.setDet_range(rs.getDouble(23));
 				 result.setRide_details(rs.getString(24));
+				 result.setCallback_uri(rs.getString(25));
 				}else throw new DaoException("No result, the combination of userid and tranferid is not associated to any ride request in the database");
 			 return result;
 			}
@@ -362,6 +366,7 @@ public class TransferDAO implements Serializable{
 					 toAdd.setPath(pathFromJson);
 					 toAdd.setDet_range(rs.getDouble(23));
 					 toAdd.setRide_details(rs.getString(24));
+					 toAdd.setCallback_uri(rs.getString(25));
 					 result.add(toAdd);
 					 rs.next();
 					}
@@ -436,8 +441,10 @@ public class TransferDAO implements Serializable{
 					 //JsonObject path = (new JsonParser()).parse(pathString).getAsJsonObject();
 					 ObjectMapper mapper = new ObjectMapper();
 					 LinkedList<TimedPoint2D> pathFromJson =mapper.readValue(pathString, new TypeReference<LinkedList<TimedPoint2D>>() {});
-					 
 					 toAdd.setPath(pathFromJson);
+					 toAdd.setDet_range(rs.getDouble(23));
+					 toAdd.setRide_details(rs.getString(24));
+					 toAdd.setCallback_uri(rs.getString(25));
 					 result.add(toAdd);
 					 rs.next();
 				 	}

@@ -277,6 +277,7 @@ public class OfferTransferService {
 				int transId;
 				try {
 					transId = TransferDAO.insert(toAdd);
+					toAdd.setTran_id(transId);
 					PoolDAO.writePool(toAdd);
 				} catch (ClassNotFoundException e) {
 

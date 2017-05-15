@@ -109,7 +109,8 @@ public class McsaSolutionDAO implements Serializable {
 	private static String UPDATE_SEATS = "UPDATE transfer SET \"Occupied_Seats\"=\"Occupied_Seats\"+? WHERE \"Transfer_ID\"=?";
 	private static String CHECK_OLD = "SELECT count(*) FROM booked_solutions WHERE transfer_id=?";
 	private static String DELETE_OLD = "DELETE FROM booked_solutions WHERE transfer_id=?";
-	public static void bookSolution(int userid, int tranid, int solid,String callback) throws SQLException, IOException, DaoException
+	private static String GET_CALLBACK_URI = "SELECT (\"Callback_URI\") FROM transfer WHERE \"Transfer_ID\"=?";
+	public static McsaSolution bookSolution(int userid, int tranid, int solid) throws Exception
 		{
 		 LinkedList<McsaSolution> list =readSolutions(userid,tranid);
 		 if(list.size()==0) throw new DaoException("You ar trying to book a solution, but no computed solution exists");
@@ -125,6 +126,7 @@ public class McsaSolutionDAO implements Serializable {
 				 found=true;
 			 	}
 		 	}
+		 toBook.generateWalinkgPaths();
 		 
 		 Connection con=null;
 		 PreparedStatement pstm=null;
@@ -188,6 +190,16 @@ public class McsaSolutionDAO implements Serializable {
 		 	}else throw new DaoException("Something went wrong when evaluating presence of already booked solution for this transfe: "+tranid);
 		 
 		 
+		 pstm=con.prepareStatement(GET_CALLBACK_URI);
+		 pstm.setInt(1, tranid);
+		 rs=pstm.executeQuery();
+		 String callback=null;
+		 if(rs.isBeforeFirst())
+		 	{
+			 rs.next();
+			 callback=rs.getString(1);
+		 	}else throw new DaoException("Something went wrong retrieving callback uri for transfer "+tranid);
+		 
 		 pstm=con.prepareStatement(BOOK_SOLUTION);
 		 pstm.setInt(1, tranid);
 		 pstm.setInt(2, toBook.getSolutionID());
@@ -220,7 +232,7 @@ public class McsaSolutionDAO implements Serializable {
 		 pstm.close();
 		 con.close();
          manager.close();
-		 
+		 return toBook;
 		}
 	
 	private static final String INSERT_SOLUTION = "INSERT INTO solution(transfer_id,solution_id,changes,needed_seats,arrival_time,total_waittime,total_triptime,animal,smoke,luggage,"

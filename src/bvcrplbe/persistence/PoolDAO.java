@@ -115,11 +115,12 @@ public class PoolDAO implements Serializable{
 		 pstm=con.prepareStatement(CHECK_DRIVER);
 		 pstm.setInt(1, tran.getUser_id());
 		 pstm.setInt(2, tran.getTran_id());
+		 System.out.println("userid "+tran.getUser_id()+" tranid "+tran.getTran_id());
 		 rs=pstm.executeQuery();
 		 if(rs.isBeforeFirst())
 		 	{
 			 rs.next();
-			 int count =rs.getInt(1);
+			 int count =rs.getInt("count");
 			 if(count==0) throw new DaoException("The transfer passed as input is not associated to a driver, but a passenger");
 			 if(count>1) throw new DaoException("Something very bad happened, there is inconsitency with the db with respect to transfer_id="+tran.getTran_id());
 			 if(count==1)

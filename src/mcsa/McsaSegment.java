@@ -177,6 +177,51 @@ public class McsaSegment {
 		 segmentDuration=segmentArrival-segmentDeparture;
 		}
 	
+	public void updateSegmentPath() throws Exception 
+		{
+		 if(this.getSegmentPath().size()!=2) throw new McsaException("Called update segment for a segment which already have a defined path");
+		 else
+		 	{
+			 TimedPoint2D fromPoint = this.getSegmentPath().getFirst();
+			 TimedPoint2D toPoint = this.getSegmentPath().getLast();
+			 String alternative="AIzaSyBt2BW_V8EvbbFp5t1Qh_U06-7lx3ZhsMI";
+			 String original="AIzaSyBA-NgbRwnecHN3cApbnZoaCZH0ld66fT4";
+			 GeoApiContext context = new GeoApiContext().setApiKey(alternative);
+			 DirectionsResult results=null;
+			 String from=""+fromPoint.getLatitude()+","+fromPoint.getLongitude()+"";
+			 String to= ""+toPoint.getLatitude()+","+toPoint.getLongitude()+"";
+			 DirectionsApiRequest req=DirectionsApi.newRequest(context);
+			 req.mode(TravelMode.WALKING);
+			 req.origin(from);
+			 req.destination(to);
+			 results=req.await();
+			 DirectionsRoute[] routes = results.routes;
+			 EncodedPolyline poly = routes[0].overviewPolyline;
+			 List<LatLng> polyList = poly.decodePath();
+			 Iterator<LatLng> polIter = polyList.iterator();
+			 NumberFormat nf = NumberFormat.getNumberInstance(Locale.UK);
+			 nf.setMaximumFractionDigits(5);    
+			 nf.setMinimumFractionDigits(5);
+			 nf.setGroupingUsed(false);
+			 LinkedList<TimedPoint2D> updatedPath = new LinkedList<TimedPoint2D>();
+			 LatLng firstLatLng =polIter.next();
+			 TimedPoint2D firstPoint= new TimedPoint2D();
+			 firstPoint.setLatitude(new Double(nf.format(firstLatLng.lat)));
+			 firstPoint.setLongitude(new Double(nf.format(firstLatLng.lng)));
+			 updatedPath.add(firstPoint);
+			 LatLng lastLatLng = null;
+			 while(polIter.hasNext())
+			 	{
+				 TimedPoint2D toAdd = new TimedPoint2D();
+				 LatLng actual = polIter.next();
+				 toAdd.setLatitude(new Double(nf.format(actual.lat)));
+				 toAdd.setLongitude(new Double(nf.format(actual.lng)));
+				 updatedPath.add(toAdd);
+				 lastLatLng=actual;
+			 	}
+			 this.segmentPath=updatedPath;
+		 	}
+		}
 	
 
 	private long travelTime(double distance)

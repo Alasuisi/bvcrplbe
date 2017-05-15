@@ -5,6 +5,7 @@ public class Passenger {
 	private TimedPoint2D boardingPoint;
 	private TimedPoint2D getofPoint;
 	
+	public Passenger(){};
 	public Passenger(int transferID, TimedPoint2D boardingPoint, TimedPoint2D getofPoint) {
 		super();
 		this.transferID = transferID;

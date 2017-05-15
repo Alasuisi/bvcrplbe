@@ -27,7 +27,18 @@ public class McsaSolution {
 	
 	public McsaSolution(){};
 
-	
+	public void generateWalinkgPaths() throws Exception
+		{
+		 Iterator<McsaSegment> iter = this.solution.iterator();
+		 while(iter.hasNext())
+		 	{
+			  McsaSegment toUpdate = iter.next();
+			  if(toUpdate.getFromTransferID()!=toUpdate.getToTransferID())
+			  	{
+				  toUpdate.updateSegmentPath();
+			  	}
+		 	}
+		}
 	public void setSolutionID(int solutionID) {
 		this.solutionID = solutionID;
 	}
