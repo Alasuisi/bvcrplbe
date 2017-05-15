@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -22,6 +23,9 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
 import bvcrplbe.domain.Passenger;
 import bvcrplbe.domain.Pool;
@@ -305,6 +309,25 @@ public class OfferTransferService {
 			//return Response.status(Status.OK).entity("da mettere").build();
 		  
 	  	}
+	  
+	  @DELETE
+	  @Path("/{userid}/{tranid}")
+	  @Produces(MediaType.APPLICATION_JSON)
+	  public Response deleteRide(@PathParam("userid") int userid,@PathParam("tranid") int tranid)
+	  	{
+		  System.out.println("SERVER-DELETE: received delete request for driver "+userid+" and transfer "+tranid);
+		  Client client = Client.create();
+		  String address="http://localhost:8080/testCallback/callback/driver/delete/";
+		  WebResource resource = client.resource(address);
+		  String resString = "SERVER: DELETED BOOKED RIDE RELATIVE TO TRANSFER"+tranid;
+		  ClientResponse response = resource.type(MediaType.TEXT_PLAIN).post(ClientResponse.class, resString);
+		  if(response.getStatus()!=200)
+		  	{
+			  System.out.println("something went wrong");
+			  return Response.status(Status.SERVICE_UNAVAILABLE).entity("Unable to inform passenger of transfer cancellation").build();
+			}else return Response.status(Status.OK).entity("Transfer deleted, and passengers informed").build();
+	  	}
+	  
 	  
 	  @Path("/pool/{userid}/{transferid}")
 	  @GET
