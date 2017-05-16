@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import bvcrplbe.domain.TranException;
 import bvcrplbe.domain.Transfer;
 import bvcrplbe.persistence.DaoException;
 import bvcrplbe.persistence.McsaSolutionDAO;
@@ -34,6 +35,80 @@ import mcsa.McsaSolution;
 
 @Path("/SearchRide")
 public class SearchTransferService {
+	
+	@Path("/{timeFrame}")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response SearchRideTimeFrame(@PathParam("timeFrame") long timeFrame,String transferString)
+		{
+		System.out.println("CALLED SEARCHRIDE");
+		 Transfer passenger=null;
+		 LinkedList<Transfer> drivers=null;
+		 ObjectMapper mapper = new ObjectMapper();
+		 try {
+			 System.out.println("ma che ho in ingresso?  "+transferString);
+			passenger = mapper.readValue(transferString, Transfer.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return Response.status(Status.NOT_ACCEPTABLE).entity("Malformed Ride Object:"+System.lineSeparator()+e.getMessage()).build();
+		}
+		 try {
+			 long worstArrival=passenger.getPath().getLast().getTouchTime();
+			 long depTime = passenger.getPath().getFirst().getTouchTime();
+			 if(worstArrival==0 || worstArrival<passenger.getDep_time()) 
+			 	{
+				 String error="Malformed transfer object: the last point in the path has no arrival time, or arrival_time < departure_time";
+				 return Response.status(Status.BAD_REQUEST).entity(error).build();
+			 	}
+			drivers = TransferDAO.readAllOfferings(depTime,worstArrival,timeFrame);
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Parser error:"+System.lineSeparator()+e.getMessage()).build();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Mapper error:"+System.lineSeparator()+e.getMessage()).build();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("SQL error:"+System.lineSeparator()+e.getMessage()+System.lineSeparator()+e.getSQLState()).build();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Parser error:"+System.lineSeparator()+e.getMessage()).build();
+		}
+		 MCSA mcsa = new MCSA(drivers,passenger);
+		 mcsa.removeDeadEnds();
+		 mcsa.computeMCSA(passenger.getDep_time());
+		 mcsa.removeBadOnes();
+		 LinkedList<LinkedList<McsaConnection>> result2 = mcsa.result;
+		 System.out.println("Cleaned solutions size" +result2.size());
+		 McsaResult result=null;
+		 try {
+			result = mcsa.getResults();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Multipath Connection Scan Algorithm: FAIL"+System.lineSeparator()+e.getMessage()).build();
+		}
+		 LinkedList<McsaSolution> solutionList = result.getResults();
+		 try {
+			McsaSolutionDAO.saveSolutions(solutionList, passenger.getTran_id());
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Parser error:"+System.lineSeparator()+e.getMessage()).build();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("SQL error:"+System.lineSeparator()+e.getMessage()+System.lineSeparator()+e.getSQLState()).build();
+		}
+		 String responseString=null;
+		 try {
+			responseString = mapper.writeValueAsString(solutionList);
+			//System.out.println(responseString);
+		} catch (JsonProcessingException e) {
+		
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Response JSON conversion error:"+System.lineSeparator()+e.getMessage()).build();
+		}
+		 return Response.status(Status.OK).entity(responseString).build();
+		}
 	
 	//@Path("/search")
 	@POST
@@ -53,7 +128,14 @@ public class SearchTransferService {
 			return Response.status(Status.NOT_ACCEPTABLE).entity("Malformed Ride Object:"+System.lineSeparator()+e.getMessage()).build();
 		}
 		 try {
-			drivers = TransferDAO.readAllOfferings();
+			 long worstArrival=passenger.getPath().getLast().getTouchTime();
+			 long depTime = passenger.getPath().getFirst().getTouchTime();
+			 if(worstArrival==0 || worstArrival<passenger.getDep_time()) 
+			 	{
+				 String error="Malformed transfer object: the last point in the path has no arrival time, or arrival_time < departure_time";
+				 return Response.status(Status.BAD_REQUEST).entity(error).build();
+			 	}
+			drivers = TransferDAO.readAllOfferings(depTime,worstArrival,Long.MAX_VALUE);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Parser error:"+System.lineSeparator()+e.getMessage()).build();

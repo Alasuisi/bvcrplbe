@@ -313,8 +313,27 @@ public class TransferDAO implements Serializable{
 			 return result;
 			}
 		
+		private static boolean timeConstraint(long drivDepTim,long drivArrTime,long passDepTime,long passArrTime,long extendIntervalBy)
+			{
+			 long plusMinusTimeExtension=extendIntervalBy;
+			 if(plusMinusTimeExtension==Long.MAX_VALUE)return true;
+			 if(drivArrTime<passDepTime)
+			 	{
+				  if((passDepTime-drivArrTime)<plusMinusTimeExtension) return true;
+				  else return false;
+			 	}
+			 if(drivArrTime>passDepTime)
+			 	{
+				 if(drivArrTime>passArrTime)
+				 	{
+					  if((drivArrTime-passArrTime)<plusMinusTimeExtension) return true;
+					  else return false;
+				 	}
+			 	}
+			 return true;
+			}
 		private static String READ_ALL_OFFERINGS= " SELECT * FROM transfer WHERE \"User_Role\"= '{\"role\":\"driver\"}'"; //AND \"Transfer_ID\">120 AND \"Transfer_ID\"<135
-		public static LinkedList<Transfer> readAllOfferings() throws SQLException, JSONException, IOException
+		public static LinkedList<Transfer> readAllOfferings(long depTime,long worstArrival, long extendIntervalBy) throws SQLException, JSONException, IOException
 			{
 			Connection con=null;
 			PreparedStatement pstm=null;
@@ -330,44 +349,60 @@ public class TransferDAO implements Serializable{
 				result=new LinkedList<Transfer>();
 				while(!rs.isAfterLast())
 					{
-					Transfer toAdd = new Transfer();
-					 toAdd.setTran_id(rs.getInt(1));
-					 toAdd.setUser_id(rs.getInt(2));
-					 toAdd.setProf_id(rs.getInt(3));
-					 toAdd.setClass_id(rs.getShort(4));
-					 toAdd.setReser_id(rs.getInt(5));
-					 toAdd.setPool_id(rs.getInt(6));
-					 JSONObject roleJson = new JSONObject(rs.getString(7));
-					 toAdd.setUser_role(roleJson.getString("role"));
-					 toAdd.setDep_addr(rs.getString(8));
-					 toAdd.setArr_addr(rs.getString(9));
-					 PGpoint depGps = new PGpoint(rs.getString(10));
-					 Point2D.Double depPoint = new Point2D.Double(depGps.x, depGps.y);
-					 toAdd.setDep_gps(depPoint);
-					 PGpoint arrGps = new PGpoint(rs.getString(11));
-					 Point2D.Double arrPoint = new Point2D.Double(arrGps.x, arrGps.y);
-					 toAdd.setArr_gps(arrPoint);
-					 Timestamp depTimestamp = rs.getTimestamp(12);
-					 toAdd.setDep_time(depTimestamp.getTime());
-					 toAdd.setType(rs.getString(13));
-					 toAdd.setOcc_seats(rs.getInt(14));
-					 toAdd.setAva_seats(rs.getInt(15));
-					 toAdd.setAnimal(rs.getBoolean(16));
-					 toAdd.setHandicap(rs.getBoolean(17));
-					 toAdd.setSmoke(rs.getBoolean(18));
-					 toAdd.setLuggage(rs.getBoolean(19));
-					 toAdd.setStatus(rs.getString(20));
-					 toAdd.setPrice(rs.getDouble(21));
-					 
-					 String pathString =rs.getString(22);
+					String pathString =rs.getString(22);
 					 ObjectMapper mapper = new ObjectMapper();
 					 LinkedList<TimedPoint2D> pathFromJson =mapper.readValue(pathString, new TypeReference<LinkedList<TimedPoint2D>>() {});
-					 
-					 toAdd.setPath(pathFromJson);
-					 toAdd.setDet_range(rs.getDouble(23));
-					 toAdd.setRide_details(rs.getString(24));
-					 toAdd.setCallback_uri(rs.getString(25));
-					 result.add(toAdd);
+					 long drivDepTime=pathFromJson.getFirst().getTouchTime();
+					 long drivArrTime=pathFromJson.getLast().getTouchTime();
+					 if(timeConstraint(drivDepTime,drivArrTime,depTime,worstArrival,extendIntervalBy)) //&& drivDepTime<worstArrival) || !(drivDepTime>worstArrival)
+					 {
+						 Transfer toAdd = new Transfer();
+						 toAdd.setTran_id(rs.getInt(1));
+						 System.out.println("added transfer: "+toAdd.getTran_id());
+						 if(toAdd.getTran_id()==146)
+						 	{
+							 System.out.println("drivArrTime:  "+drivArrTime+" drivDepTime: "+drivDepTime);
+							 System.out.println("worstArrival: "+worstArrival+" depTime:     "+depTime);
+						 	}
+						 toAdd.setUser_id(rs.getInt(2));
+						 toAdd.setProf_id(rs.getInt(3));
+						 toAdd.setClass_id(rs.getShort(4));
+						 toAdd.setReser_id(rs.getInt(5));
+						 toAdd.setPool_id(rs.getInt(6));
+						 JSONObject roleJson = new JSONObject(rs.getString(7));
+						 toAdd.setUser_role(roleJson.getString("role"));
+						 toAdd.setDep_addr(rs.getString(8));
+						 toAdd.setArr_addr(rs.getString(9));
+						 PGpoint depGps = new PGpoint(rs.getString(10));
+						 Point2D.Double depPoint = new Point2D.Double(depGps.x, depGps.y);
+						 toAdd.setDep_gps(depPoint);
+						 PGpoint arrGps = new PGpoint(rs.getString(11));
+						 Point2D.Double arrPoint = new Point2D.Double(arrGps.x, arrGps.y);
+						 toAdd.setArr_gps(arrPoint);
+						 Timestamp depTimestamp = rs.getTimestamp(12);
+						 toAdd.setDep_time(depTimestamp.getTime());
+						 toAdd.setType(rs.getString(13));
+						 toAdd.setOcc_seats(rs.getInt(14));
+						 toAdd.setAva_seats(rs.getInt(15));
+						 toAdd.setAnimal(rs.getBoolean(16));
+						 toAdd.setHandicap(rs.getBoolean(17));
+						 toAdd.setSmoke(rs.getBoolean(18));
+						 toAdd.setLuggage(rs.getBoolean(19));
+						 toAdd.setStatus(rs.getString(20));
+						 toAdd.setPrice(rs.getDouble(21));
+						 
+						 /*String pathString =rs.getString(22);
+						 ObjectMapper mapper = new ObjectMapper();
+						 LinkedList<TimedPoint2D> pathFromJson =mapper.readValue(pathString, new TypeReference<LinkedList<TimedPoint2D>>() {});
+						 long drivDepTime=pathFromJson.getFirst().getTouchTime();
+						 long drivArrTime=pathFromJson.getLast().getTouchTime();*/
+						 
+						 toAdd.setPath(pathFromJson);
+						 toAdd.setDet_range(rs.getDouble(23));
+						 toAdd.setRide_details(rs.getString(24));
+						 toAdd.setCallback_uri(rs.getString(25));
+						 result.add(toAdd);
+					 }
 					 rs.next();
 					}
 				if(rs!=null) rs.close();
