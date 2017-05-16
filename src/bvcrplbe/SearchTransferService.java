@@ -36,11 +36,11 @@ import mcsa.McsaSolution;
 @Path("/SearchRide")
 public class SearchTransferService {
 	
-	@Path("/{timeFrame}")
+	@Path("/{timeFrame}/{limit}")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response SearchRideTimeFrame(@PathParam("timeFrame") long timeFrame,String transferString)
+	public Response SearchRideTimeFrame(@PathParam("timeFrame") long timeFrame,@PathParam("limit") int limit,String transferString)
 		{
 		System.out.println("CALLED SEARCHRIDE");
 		 Transfer passenger=null;
@@ -88,7 +88,7 @@ public class SearchTransferService {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Multipath Connection Scan Algorithm: FAIL"+System.lineSeparator()+e.getMessage()).build();
 		}
-		 LinkedList<McsaSolution> solutionList = result.getResults();
+		 LinkedList<McsaSolution> solutionList = result.getResults(limit);
 		 try {
 			McsaSolutionDAO.saveSolutions(solutionList, passenger.getTran_id());
 		} catch (JsonProcessingException e) {

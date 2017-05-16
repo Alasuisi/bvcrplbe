@@ -21,11 +21,16 @@ public class McsaTimetable {
     private int destinationIndex=0;
     private int index=0;
     private HashMap<Integer,boolean[]> specialNeeds=new HashMap<Integer,boolean[]>();
+    private boolean[] passengerNeeds = new boolean[4];
     private Transfer passengerTransfer=null;
     
     public McsaTimetable(LinkedList<Transfer> drivers, Transfer passenger)
     	{
     	 passengerTransfer=passenger;
+    	 passengerNeeds[0]=passenger.isAnimal();
+    	 passengerNeeds[1]=passenger.isHandicap();
+    	 passengerNeeds[2]=passenger.isLuggage();
+    	 passengerNeeds[3]=passenger.isSmoke();
     	 connections= new ArrayList<McsaConnection>();
     	 double passDet=passenger.getDet_range();
     	 
@@ -861,6 +866,9 @@ public int getDestinationIndex()
 
 public HashMap<Integer, boolean[]> getSpecialNeeds() {
 	return specialNeeds;
+}
+public boolean[] getPassengerNeeds() {
+	return passengerNeeds;
 }
 public Transfer getPassengerTransfer() {
 	return passengerTransfer;

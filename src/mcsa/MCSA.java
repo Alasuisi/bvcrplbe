@@ -667,7 +667,7 @@ public class MCSA {
 			McsaResult res = null;
 			if(result!=null)
 				{
-				 res = new McsaResult(result,this.departureTime,timetable.getSpecialNeeds(),timetable.getPassengerTransfer());
+				 res = new McsaResult(result,this.departureTime,timetable.getSpecialNeeds(),timetable.getPassengerNeeds(),timetable.getPassengerTransfer());
 				}else System.out.println("WHAAAAAAAAAAAAAAAAAT?!?! result is null");
 			return res;
 		}
