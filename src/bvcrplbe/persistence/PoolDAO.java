@@ -6,8 +6,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Set;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.postgresql.util.PGobject;
 
@@ -18,11 +24,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import bvcrplbe.ConnectionManager;
+import bvcrplbe.domain.NotificationMessage;
 import bvcrplbe.domain.Passenger;
 import bvcrplbe.domain.Pool;
 import bvcrplbe.domain.TimedPoint2D;
 import bvcrplbe.domain.Transfer;
 import mcsa.McsaSegment;
+import mcsa.McsaSolution;
 
 public class PoolDAO implements Serializable{
 
@@ -30,6 +38,143 @@ public class PoolDAO implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 5629709939884942236L;
+	
+	private static final String GET_TRANSFER_CALLBACK="SELECT (\"Callback_URI\") FROM transfer where \"Transfer_ID\"=?";
+	private static final String REMOVE_POOL= "DELETE FROM pool WHERE pool_id=?";
+	private static final String REMOVE_TRANSFER = "DELETE FROM transfer WHERE \"Transfer_ID\"=?";
+	public static LinkedList<NotificationMessage> deletePool(int userid,int driTranId) throws JsonParseException, JsonMappingException, SQLException, IOException, DaoException
+		{
+		Connection con=null;
+		PreparedStatement pstm=null;
+		ConnectionManager manager = new ConnectionManager();
+		Pool driverPool=PoolDAO.readPool(userid, driTranId);
+		LinkedList<Passenger> passList = driverPool.getPassengerList();
+		HashMap<Integer,HashSet<Integer>> passMap = new HashMap<Integer,HashSet<Integer>>();
+		//LinkedList<String> passCallback=new LinkedList<String>();
+		//LinkedList<String> driverCallback = new LinkedList<String>();
+		LinkedList<NotificationMessage> messages = new LinkedList<NotificationMessage>();
+		Iterator<Passenger> passIter = passList.iterator();
+		while(passIter.hasNext())
+		  	{
+			  Passenger tempPass = passIter.next();
+			  int passTran = tempPass.getTransferID();
+			  McsaSolution thisSol = McsaSolutionDAO.readBookedSolution(passTran);
+			  HashSet<Integer> toAdd = thisSol.getTransferSet();
+			  toAdd.remove(new Integer(passTran));
+			  passMap.put(new Integer(passTran), toAdd);
+		  	}
+		Iterator<Integer> pasMapIter = passMap.keySet().iterator();
+		con=manager.connect();
+		while(pasMapIter.hasNext())
+			{
+			Integer key = pasMapIter.next();
+			int freeSeats=McsaSolutionDAO.voidSolution(con, pstm, key.intValue());
+			String passCallBack=null;
+			pstm=con.prepareStatement(GET_TRANSFER_CALLBACK);
+			pstm.setInt(1, key.intValue());
+			ResultSet rs = pstm.executeQuery();
+			if(rs.isBeforeFirst())
+				{
+				rs.next();
+				passCallBack=rs.getString(1);
+				//rs.close();
+				}else 
+					{
+					con.rollback();
+					pstm.close();
+					rs.close();
+					con.close();
+					manager.close();
+					throw new DaoException("Problem loading callback addres for transfer "+key.intValue());
+					}
+			NotificationMessage passMessage = new NotificationMessage();
+			passMessage.setRolePassenger();
+			passMessage.setTransferID(key.intValue());
+			passMessage.setRelatedToTransfer(driTranId);
+			passMessage.setTypeNotification();
+			passMessage.setCallBackURI(passCallBack);
+			passMessage.setMessage("One of your drivers has canceled his trip, your solution is not valid anymore, the ride is still in the system, you can try search for a new solution list");
+			messages.add(passMessage);
+			HashSet<Integer> PassDriverSet = passMap.get(key);
+			Iterator<Integer> PassDriverIter = PassDriverSet.iterator();
+			while(PassDriverIter.hasNext())
+				{
+				int driverID=PassDriverIter.next().intValue();
+				int passID= key.intValue();
+				String driverCallBack=null;
+				PoolDAO.removePassenger(con, pstm, driverID, passID, freeSeats);
+				pstm=con.prepareStatement(GET_TRANSFER_CALLBACK);
+				pstm.setInt(1, driverID);
+				rs = pstm.executeQuery();
+				if(rs.isBeforeFirst())
+					{
+					rs.next();
+					driverCallBack=rs.getString(1);
+					}else 
+						{
+						con.rollback();
+						pstm.close();
+						rs.close();
+						con.close();
+						manager.close();
+						throw new DaoException("deletePool() ERROR: unable to read callback addres for driver transfer "+driverID);
+						}
+				NotificationMessage driverMessage= new NotificationMessage();
+				driverMessage.setRoleDriver();
+				driverMessage.setTransferID(driverID);
+				driverMessage.setRelatedToTransfer(passID);
+				driverMessage.setTypeNotification();
+				driverMessage.setCallBackURI(driverCallBack);
+				driverMessage.setMessage("One of your passengers has canceled his reservation, you have now "+freeSeats+" more free seats available");
+				messages.add(driverMessage);
+				}
+			}
+		pstm=con.prepareStatement(REMOVE_POOL);
+		pstm.setInt(1, driTranId);
+		pstm.executeUpdate();
+		pstm=con.prepareStatement(REMOVE_TRANSFER);
+		pstm.setInt(1, driTranId);
+		pstm.executeUpdate();
+		con.rollback(); //RICORDARSI DI CAMBIARE CON COMMIT SE SEMBRA FUNZIONARE A DOVERE
+		return messages;
+		//TODO ricordarsi di committare alla fine
+		}
+	
+	private static String READ_POOL_UNSAFE="SELECT * FROM pool WHERE pool_id=?";
+	private static String SAVE_UPDATED_PASSLIST = "UPDATE pool SET passenger_list=? WHERE pool_id=?";
+	private static void removePassenger(Connection con,PreparedStatement pstm,int driverID,int passengerID,int freeSeats) throws SQLException, JsonParseException, JsonMappingException, IOException, DaoException
+		{
+		 pstm=con.prepareStatement(READ_POOL_UNSAFE);
+		 pstm.setInt(1, driverID);
+		 ResultSet rs=pstm.executeQuery();
+		 if(rs.isBeforeFirst())
+		 	{
+			 rs.next();
+			 ObjectMapper mapper = new ObjectMapper();
+			 String passString = rs.getString(4);
+			 LinkedList<Passenger> passList = mapper.readValue(passString, new TypeReference<LinkedList<Passenger>>(){});
+			 LinkedList<Passenger> updatedList = new LinkedList<Passenger>();
+			 Iterator<Passenger> iter = passList.iterator();
+			 while(iter.hasNext())
+			 	{
+				 Passenger temp = iter.next();
+				 if(temp.getTransferID()!=passengerID)
+				 	{
+					 updatedList.add(temp);
+				 	}
+			 	}
+			 pstm=con.prepareStatement(SAVE_UPDATED_PASSLIST);
+			 PGobject passListJson = new PGobject();
+			 passListJson.setType("json");
+			 passListJson.setValue(mapper.writeValueAsString(updatedList));
+			 pstm.setObject(1, passListJson);
+			 pstm.setInt(2, driverID);
+			 pstm.executeUpdate();
+			 TransferDAO.restoreFreeSeats(con, pstm, driverID, freeSeats);
+			 
+		 	}else throw new DaoException("removePassenger: Error loading passenger's driver pool object, passenger="+passengerID+" driver="+driverID);
+		}
+	
 	
 	private static String READ_POOL = "SELECT * FROM pool WHERE pool_id=? AND driver_id=?";
 	public static Pool readPool(int userid,int tranid) throws SQLException, JsonParseException, JsonMappingException, IOException
@@ -74,6 +219,7 @@ public class PoolDAO implements Serializable{
 	
 	private static String READ_PASSENGERS = "SELECT (passenger_list) from pool WHERE pool_id=?";
 	private static String UPDATE_PASSENGERS = "UPDATE pool SET passenger_list=? where pool_id=?";
+	
 	public static void updatePassengers(Connection con,PreparedStatement pstm, McsaSegment segment, int poolid,int passTranId) throws SQLException, DaoException, JsonParseException, JsonMappingException, IOException
 		{
 			pstm=con.prepareStatement(READ_PASSENGERS);

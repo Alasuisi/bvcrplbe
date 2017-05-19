@@ -2,8 +2,11 @@ package bvcrplbe;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -27,6 +30,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
+import bvcrplbe.domain.NotificationMessage;
 import bvcrplbe.domain.Passenger;
 import bvcrplbe.domain.Pool;
 import bvcrplbe.domain.TimedPoint2D;
@@ -313,13 +317,41 @@ public class OfferTransferService {
 	  @DELETE
 	  @Path("/{userid}/{tranid}")
 	  @Produces(MediaType.APPLICATION_JSON)
-	  public Response deleteRide(@PathParam("userid") int userid,@PathParam("tranid") int tranid)
+	  public Response deleteRide(@PathParam("userid") int userid,@PathParam("tranid") int driTranId)
 	  	{
-		  System.out.println("SERVER-DELETE: received delete request for driver "+userid+" and transfer "+tranid);
+		  System.out.println("SERVER-DELETE: received delete request for driver "+userid+" and transfer "+driTranId);
+		  try {
+			LinkedList<NotificationMessage> notificationList=PoolDAO.deletePool(userid, driTranId);
+			System.out.print("TESTING NOTIFICATION MESSAGE LIST");
+			Iterator<NotificationMessage> iter = notificationList.iterator();
+			while(iter.hasNext())
+				{
+				System.out.println(iter.next().toString());
+				}
+		} catch (JsonParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DaoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 
+		  
+		  
+		  //////TEST CALLBACK DOWN HERE
 		  Client client = Client.create();
 		  String address="http://localhost:8080/testCallback/callback/driver/delete/";
 		  WebResource resource = client.resource(address);
-		  String resString = "SERVER: DELETED BOOKED RIDE RELATIVE TO TRANSFER"+tranid;
+		  String resString = "SERVER: DELETED BOOKED RIDE RELATIVE TO TRANSFER"+driTranId;
 		  ClientResponse response = resource.type(MediaType.TEXT_PLAIN).post(ClientResponse.class, resString);
 		  if(response.getStatus()!=200)
 		  	{

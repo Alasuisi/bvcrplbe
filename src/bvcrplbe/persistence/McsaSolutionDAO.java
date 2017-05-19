@@ -32,6 +32,76 @@ public class McsaSolutionDAO implements Serializable {
 	private static final long serialVersionUID = -5057669235697699612L;
 	
 	
+	private static final String VOID_SOLUTION= "DELETE from booked_solutions WHERE transfer_id=?";
+	private static final String GET_NEEDED_SEATS="SELECT (needed_seats) from booked_solutions where transfer_id=?";
+	protected static int voidSolution(Connection con,PreparedStatement pstm,int tranid) throws DaoException, SQLException
+		{
+		 if(con==null) throw new DaoException("called void solution with a closed connection as input parameter");
+		 pstm=con.prepareStatement(GET_NEEDED_SEATS);
+		 pstm.setInt(1, tranid);
+		 ResultSet rs = pstm.executeQuery();
+		 int neededSeats;
+		 if(rs.isBeforeFirst())
+		 	{
+			 rs.next();
+			 neededSeats=rs.getInt(1);
+		 	}else 
+		 		{
+		 		con.rollback();
+		 		throw new DaoException("Error retrieving needed seats for transfer "+tranid);
+		 		}
+		 rs.close();
+		 pstm=con.prepareStatement(VOID_SOLUTION);
+		 pstm.setInt(1, tranid);
+		 pstm.executeUpdate();
+		 return neededSeats;
+		}
+	
+	
+	private static final String GET_BOOKED_SOLUTION = "SELECT * FROM booked_solutions WHERE transfer_id=?";
+	public static McsaSolution readBookedSolution(int tranid) throws SQLException, DaoException, JsonParseException, JsonMappingException, IOException
+		{
+		Connection con=null;
+		PreparedStatement pstm=null;
+		ConnectionManager manager = new ConnectionManager();
+		ResultSet rs=null;
+		con=manager.connect();
+		pstm=con.prepareStatement(GET_BOOKED_SOLUTION);
+		pstm.setInt(1, tranid);
+		rs=pstm.executeQuery();
+		McsaSolution result=null;
+		if(rs.isBeforeFirst())
+			{
+			 rs.next();
+			 result=new McsaSolution();
+			 result.setSolutionID(rs.getInt(2));
+			 result.setChanges(rs.getInt(3));
+			 result.setNeededSeats(rs.getInt(4));
+			 result.setArrivalTime(rs.getLong(5));
+			 result.setTotalWaitTime(rs.getLong(6));
+			 result.setTotalTripTime(rs.getLong(7));
+			 result.setAnimal(rs.getBoolean(8));
+			 result.setSmoke(rs.getBoolean(9));
+			 result.setLuggage(rs.getBoolean(10));
+			 result.setHandicap(rs.getBoolean(11));
+			 ObjectMapper mapper = new ObjectMapper();
+			 String tranSetString = rs.getString(12);
+			 LinkedHashSet<Integer> transferSet =mapper.readValue(tranSetString, new TypeReference<LinkedHashSet<Integer>>(){});
+			 result.setTransferSet(transferSet);
+			 String segmentString = rs.getString(13);
+			 LinkedList<McsaSegment> segments = mapper.readValue(segmentString, new TypeReference<LinkedList<McsaSegment>>(){});
+			 result.setSolution(segments);
+			 
+			 
+			}else throw new DaoException("Something went wrong retrieving the solution, empty result set");
+		rs=null;
+		pstm=null;
+		manager.close();
+		con.close();
+		return result;
+		}
+	
+	
 	private static final String GET_COMPUTED_SOLUTION = "SELECT * FROM solution WHERE transfer_id=?";
 	private static final String CHECK_TRANSFER_EXISTANCE = "select count(*) from transfer where \"User_ID\"=? AND \"Transfer_ID\"=?;";
 	public static LinkedList<McsaSolution> readSolutions(int userid,int transferid) throws SQLException, IOException
