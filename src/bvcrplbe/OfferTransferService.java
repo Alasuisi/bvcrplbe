@@ -313,6 +313,37 @@ public class OfferTransferService {
 			//return Response.status(Status.OK).entity("da mettere").build();
 		  
 	  	}
+	  @DELETE
+	  @Path("/{userid}/{tranid}/debug")
+	  @Produces(MediaType.APPLICATION_JSON)
+	  public Response deleteRideDebug(@PathParam("userid") int userid,@PathParam("tranid") int driTranId)
+	  	{
+		  System.out.println("SERVER-DELETE(DEBUG): received delete request for driver "+userid+" and transfer "+driTranId);
+		  LinkedList<NotificationMessage> notificationList=null;
+			try {
+				notificationList = PoolDAO.deletePool(userid, driTranId,true);
+			} catch (SQLException | IOException | DaoException e) {
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error processing delete request: "+e.getMessage()).build();
+			}
+			System.out.println("TESTING NOTIFICATION MESSAGE LIST");
+			Client client = Client.create();
+			boolean errorOccured=false;
+			Iterator<NotificationMessage> iter = notificationList.iterator();
+			while(iter.hasNext())
+				{
+				NotificationMessage message = iter.next();
+				String address = message.getCallBackURI();
+				WebResource resource = client.resource(address);
+				String responseMessage = message.getMessage();
+				ClientResponse response = resource.type(MediaType.TEXT_PLAIN).post(ClientResponse.class,responseMessage);
+				if(response.getStatus()!=200) errorOccured=true;
+				System.out.println(message.toString());
+				}
+			if(!errorOccured) return Response.status(Status.OK).entity("Ride deleted and passengers clients correctly informed").build();
+			else return Response.status(Status.OK).entity("Ride deleted, NOT ALL PASSENGERS CLIENTS GOT INFOMERD").build();
+	  	}
+	  
 	  
 	  @DELETE
 	  @Path("/{userid}/{tranid}")
@@ -320,34 +351,33 @@ public class OfferTransferService {
 	  public Response deleteRide(@PathParam("userid") int userid,@PathParam("tranid") int driTranId)
 	  	{
 		  System.out.println("SERVER-DELETE: received delete request for driver "+userid+" and transfer "+driTranId);
-		  try {
-			LinkedList<NotificationMessage> notificationList=PoolDAO.deletePool(userid, driTranId);
-			System.out.print("TESTING NOTIFICATION MESSAGE LIST");
+			LinkedList<NotificationMessage> notificationList=null;
+			try {
+				notificationList = PoolDAO.deletePool(userid, driTranId,false);
+			} catch (SQLException | IOException | DaoException e) {
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error processing delete request: "+e.getMessage()).build();
+			}
+			System.out.println("TESTING NOTIFICATION MESSAGE LIST");
+			Client client = Client.create();
+			boolean errorOccured=false;
 			Iterator<NotificationMessage> iter = notificationList.iterator();
 			while(iter.hasNext())
 				{
-				System.out.println(iter.next().toString());
+				NotificationMessage message = iter.next();
+				String address = message.getCallBackURI();
+				WebResource resource = client.resource(address);
+				String responseMessage = message.getMessage();
+				ClientResponse response = resource.type(MediaType.TEXT_PLAIN).post(ClientResponse.class,responseMessage);
+				if(response.getStatus()!=200) errorOccured=true;
+				System.out.println(message.toString());
 				}
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DaoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			if(!errorOccured) return Response.status(Status.OK).entity("Ride deleted and passengers clients correctly informed").build();
+			else return Response.status(Status.OK).entity("Ride deleted, NOT ALL PASSENGERS CLIENTS GOT INFOMERD").build();
+			
+			
 		 
-		  
-		  
-		  //////TEST CALLBACK DOWN HERE
+		  /*TEST CALLBACK DOWN HERE
 		  Client client = Client.create();
 		  String address="http://localhost:8080/testCallback/callback/driver/delete/";
 		  WebResource resource = client.resource(address);
@@ -357,7 +387,7 @@ public class OfferTransferService {
 		  	{
 			  System.out.println("something went wrong");
 			  return Response.status(Status.SERVICE_UNAVAILABLE).entity("Unable to inform passenger of transfer cancellation").build();
-			}else return Response.status(Status.OK).entity("Transfer deleted, and passengers informed").build();
+			}else return Response.status(Status.OK).entity("Transfer deleted, and passengers informed").build();*/
 	  	}
 	  
 	  

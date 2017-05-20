@@ -491,6 +491,7 @@ public class TransferDAO implements Serializable{
 		private static String RESTORE_FREE_SEATS = "UPDATE transfer SET \"Occupied_Seats\"=\"Occupied_Seats\"-? WHERE \"Transfer_ID\"=?";
 		protected static void restoreFreeSeats(Connection con, PreparedStatement pstm,int driverTransfer,int freeSeats) throws SQLException
 			{
+			System.out.println("restoring "+freeSeats+" seats to transfer "+driverTransfer);
 			pstm=con.prepareStatement(RESTORE_FREE_SEATS);
 			pstm.setInt(1, freeSeats);
 			pstm.setInt(2, driverTransfer);

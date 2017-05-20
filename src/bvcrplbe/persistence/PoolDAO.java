@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,7 +43,7 @@ public class PoolDAO implements Serializable{
 	private static final String GET_TRANSFER_CALLBACK="SELECT (\"Callback_URI\") FROM transfer where \"Transfer_ID\"=?";
 	private static final String REMOVE_POOL= "DELETE FROM pool WHERE pool_id=?";
 	private static final String REMOVE_TRANSFER = "DELETE FROM transfer WHERE \"Transfer_ID\"=?";
-	public static LinkedList<NotificationMessage> deletePool(int userid,int driTranId) throws JsonParseException, JsonMappingException, SQLException, IOException, DaoException
+	public static LinkedList<NotificationMessage> deletePool(int userid,int driTranId,boolean debug) throws JsonParseException, JsonMappingException, SQLException, IOException, DaoException
 		{
 		Connection con=null;
 		PreparedStatement pstm=null;
@@ -99,43 +100,54 @@ public class PoolDAO implements Serializable{
 			Iterator<Integer> PassDriverIter = PassDriverSet.iterator();
 			while(PassDriverIter.hasNext())
 				{
-				int driverID=PassDriverIter.next().intValue();
+				int driverID=PassDriverIter.next().intValue();			
 				int passID= key.intValue();
 				String driverCallBack=null;
 				PoolDAO.removePassenger(con, pstm, driverID, passID, freeSeats);
-				pstm=con.prepareStatement(GET_TRANSFER_CALLBACK);
-				pstm.setInt(1, driverID);
-				rs = pstm.executeQuery();
-				if(rs.isBeforeFirst())
+				if(driverID!=driTranId)
 					{
-					rs.next();
-					driverCallBack=rs.getString(1);
-					}else 
+					pstm=con.prepareStatement(GET_TRANSFER_CALLBACK);
+					pstm.setInt(1, driverID);
+					rs = pstm.executeQuery();
+					if(rs.isBeforeFirst())
 						{
-						con.rollback();
-						pstm.close();
-						rs.close();
-						con.close();
-						manager.close();
-						throw new DaoException("deletePool() ERROR: unable to read callback addres for driver transfer "+driverID);
-						}
-				NotificationMessage driverMessage= new NotificationMessage();
-				driverMessage.setRoleDriver();
-				driverMessage.setTransferID(driverID);
-				driverMessage.setRelatedToTransfer(passID);
-				driverMessage.setTypeNotification();
-				driverMessage.setCallBackURI(driverCallBack);
-				driverMessage.setMessage("One of your passengers has canceled his reservation, you have now "+freeSeats+" more free seats available");
-				messages.add(driverMessage);
+						rs.next();
+						driverCallBack=rs.getString(1);
+						}else 
+							{
+							con.rollback();
+							pstm.close();
+							rs.close();
+							con.close();
+							manager.close();
+							throw new DaoException("deletePool() ERROR: unable to read callback addres for driver transfer "+driverID);
+							}
+					NotificationMessage driverMessage= new NotificationMessage();
+					driverMessage.setRoleDriver();
+					driverMessage.setTransferID(driverID);
+					driverMessage.setRelatedToTransfer(passID);
+					driverMessage.setTypeNotification();
+					driverMessage.setCallBackURI(driverCallBack);
+					driverMessage.setMessage("One of your passengers has canceled his reservation, you have now "+freeSeats+" more free seats available");
+					messages.add(driverMessage);
+					}
 				}
 			}
-		pstm=con.prepareStatement(REMOVE_POOL);
-		pstm.setInt(1, driTranId);
-		pstm.executeUpdate();
-		pstm=con.prepareStatement(REMOVE_TRANSFER);
-		pstm.setInt(1, driTranId);
-		pstm.executeUpdate();
-		con.rollback(); //RICORDARSI DI CAMBIARE CON COMMIT SE SEMBRA FUNZIONARE A DOVERE
+		if(!debug)
+			{
+			pstm=con.prepareStatement(REMOVE_POOL);
+			pstm.setInt(1, driTranId);
+			pstm.executeUpdate();
+			pstm=con.prepareStatement(REMOVE_TRANSFER);
+			pstm.setInt(1, driTranId);
+			pstm.executeUpdate();
+			}
+		//con.rollback(); //RICORDARSI DI CAMBIARE CON COMMIT SE SEMBRA FUNZIONARE A DOVERE
+		
+		con.commit();
+		pstm.close();
+		con.close();
+		manager.close();
 		return messages;
 		//TODO ricordarsi di committare alla fine
 		}
@@ -164,10 +176,13 @@ public class PoolDAO implements Serializable{
 				 	}
 			 	}
 			 pstm=con.prepareStatement(SAVE_UPDATED_PASSLIST);
-			 PGobject passListJson = new PGobject();
-			 passListJson.setType("json");
-			 passListJson.setValue(mapper.writeValueAsString(updatedList));
-			 pstm.setObject(1, passListJson);
+			 if(updatedList.size()!=0)
+			 	{
+				 PGobject passListJson = new PGobject();
+				 passListJson.setType("json");
+				 passListJson.setValue(mapper.writeValueAsString(updatedList));
+				 pstm.setObject(1, passListJson);
+			 	}else pstm.setNull(1, Types.NULL);
 			 pstm.setInt(2, driverID);
 			 pstm.executeUpdate();
 			 TransferDAO.restoreFreeSeats(con, pstm, driverID, freeSeats);
