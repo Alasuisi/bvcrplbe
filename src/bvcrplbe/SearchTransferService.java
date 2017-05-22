@@ -61,6 +61,7 @@ public class SearchTransferService {
 				 String error="Malformed transfer object: the last point in the path has no arrival time, or arrival_time < departure_time";
 				 return Response.status(Status.BAD_REQUEST).entity(error).build();
 			 	}
+			 System.out.println("timeframe portannato? "+(timeFrame==Long.MAX_VALUE));
 			drivers = TransferDAO.readAllOfferings(depTime,worstArrival,timeFrame);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
