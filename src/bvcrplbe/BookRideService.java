@@ -62,8 +62,31 @@ public class BookRideService {
 		 return Response.status(Status.OK).entity(resString).build();
 		}
 	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{userid}")
+	public Response getAllBookedSolution(@PathParam("userid") int userid)
+		{
+		LinkedList<McsaSolution> result=null;
+		 try {
+			result = McsaSolutionDAO.readAllBookedSolution(userid);
+		} catch (SQLException | IOException | DaoException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error retrieving all booked solution:"+System.lineSeparator()+e.getMessage()).build();
+		}
+		 ObjectMapper mapper = new ObjectMapper();
+		 String responseString=null;
+		 try {
+			 responseString = mapper.writeValueAsString(result);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error serializing response content"+System.lineSeparator()+e.getMessage()).build();
+		}
+		 return Response.status(Status.OK).entity(responseString).build();
+		}
+	
 	@DELETE
-	@Path("/{userid}/{tranid}/debug")
+	@Path("/{userid}/{tranid}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteBookRideDebug(@PathParam("userid") int userid,@PathParam("tranid") int pasTranId)
 		{

@@ -87,145 +87,7 @@ public class OfferTransferService {
 	  	}
 	  
 	  
-	  @Path("/CSA")
-	  @GET
-	  public Response testCSA() throws Exception
-	  	{
-		  try {
-			LinkedList<Transfer> allTran = TransferDAO.getAllTransfers();
-			LinkedList<Transfer> driverTran = new LinkedList<Transfer>();
-			LinkedList<Transfer> passenger = new LinkedList<Transfer>();
-			Iterator<Transfer> alliter = allTran.iterator();
-			while(alliter.hasNext())
-				{
-					Transfer thisTran = alliter.next();
-					if(thisTran.getUser_role().equals("driver"))
-						{
-							//if(thisTran.getTran_id()>130) driverTran.add(thisTran);
-						driverTran.add(thisTran);
-						}
-					else passenger.add(thisTran);
-				}
-			Iterator<Transfer> passIter = passenger.iterator();
-			System.out.println("dimensione passenger lista "+passenger.size());
-			Transfer toCompute = null;
-			while(passIter.hasNext())
-				{
-					Transfer temp=passIter.next();
-					System.out.println("transfer con id "+temp.getTran_id());
-				 if(temp.getTran_id()==118) toCompute=temp;
-				}
-			MCSA mcsa = new MCSA(driverTran,toCompute);
-			//csa.computeCSA();
-			//mcsa.computeMCSA(30, 0, 0);
-			long t0=System.currentTimeMillis();
-			mcsa.removeDeadEnds();
-			long t1=System.currentTimeMillis();
-			mcsa.computeMCSA(toCompute.getDep_time());
-			//mcsa.McsaIterative(toCompute.getDep_time());
-			long t2=System.currentTimeMillis();
-			System.out.println("compute solution time "+(t2-t1)+" ms");
-			long t3 = System.currentTimeMillis();
-			mcsa.removeBadOnes();
-			long t4 = System.currentTimeMillis();
-			System.out.println("removing bad ones time: "+(t4-t3)+" ms");
-			System.out.println("removing dead ends time:"+(t1-t0)+" ms");
-			System.out.println("Total computation time: "+(t4-t0)+" ms");
-			/////////SOLUTION TEST/////////
-			//mcsa.printSolutions(Integer.MAX_VALUE);
-			System.out.println(System.lineSeparator());
-			/*McsaResult res = mcsa.getResults();
-			LinkedList<McsaSolution> solutions = res.getResults();
-			System.out.println("Solution list has lenght: "+solutions.size());
-			Iterator<McsaSolution> iter = solutions.iterator();
-			while(iter.hasNext())
-				{
-				McsaSolution temp =iter.next();
-				System.out.println(System.lineSeparator()+"transfers:"+temp.getTransferSet()+" changes:"+temp.getChanges()+" wait:"+temp.getTotalWaitTime()+" arrival:"+temp.getArrivalTime());
-				LinkedList<McsaConnection> path = temp.getPath();
-				Iterator<McsaConnection> pathIter = path.iterator();
-				while(pathIter.hasNext())
-					{
-					System.out.println(pathIter.next());
-					}
-				}*/
-			
-			LinkedList<LinkedList<McsaConnection>> result = mcsa.result;
-			/*Iterator<LinkedList<McsaConnection>> mah =result.iterator();
-			while(mah.hasNext())
-				{
-				System.out.println(System.lineSeparator()+"printing a solution");
-				LinkedList<McsaConnection> sol = mah.next();
-				Iterator<McsaConnection> mah2 =sol.iterator();
-				boolean first=true;
-				while(mah2.hasNext())
-					{
-					McsaConnection con= mah2.next();
-					 if(first)
-					 	{
-						 System.out.println(con.getFirst_point().getLatitude()+","+con.getFirst_point().getLongitude());
-						 System.out.println(con.getSecond_point().getLatitude()+","+con.getSecond_point().getLongitude());
-						 first=false;
-					 	}else
-					 		{
-					 		System.out.println(con.getSecond_point().getLatitude()+","+con.getSecond_point().getLongitude());
-					 		}
-					}
-				
-				}*/
-			
-		/////DA RIMETTERE QUESTO
-			
-			McsaResult res = mcsa.getResults();
-			LinkedList<McsaSolution> solutions = res.getResults();
-			//McsaSolutionDAO.saveSolutions(solutions, 118);
-			/*
-			System.out.println(System.lineSeparator()+" TESTING THE NEW SOLUTION OBJECT ");
-			Iterator<McsaSolution> iter2 =solutions.iterator();
-			while(iter2.hasNext())
-				{
-				 McsaSolution thisSol = iter2.next();
-				 LinkedList<McsaSegment> segments = thisSol.getSolution();
-				 System.out.println(System.lineSeparator()+"changes:"+thisSol.getChanges()+" transfers:"+thisSol.getTransferSet());
-				 System.out.println("passenger needs: animal="+thisSol.isAnimal()+" handicap="+thisSol.isHandicap()+" luggage="+thisSol.isLuggage()+" smoke="+thisSol.isSmoke());
-				 System.out.println("passenger occupied seats: "+thisSol.getNeededSeats());
-				 Iterator<McsaSegment> segIter = segments.iterator();
-				 while(segIter.hasNext())
-				 	{
-					 McsaSegment segment = segIter.next();
-					 System.out.println("segment from: "+segment.getFromTransferID()+" to: "+segment.getToTransferID());
-					 System.out.println("segment accepted needs: animal="+segment.isAnimal()+" handicap="+segment.isHandicap()+" luggage="+segment.isLuggage()+" smoke="+segment.isSmoke());
-					 LinkedList<TimedPoint2D> path = segment.getSegmentPath();
-					 Iterator<TimedPoint2D> pathIter = path.iterator();
-					 while(pathIter.hasNext())
-					 	{
-						 TimedPoint2D toPrint =pathIter.next();
-						 System.out.println(toPrint.getLatitude()+","+toPrint.getLongitude());
-					 	}
-				 	}
-				}*/
-			
-			ObjectMapper mapper = new ObjectMapper();
-			String jsonInString;
-			jsonInString=mapper.writeValueAsString(solutions);
-			System.out.println(jsonInString);
-			////////////////////////////////////
-			
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	  	}
+	  
 	  
 	  @Path("{userid}")
 	  @GET
@@ -313,6 +175,7 @@ public class OfferTransferService {
 			//return Response.status(Status.OK).entity("da mettere").build();
 		  
 	  	}
+	  
 	  @DELETE
 	  @Path("/{userid}/{tranid}/debug")
 	  @Produces(MediaType.APPLICATION_JSON)
