@@ -322,24 +322,32 @@ public class OfferTransferService {
 		  LinkedList<NotificationMessage> notificationList=null;
 			try {
 				notificationList = PoolDAO.deletePool(userid, driTranId,true);
-			} catch (SQLException | IOException | DaoException e) {
+			} catch (SQLException | IOException | DaoException | RuntimeException e) {
 				e.printStackTrace();
 				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error processing delete request: "+e.getMessage()).build();
 			}
 			System.out.println("TESTING NOTIFICATION MESSAGE LIST");
 			Client client = Client.create();
 			boolean errorOccured=false;
+			ObjectMapper mapper = new ObjectMapper();
 			Iterator<NotificationMessage> iter = notificationList.iterator();
-			while(iter.hasNext())
-				{
-				NotificationMessage message = iter.next();
-				String address = message.getCallBackURI();
-				WebResource resource = client.resource(address);
-				String responseMessage = message.getMessage();
-				ClientResponse response = resource.type(MediaType.TEXT_PLAIN).post(ClientResponse.class,responseMessage);
-				if(response.getStatus()!=200) errorOccured=true;
-				System.out.println(message.toString());
-				}
+				while(iter.hasNext())
+					{
+					try{
+						NotificationMessage message = iter.next();
+						String address = message.getCallBackURI();
+						WebResource resource = client.resource(address);
+						//String responseMessage = message.getMessage();
+						String responseMessage = mapper.writeValueAsString(message);
+						ClientResponse response = resource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,responseMessage);
+						if(response.getStatus()!=200) errorOccured=true;
+						System.out.println(message.toString());
+						}
+					catch(Exception w)
+						{
+						 errorOccured=true;
+						}
+					}
 			if(!errorOccured) return Response.status(Status.OK).entity("Ride deleted and passengers clients correctly informed").build();
 			else return Response.status(Status.OK).entity("Ride deleted, NOT ALL PASSENGERS CLIENTS GOT INFOMERD").build();
 	  	}

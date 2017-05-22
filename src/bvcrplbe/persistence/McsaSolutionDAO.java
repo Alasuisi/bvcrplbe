@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import bvcrplbe.ConnectionManager;
+import bvcrplbe.domain.NotificationMessage;
 import bvcrplbe.domain.TimedPoint2D;
 import mcsa.McsaSegment;
 import mcsa.McsaSolution;
@@ -31,7 +32,7 @@ public class McsaSolutionDAO implements Serializable {
 	 */
 	private static final long serialVersionUID = -5057669235697699612L;
 	
-	
+	////USED ONLY FOR DEBUG PURPOSES, NOT TO BE USED IN PRODUCTION MODE
 	private static final String VOID_SOLUTION= "DELETE from booked_solutions WHERE transfer_id=?";
 	private static final String GET_NEEDED_SEATS="SELECT (needed_seats) from booked_solutions where transfer_id=?";
 	protected static int voidSolution(Connection con,PreparedStatement pstm,int tranid) throws DaoException, SQLException
@@ -55,6 +56,85 @@ public class McsaSolutionDAO implements Serializable {
 		 pstm.setInt(1, tranid);
 		 pstm.executeUpdate();
 		 return neededSeats;
+		}
+	
+	private static final String READ_TRANSFER_SET = "SELECT transfer_set FROM booked_solutions WHERE transfer_id=?";
+	private static final String CHECK_USER = "SELECT (\"User_ID\"),(\"User_Role\") FROM transfer WHERE \"Transfer_ID\"=?";
+	private static final String GET_TRANSFER_CALLBACK="SELECT (\"Callback_URI\") FROM transfer where \"Transfer_ID\"=?";
+	public static LinkedList<NotificationMessage> deleteBookedSolution(int userid,int tranid,boolean debug) throws SQLException, DaoException, JsonParseException, JsonMappingException, IOException
+		{
+			Connection con=null;
+			PreparedStatement pstm=null;
+			ConnectionManager manager = new ConnectionManager();
+			ResultSet rs=null;
+			LinkedList<NotificationMessage> messages = new LinkedList<NotificationMessage>();
+			con=manager.connect();
+			pstm=con.prepareStatement(CHECK_USER);
+			pstm.setInt(1, tranid);
+			rs=pstm.executeQuery();
+			if(rs.isBeforeFirst())
+				{
+					rs.next();
+					int retrievedUserid=rs.getInt(1);
+					String retrievedRole=rs.getString(2);
+					con.rollback();
+					if(retrievedUserid!=userid) throw new DaoException("Passed userid is different from the one associated to transferid");
+					System.out.println("Retrieved Role "+retrievedRole);
+					if(!retrievedRole.equals("{\"role\": \"passenger\"}")) throw new DaoException("Transfer associated to this transferid is of a driver, not a passenger");
+				}else
+					{
+					con.rollback();
+					throw new DaoException("Something went wrong veryfing userid and transfer id, empty result set");
+					}
+		 pstm=con.prepareStatement(READ_TRANSFER_SET);
+		 pstm.setInt(1, tranid);
+		 rs=pstm.executeQuery();
+		 if(rs.isBeforeFirst())
+		 	{
+			 rs.next();
+			 ObjectMapper mapper = new ObjectMapper();
+			 String transferSetString = rs.getString(1);
+			 HashSet<Integer> transferSet = mapper.readValue(transferSetString, new TypeReference<HashSet<Integer>>(){});
+			 transferSet.remove(new Integer(tranid));
+			 int freeSeats = voidSolution(con,pstm,tranid);
+			 Iterator<Integer> PassDriverIter = transferSet.iterator();
+			 while(PassDriverIter.hasNext())
+			 	{
+				 int driverID=PassDriverIter.next().intValue();
+				 String driverCallBack=null;
+				 PoolDAO.removePassenger(con, pstm, driverID, tranid, freeSeats);
+				 pstm=con.prepareStatement(GET_TRANSFER_CALLBACK);
+				 pstm.setInt(1, driverID);
+				 rs = pstm.executeQuery();
+					if(rs.isBeforeFirst())
+						{
+						rs.next();
+						driverCallBack=rs.getString(1);
+						}else 
+							{
+							con.rollback();
+							pstm.close();
+							rs.close();
+							con.close();
+							manager.close();
+							throw new DaoException("deleteBokedSolution() ERROR: unable to read callback addres for driver transfer "+driverID);
+							}
+					NotificationMessage driverMessage= new NotificationMessage();
+					driverMessage.setRoleDriver();
+					driverMessage.setTransferID(driverID);
+					driverMessage.setRelatedToTransfer(tranid);
+					driverMessage.setTypeNotification();
+					driverMessage.setCallBackURI(driverCallBack);
+					driverMessage.setMessage("One of your passengers has canceled his reservation, you have now "+freeSeats+" more free seats available");
+					messages.add(driverMessage);
+			 	}
+		 	}else throw new DaoException("Someting went wrong reading the transfer set associated to transfer: "+tranid);
+		 con.commit();
+		 if(rs!=null) rs.close();
+		 if(pstm!=null)pstm.close();
+		 if(con!=null)con.close();
+		 if(manager!=null)manager.close();
+		 return messages;
 		}
 	
 	

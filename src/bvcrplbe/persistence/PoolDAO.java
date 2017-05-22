@@ -49,6 +49,7 @@ public class PoolDAO implements Serializable{
 		PreparedStatement pstm=null;
 		ConnectionManager manager = new ConnectionManager();
 		Pool driverPool=PoolDAO.readPool(userid, driTranId);
+		if(driverPool==null) throw new DaoException("The ride you're trying to delete doesn't exist");
 		LinkedList<Passenger> passList = driverPool.getPassengerList();
 		HashMap<Integer,HashSet<Integer>> passMap = new HashMap<Integer,HashSet<Integer>>();
 		//LinkedList<String> passCallback=new LinkedList<String>();
@@ -142,19 +143,18 @@ public class PoolDAO implements Serializable{
 			pstm.setInt(1, driTranId);
 			pstm.executeUpdate();
 			}
-		//con.rollback(); //RICORDARSI DI CAMBIARE CON COMMIT SE SEMBRA FUNZIONARE A DOVERE
 		
-		con.commit();
-		pstm.close();
-		con.close();
-		manager.close();
+		if(con!=null)con.commit();
+		if(pstm!=null)pstm.close();
+		if(con!=null)con.close();
+		if(manager!=null)manager.close();
 		return messages;
 		//TODO ricordarsi di committare alla fine
 		}
 	
 	private static String READ_POOL_UNSAFE="SELECT * FROM pool WHERE pool_id=?";
 	private static String SAVE_UPDATED_PASSLIST = "UPDATE pool SET passenger_list=? WHERE pool_id=?";
-	private static void removePassenger(Connection con,PreparedStatement pstm,int driverID,int passengerID,int freeSeats) throws SQLException, JsonParseException, JsonMappingException, IOException, DaoException
+	protected static void removePassenger(Connection con,PreparedStatement pstm,int driverID,int passengerID,int freeSeats) throws SQLException, JsonParseException, JsonMappingException, IOException, DaoException
 		{
 		 pstm=con.prepareStatement(READ_POOL_UNSAFE);
 		 pstm.setInt(1, driverID);

@@ -2,8 +2,11 @@ package bvcrplbe;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -15,7 +18,11 @@ import javax.ws.rs.core.Response.Status;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
+import bvcrplbe.domain.NotificationMessage;
 import bvcrplbe.persistence.DaoException;
 import bvcrplbe.persistence.McsaSolutionDAO;
 import mcsa.McsaSolution;
@@ -54,5 +61,44 @@ public class BookRideService {
 		}
 		 return Response.status(Status.OK).entity(resString).build();
 		}
+	
+	@DELETE
+	@Path("/{userid}/{tranid}/debug")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteBookRideDebug(@PathParam("userid") int userid,@PathParam("tranid") int pasTranId)
+		{
+		LinkedList<NotificationMessage> notificationList=null;
+			 try {
+				 notificationList=McsaSolutionDAO.deleteBookedSolution(userid, pasTranId, true);
+			} catch (SQLException | DaoException | IOException e) {
+				e.printStackTrace();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error processing delete reservation request: "+e.getMessage()).build();
+			}
+			 Client client = Client.create();
+				boolean errorOccured=false;
+				ObjectMapper mapper = new ObjectMapper();
+				Iterator<NotificationMessage> iter = notificationList.iterator();
+					while(iter.hasNext())
+						{
+						try{
+							NotificationMessage message = iter.next();
+							String address = message.getCallBackURI();
+							WebResource resource = client.resource(address);
+							//String responseMessage = message.getMessage();
+							String responseMessage = mapper.writeValueAsString(message);
+							ClientResponse response = resource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,responseMessage);
+							if(response.getStatus()!=200) errorOccured=true;
+							System.out.println(message.toString());
+							}
+						catch(Exception w)
+							{
+							 errorOccured=true;
+							}
+						}
+		 
+					if(!errorOccured) return Response.status(Status.OK).entity("Ride deleted and drivers clients correctly informed").build();
+					else return Response.status(Status.OK).entity("Your reservation has been deleted as requested").build();
+		}
+	
 
 }
