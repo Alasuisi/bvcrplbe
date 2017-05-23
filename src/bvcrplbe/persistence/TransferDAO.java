@@ -257,7 +257,7 @@ public class TransferDAO implements Serializable{
 			}
 		
 		private static String READ_MY_TRANSFER_REQUEST = "SELECT * FROM transfer WHERE \"User_Role\" = '{\"role\":\"passenger\"}' AND \"User_ID\" = ? AND \"Transfer_ID\" = ? ";
-		public static Transfer getMySearchRequest(int userId, int transferID) throws SQLException, DaoException, JSONException, IOException
+		public static Transfer getMySearchRequest(int userId, int transferID) throws SQLException, DaoException, JSONException, IOException, ClassNotFoundException
 			{
 			Connection con=null;
 			PreparedStatement pstm=null;
@@ -333,7 +333,7 @@ public class TransferDAO implements Serializable{
 			 return true;
 			}
 		private static String READ_ALL_OFFERINGS= " SELECT * FROM transfer WHERE \"User_Role\"= '{\"role\":\"driver\"}'"; //AND \"Transfer_ID\">120 AND \"Transfer_ID\"<135
-		public static LinkedList<Transfer> readAllOfferings(long depTime,long worstArrival, long extendIntervalBy) throws SQLException, JSONException, IOException
+		public static LinkedList<Transfer> readAllOfferings(long depTime,long worstArrival, long extendIntervalBy) throws SQLException, JSONException, IOException, ClassNotFoundException
 			{
 			Connection con=null;
 			PreparedStatement pstm=null;

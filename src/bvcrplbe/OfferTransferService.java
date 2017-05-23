@@ -185,7 +185,7 @@ public class OfferTransferService {
 		  LinkedList<NotificationMessage> notificationList=null;
 			try {
 				notificationList = PoolDAO.deletePool(userid, driTranId,true);
-			} catch (SQLException | IOException | DaoException | RuntimeException e) {
+			} catch (SQLException | IOException | DaoException | RuntimeException | ClassNotFoundException e) {
 				e.printStackTrace();
 				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error processing delete request: "+e.getMessage()).build();
 			}
@@ -225,7 +225,7 @@ public class OfferTransferService {
 			LinkedList<NotificationMessage> notificationList=null;
 			try {
 				notificationList = PoolDAO.deletePool(userid, driTranId,false);
-			} catch (SQLException | IOException | DaoException e) {
+			} catch (SQLException | IOException | DaoException | ClassNotFoundException e) {
 				e.printStackTrace();
 				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error processing delete request: "+e.getMessage()).build();
 			}
@@ -270,7 +270,7 @@ public class OfferTransferService {
 		  Pool result=null;
 		  try {
 			  	result = PoolDAO.readPool(userid, poolid);
-			  } catch (SQLException | IOException e) {
+			  } catch (SQLException | IOException | ClassNotFoundException e) {
 							e.printStackTrace();
 							if(e instanceof SQLException)return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error retrieving pool object:"+System.lineSeparator()+e.getMessage()).build();
 							if(e instanceof IOException) return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error deserializing pool object"+System.lineSeparator()+e.getMessage()).build();

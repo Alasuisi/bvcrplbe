@@ -43,7 +43,7 @@ public class PoolDAO implements Serializable{
 	private static final String GET_TRANSFER_CALLBACK="SELECT (\"Callback_URI\") FROM transfer where \"Transfer_ID\"=?";
 	private static final String REMOVE_POOL= "DELETE FROM pool WHERE pool_id=?";
 	private static final String REMOVE_TRANSFER = "DELETE FROM transfer WHERE \"Transfer_ID\"=?";
-	public static LinkedList<NotificationMessage> deletePool(int userid,int driTranId,boolean debug) throws JsonParseException, JsonMappingException, SQLException, IOException, DaoException
+	public static LinkedList<NotificationMessage> deletePool(int userid,int driTranId,boolean debug) throws JsonParseException, JsonMappingException, SQLException, IOException, DaoException, ClassNotFoundException
 		{
 		Connection con=null;
 		PreparedStatement pstm=null;
@@ -192,7 +192,7 @@ public class PoolDAO implements Serializable{
 	
 	
 	private static String READ_POOL = "SELECT * FROM pool WHERE pool_id=? AND driver_id=?";
-	public static Pool readPool(int userid,int tranid) throws SQLException, JsonParseException, JsonMappingException, IOException
+	public static Pool readPool(int userid,int tranid) throws SQLException, JsonParseException, JsonMappingException, IOException, ClassNotFoundException
 		{
 		Connection con=null;
 		PreparedStatement pstm=null;
@@ -273,7 +273,7 @@ public class PoolDAO implements Serializable{
 	
 	private static String CREATE_POOL= "INSERT INTO pool(pool_id,driver_id,driver_path) VALUES (?,?,?)";
 	private static String CHECK_DRIVER = "select count(*) from transfer where \"User_ID\"=? AND \"Transfer_ID\"=? AND \"User_Role\"= '{\"role\": \"driver\"}'";
-	public static void writePool(Transfer tran) throws SQLException, DaoException, JsonProcessingException
+	public static void writePool(Transfer tran) throws SQLException, DaoException, JsonProcessingException, ClassNotFoundException
 		{
 		 Connection con=null;
 		 PreparedStatement pstm=null;

@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -41,6 +42,7 @@ public class UserProfileDAO implements Serializable{
 			 rs.next();
 			 int id=rs.getInt("user_id");
 			 int profid=rs.getInt("profile_id");
+			 /*
 			 JsonObject tnodes = (new JsonParser()).parse(rs.getString("number_of_transit_nodes")).getAsJsonObject();
 			 JsonObject tmeans = (new JsonParser()).parse(rs.getString("user_transport_means")).getAsJsonObject();
 			 JsonObject privcar = (new JsonParser()).parse(rs.getString("private_service_car")).getAsJsonObject();
@@ -51,11 +53,23 @@ public class UserProfileDAO implements Serializable{
 			 JsonObject emsens = (new JsonParser()).parse(rs.getString("sensibility_to_emissions")).getAsJsonObject();
 			 JsonObject walkdst = (new JsonParser()).parse(rs.getString("walking_distance")).getAsJsonObject();
 			 JsonObject rngdep = (new JsonParser()).parse(rs.getString("range_departure_time")).getAsJsonObject();
-			 JsonObject pricerng = (new JsonParser()).parse(rs.getString("price_range_travel")).getAsJsonObject();
-			 JsonObject scorepl=null;
+			 JsonObject pricerng = (new JsonParser()).parse(rs.getString("price_range_travel")).getAsJsonObject();*/
+			 String tnodes = rs.getString("number_of_transit_nodes");
+			 String tmeans = rs.getString("user_transport_means");
+			 String privcar = rs.getString("private_service_car");
+			 String prefclass = rs.getString("preferred_class_category");
+			 String specneeds = rs.getString("special_travel_needs");
+			 String tottravel = rs.getString("total_travel_time");
+			 String conflevel = rs.getString("confort_level");
+			 String emsens = rs.getString("sensibility_to_emissions");
+			 String walkdst = rs.getString("walking_distance");
+			 String rngdep = rs.getString("range_departure_time");
+			 String pricerng = rs.getString("price_range_travel");
+			 
+			 String scorepl=null;
 			 if(rs.getString("score_policy")!=null)
 			 	{
-				 scorepl = (new JsonParser()).parse(rs.getString("score_policy")).getAsJsonObject();
+				 scorepl = rs.getString("score_policy");
 			 	}
 			 
 			 

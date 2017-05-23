@@ -61,7 +61,7 @@ public class McsaSolutionDAO implements Serializable {
 	private static final String READ_TRANSFER_SET = "SELECT transfer_set FROM booked_solutions WHERE transfer_id=?";
 	private static final String CHECK_USER = "SELECT (\"User_ID\"),(\"User_Role\") FROM transfer WHERE \"Transfer_ID\"=?";
 	private static final String GET_TRANSFER_CALLBACK="SELECT (\"Callback_URI\") FROM transfer where \"Transfer_ID\"=?";
-	public static LinkedList<NotificationMessage> deleteBookedSolution(int userid,int tranid,boolean debug) throws SQLException, DaoException, JsonParseException, JsonMappingException, IOException
+	public static LinkedList<NotificationMessage> deleteBookedSolution(int userid,int tranid,boolean debug) throws SQLException, DaoException, JsonParseException, JsonMappingException, IOException, ClassNotFoundException
 		{
 			Connection con=null;
 			PreparedStatement pstm=null;
@@ -141,7 +141,7 @@ public class McsaSolutionDAO implements Serializable {
 	private static final String GET_ALL_BOOKED_SOLUTION = "SELECT DISTINCT (transfer_id),(solution_id),(changes),(needed_seats),(arrival_time),(total_waittime),(total_triptime),(animal),(smoke),(luggage),(handicap),(transfer_set),(solution_details),(callback_url)"
 														+ "FROM booked_solutions AS bs, transfer AS ts "
 														+ "WHERE  bs.transfer_id IN (SELECT \"Transfer_ID\" FROM transfer WHERE \"User_ID\"=?) AND ts.\"User_Role\"='{\"role\":\"passenger\"}' ;";
-	public static LinkedList<McsaSolution> readAllBookedSolution(int userid) throws SQLException, JsonParseException, JsonMappingException, IOException, DaoException
+	public static LinkedList<McsaSolution> readAllBookedSolution(int userid) throws SQLException, JsonParseException, JsonMappingException, IOException, DaoException, ClassNotFoundException
 		{
 		Connection con=null;
 		PreparedStatement pstm = null;
@@ -188,7 +188,7 @@ public class McsaSolutionDAO implements Serializable {
 
 	
 	private static final String GET_BOOKED_SOLUTION = "SELECT * FROM booked_solutions WHERE transfer_id=?";
-	public static McsaSolution readBookedSolution(int tranid) throws SQLException, DaoException, JsonParseException, JsonMappingException, IOException
+	public static McsaSolution readBookedSolution(int tranid) throws SQLException, DaoException, JsonParseException, JsonMappingException, IOException, ClassNotFoundException
 		{
 		Connection con=null;
 		PreparedStatement pstm=null;
@@ -233,7 +233,7 @@ public class McsaSolutionDAO implements Serializable {
 	
 	private static final String GET_COMPUTED_SOLUTION = "SELECT * FROM solution WHERE transfer_id=?";
 	private static final String CHECK_TRANSFER_EXISTANCE = "select count(*) from transfer where \"User_ID\"=? AND \"Transfer_ID\"=?;";
-	public static LinkedList<McsaSolution> readSolutions(int userid,int transferid) throws SQLException, IOException
+	public static LinkedList<McsaSolution> readSolutions(int userid,int transferid) throws SQLException, IOException, ClassNotFoundException
 		{
 		Connection con = null;
 		PreparedStatement pstm = null;
@@ -438,7 +438,7 @@ public class McsaSolutionDAO implements Serializable {
 			+ "handicap,transfer_set,solution_details) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	private static final String DELETE_SOUTION = "DELETE FROM solution WHERE transfer_id=?";
 	
-	public static void saveSolutions(LinkedList<McsaSolution> solutionList, int transferId) throws SQLException, JsonProcessingException
+	public static void saveSolutions(LinkedList<McsaSolution> solutionList, int transferId) throws SQLException, JsonProcessingException, ClassNotFoundException
 		{
 			Connection conn = null;
 			PreparedStatement pstm = null;

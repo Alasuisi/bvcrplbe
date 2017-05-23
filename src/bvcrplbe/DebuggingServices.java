@@ -45,7 +45,7 @@ public class DebuggingServices {
 					 	{
 						 PoolDAO.writePool(toReset);
 					 	}
-				} catch (JsonProcessingException | SQLException | DaoException e) {
+				} catch (JsonProcessingException | SQLException | DaoException | ClassNotFoundException e) {
 					e.printStackTrace();
 					return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error writing pools").build();
 				}

@@ -46,7 +46,7 @@ public class ConnectionManager {
 		private String UNABLE_TO_ESTABLISH_SQLCONNECTION="08001";
 		
 		
-		  public Connection connect2() throws ClassNotFoundException, SQLException
+		  public Connection connect() throws ClassNotFoundException, SQLException
 		  	{
 				  try {
 					return connectToDB(5432);
@@ -84,7 +84,7 @@ public class ConnectionManager {
 				return null;
 		  	}
 		   
-		  public Connection connect()
+		  public Connection connect2()
 		  {
 		    try
 		    {

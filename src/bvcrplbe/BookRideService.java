@@ -70,7 +70,7 @@ public class BookRideService {
 		LinkedList<McsaSolution> result=null;
 		 try {
 			result = McsaSolutionDAO.readAllBookedSolution(userid);
-		} catch (SQLException | IOException | DaoException e) {
+		} catch (SQLException | IOException | DaoException | ClassNotFoundException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error retrieving all booked solution:"+System.lineSeparator()+e.getMessage()).build();
 		}
@@ -93,7 +93,7 @@ public class BookRideService {
 		LinkedList<NotificationMessage> notificationList=null;
 			 try {
 				 notificationList=McsaSolutionDAO.deleteBookedSolution(userid, pasTranId, true);
-			} catch (SQLException | DaoException | IOException e) {
+			} catch (SQLException | DaoException | IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error processing delete reservation request: "+e.getMessage()).build();
 			}

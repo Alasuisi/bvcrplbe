@@ -75,6 +75,12 @@ public class SearchTransferService {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Parser error:"+System.lineSeparator()+e.getMessage()).build();
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Internal error!"+System.lineSeparator()+e.getMessage()).build();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Internal error!"+System.lineSeparator()+e.getMessage()).build();
 		}
 		 MCSA mcsa = new MCSA(drivers,passenger);
 		 mcsa.removeDeadEnds();
@@ -98,6 +104,9 @@ public class SearchTransferService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("SQL error:"+System.lineSeparator()+e.getMessage()+System.lineSeparator()+e.getSQLState()).build();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Internal error!"+System.lineSeparator()+e.getMessage()).build();
 		}
 		 String responseString=null;
 		 try {
@@ -158,7 +167,13 @@ public class SearchTransferService {
 			 System.out.println(tranItre.next().toString());
 		 	}
 		 System.out.println(System.lineSeparator()+"PASSENGER TRANSFER"+System.lineSeparator());
-		 System.out.println(passenger.toString());*/
+		 System.out.println(passenger.toString());*/ catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Internal error!"+System.lineSeparator()+e.getMessage()).build();
+		}
 		 
 		 MCSA mcsa = new MCSA(drivers,passenger);
 		 //mcsa.McsaIterative(passenger.getDep_time());
@@ -190,6 +205,9 @@ public class SearchTransferService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("SQL error:"+System.lineSeparator()+e.getMessage()+System.lineSeparator()+e.getSQLState()).build();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Internal error!"+System.lineSeparator()+e.getMessage()).build();
 		}
 		 String responseString=null;
 		 try {
@@ -225,6 +243,9 @@ public class SearchTransferService {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("JSON conversion to domain objects failed!"+System.lineSeparator()+e.getMessage()).build();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Internal error!"+System.lineSeparator()+e.getMessage()).build();
 		}
 		 ObjectMapper mapper = new ObjectMapper();
 		 String responseString=null;
@@ -250,7 +271,7 @@ public class SearchTransferService {
 		Transfer passenger=null;
 		 try {
 			passenger = TransferDAO.getMySearchRequest(user, transfer);
-		} catch (JSONException | SQLException | DaoException | IOException e) {
+		} catch (JSONException | SQLException | DaoException | IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("God hates your request: "+System.lineSeparator()+e.getMessage()).build();
 		}
