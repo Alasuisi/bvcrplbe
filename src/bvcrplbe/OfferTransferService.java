@@ -131,6 +131,7 @@ public class OfferTransferService {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
 		}
 		 //JsonObject userTranJson = (new JsonParser()).parse(jsonInString).getAsJsonObject();
+		System.out.println("server has this transfer: "+jsonInString);
 		 return Response.status(Status.OK).entity(jsonInString).build();
 		 
 	 	}
