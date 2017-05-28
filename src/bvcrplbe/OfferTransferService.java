@@ -149,7 +149,7 @@ public class OfferTransferService {
 				try {
 					transId = TransferDAO.insert(toAdd);
 					toAdd.setTran_id(transId);
-					PoolDAO.writePool(toAdd);
+					if(toAdd.getUser_role().equals("driver"))PoolDAO.writePool(toAdd);
 				} catch (ClassNotFoundException e) {
 
 					e.printStackTrace();
