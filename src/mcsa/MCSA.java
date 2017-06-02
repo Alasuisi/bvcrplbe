@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -482,7 +483,102 @@ public class MCSA {
 			}
 	}*/
 	
+	
 	public void removeBadOnes()
+	{
+	Iterator<LinkedList<McsaConnection>> resIter = result.iterator();
+	LinkedList<LinkedList<McsaConnection>> cleanRes = new LinkedList<LinkedList<McsaConnection>>();
+	while(resIter.hasNext())
+		{
+		HashSet<Integer> tranSet = new HashSet<Integer>();
+		HashMap<Integer,Integer> pointsAmount = new HashMap<Integer,Integer>(); ///
+		LinkedList<McsaConnection> thisSol = resIter.next();
+		Iterator<McsaConnection> solIter = thisSol.iterator();
+		McsaConnection back=solIter.next();
+		if(back.getTransferID()==back.getConnectedTo())
+			{
+			if(pointsAmount.get(new Integer(back.getTransferID()))==null)
+				{
+				 pointsAmount.put(new Integer(back.getTransferID()), new Integer(2));
+				}else{
+					  int count = pointsAmount.get(new Integer(back.getTransferID())).intValue();
+					  count =count+2;
+					  pointsAmount.put(new Integer(back.getTransferID()), new Integer(count));
+					 }
+			}
+		McsaConnection middle=solIter.next();
+		if(middle.getTransferID()==middle.getConnectedTo())
+			{
+			if(pointsAmount.get(new Integer(middle.getTransferID()))==null)
+				{
+				pointsAmount.put(new Integer(middle.getTransferID()), new Integer(2));
+				}else{
+						 int count = pointsAmount.get(new Integer(middle.getTransferID())).intValue();
+						 count=count+2;
+						 pointsAmount.put(new Integer(middle.getTransferID()), new Integer(count));
+					 }
+			}
+		boolean badSolution=false;
+		while(solIter.hasNext() && !badSolution)
+			{
+			 McsaConnection front = solIter.next();
+			 //System.out.println("Examining connection "+front.getTransferID()+"-->"+front.getConnectedTo());
+			 if(front.getTransferID()==front.getConnectedTo())
+			 	{
+				 if(pointsAmount.get(new Integer(front.getTransferID()))==null)
+				 	{
+					 //System.out.println("Integer was null "+front.getTransferID()+"-->"+front.getConnectedTo());
+					 pointsAmount.put(new Integer(front.getTransferID()), new Integer(2));
+				 	}else{
+				 		  int count = pointsAmount.get(new Integer(front.getTransferID())).intValue();
+				 		  //System.out.println("connection "+front.getTransferID()+"-->"+front.getConnectedTo()+" countvalue="+count);
+				 		  count=count+2;
+				 		  pointsAmount.put(new Integer(front.getTransferID()), new Integer(count));
+				 		  //System.out.println("new count value="+pointsAmount.get(new Integer(front.getTransferID())));
+				 	}
+			 	}
+			 tranSet.add(new Integer(back.getTransferID()));
+			 tranSet.add(new Integer(back.getConnectedTo()));
+			 tranSet.add(new Integer(middle.getTransferID()));
+			 tranSet.add(new Integer(middle.getConnectedTo()));
+			 //tranSet.add(new Integer(middleFront.getTransferID())); ///
+			 //tranSet.add(new Integer(middleFront.getConnectedTo())); ///
+			 tranSet.add(new Integer(front.getTransferID()));
+			 tranSet.add(new Integer(front.getConnectedTo()));
+			 if(tranSet.size()>2) 
+			 {
+				 badSolution=true;
+				// System.out.println(tranSet.toString() +"is bad:"+badSolution);
+			 }
+			 else 
+			 	{
+				// System.out.println("is good:"+tranSet.toString());
+				 tranSet= new HashSet<Integer>();
+				 back=middle;
+				 middle=front;
+			 	}
+			}
+		Iterator<Integer> keyIter=pointsAmount.keySet().iterator();
+		int min=Integer.MAX_VALUE;
+		while(keyIter.hasNext())
+			{
+			Integer key = keyIter.next();
+			Integer value = pointsAmount.get(key);
+			//System.out.println("Bad Solution="+badSolution+" pointsAmountKey="+key+" pointsAmount="+value);
+			if(value.intValue()<min) min=value.intValue();
+			}
+		pointsAmount=new HashMap<Integer,Integer>();
+		if(!badSolution)System.out.println("badSolution="+badSolution+" min points="+min);
+		//System.out.println(System.lineSeparator()+"------------------------");
+		if(!badSolution) cleanRes.add(thisSol);
+		}
+	
+	result=cleanRes;
+	}
+	
+	
+	
+	/*public void removeBadOnes()
 		{
 		Iterator<LinkedList<McsaConnection>> resIter = result.iterator();
 		LinkedList<LinkedList<McsaConnection>> cleanRes = new LinkedList<LinkedList<McsaConnection>>();
@@ -503,9 +599,14 @@ public class MCSA {
 				 tranSet.add(new Integer(middle.getConnectedTo()));
 				 tranSet.add(new Integer(front.getTransferID()));
 				 tranSet.add(new Integer(front.getConnectedTo()));
-				 if(tranSet.size()>2) badSolution=true;
+				 if(tranSet.size()>2) 
+				 {
+					 badSolution=true;
+					 System.out.println(tranSet.toString() +"is bad:"+badSolution);
+				 }
 				 else 
 				 	{
+					 System.out.println("is good:"+tranSet.toString());
 					 tranSet= new HashSet<Integer>();
 					 back=middle;
 					 middle=front;
@@ -515,7 +616,7 @@ public class MCSA {
 			
 			}
 		result=cleanRes;
-		}
+		}*/
 	
 	public void OLDremoveBadOnes()
 		{

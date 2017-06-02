@@ -59,6 +59,7 @@ public class McsaSegment {
 	
 	public McsaSegment(LinkedList<McsaConnection> conList,HashMap<Integer,boolean[]> specialNeeds)
 		{
+		if(conList.peek().getTransferID()==128&&conList.peek().getConnectedTo()==128)System.out.println("MCSASEGMENT: lista connessioni problematica size "+conList.size());
 		 Iterator<McsaConnection> iter = conList.iterator();
 		 McsaConnection first = iter.next();
 		 fromTransferID=first.getTransferID();
@@ -80,16 +81,23 @@ public class McsaSegment {
 		 	{
 			 McsaConnection conn = iter.next();
 			 TimedPoint2D toAdd = new TimedPoint2D();
-			 toAdd.setLatitude(conn.getSecond_point().getLatitude());
-			 toAdd.setLongitude(conn.getSecond_point().getLongitude());
-			 toAdd.setTouchTime(conn.getSecond_point().getTouchTime());
+			 toAdd.setLatitude(conn.getFirst_point().getLatitude());
+			 toAdd.setLongitude(conn.getFirst_point().getLongitude());
+			 toAdd.setTouchTime(conn.getFirst_point().getTouchTime());
 			 segmentPath.add(toAdd);
 			 if(!iter.hasNext())
 			 	{
+				 TimedPoint2D toAdd2 = new TimedPoint2D();
+				 toAdd2.setLatitude(conn.getSecond_point().getLatitude());
+				 toAdd2.setLongitude(conn.getSecond_point().getLongitude());
+				 toAdd2.setTouchTime(conn.getSecond_point().getTouchTime());
+				 segmentPath.add(toAdd2);
 				 segmentDeparture=toAdd.getTouchTime(); //era segmentArrival
+				 System.out.println("ultimo punto dell'ultima diocane di connection");
 			 	}
 		 	}
 		 Collections.reverse(segmentPath);
+		 
 		
 		 /*
 		 System.out.println(System.lineSeparator()+"MCSASEGMENT Printing mcsaSegment"+System.lineSeparator());
@@ -100,6 +108,7 @@ public class McsaSegment {
 		 	}
 		 System.out.println(System.lineSeparator()+"END MCSA SEGMENT"+System.lineSeparator());*/
 		 segmentDuration=segmentArrival-segmentDeparture;
+		 if(conList.peek().getTransferID()==128&&conList.peek().getConnectedTo()==128)System.out.println("MCSASEGMENT: dimensioni segmento creato "+segmentPath.size());
 		}
 	
 	public long getSegmentDeparture() {

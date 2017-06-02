@@ -101,6 +101,7 @@ public class McsaSolution {
 
 	public McsaSolution(LinkedList<McsaConnection> resultList,long departureTime,HashMap<Integer,boolean[]> specialNeeds,Transfer passenger,int solID) throws Exception
 		{
+		//System.out.println("MCSASOLUTION called with a connection list of size: "+resultList.size());
 		 solutionID=solID;
 		 long time =departureTime;
 		 /*
@@ -155,6 +156,8 @@ public class McsaSolution {
 							 System.out.println(mah.next().toString());
 						 	}
 					 	}*/
+					 if(tempList.size()==1)System.out.println("MCSASOLUTION: calling mcsaSegment with a list of size "+tempList.size());
+					 if(tempList.peek().getTransferID()==128 && tempList.peek().getConnectedTo()==128) System.out.println("Lista transfer problematica "+tempList.size());
 					 McsaSegment segment2 = new McsaSegment(tempList,specialNeeds);
 					 solution.add(segment2);
 					 tempList = new LinkedList<McsaConnection>();
@@ -163,6 +166,7 @@ public class McsaSolution {
 				 //System.out.println(System.lineSeparator()+"MCSASEGMENT called new segment depTime:"+departureTime+" time:"+time);
 				 //System.out.println(temp.getDeparture_station()+" "+temp.getArrival_station()+" "+temp.getFirst_point().toString()+" "+temp.getSecond_point().toString()+" "+temp.getTransferID()+"->"+temp.getConnectedTo());
 				 McsaSegment segment = new McsaSegment(temp,passenger,time,false);
+				 if(temp.getTransferID()==temp.getConnectedTo())System.out.println("CREATING INVALID SEGMENT "+temp.getTransferID()+"-->"+temp.getConnectedTo());
 				 solution.add(segment);
 			 	}else
 			 		{
