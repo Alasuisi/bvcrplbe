@@ -140,7 +140,7 @@ public class McsaSolutionDAO implements Serializable {
 	
 	private static final String GET_ALL_BOOKED_SOLUTION = "SELECT DISTINCT (transfer_id),(solution_id),(changes),(needed_seats),(arrival_time),(total_waittime),(total_triptime),(animal),(smoke),(luggage),(handicap),(transfer_set),(solution_details),(callback_url)"
 														+ "FROM booked_solutions AS bs, transfer AS ts "
-														+ "WHERE  bs.transfer_id IN (SELECT \"Transfer_ID\" FROM transfer WHERE \"User_ID\"=?) AND ts.\"User_Role\"='{\"role\":\"passenger\"}' ;";
+														+ "WHERE  bs.transfer_id IN (SELECT \"Transfer_ID\" FROM transfer WHERE \"User_ID\"=?) AND ts.\"User_Role\"='{\"role\":\"passenger\"}'";
 	public static LinkedList<McsaSolution> readAllBookedSolution(int userid) throws SQLException, JsonParseException, JsonMappingException, IOException, DaoException, ClassNotFoundException
 		{
 		Connection con=null;
@@ -155,9 +155,11 @@ public class McsaSolutionDAO implements Serializable {
 		if(rs.isBeforeFirst())
 			{
 			 resultList= new LinkedList<McsaSolution>();
+			 System.out.println("RS size "+rs.getFetchSize());
+			 rs.next();
 			 while(!rs.isAfterLast())
 			 	{
-				 rs.next();
+				// rs.next();
 				 McsaSolution result=new McsaSolution();
 				 result.setTransferID(rs.getInt(1));
 				 result.setSolutionID(rs.getInt(2));
@@ -178,6 +180,7 @@ public class McsaSolutionDAO implements Serializable {
 				 LinkedList<McsaSegment> segments = mapper.readValue(segmentString, new TypeReference<LinkedList<McsaSegment>>(){});
 				 result.setSolution(segments);
 				 resultList.add(result);
+				 rs.next();
 			 	}
 			}else throw new DaoException("Error retrieving list of booked solution, or there are no booked solution for userid: "+userid);
 		if(rs!=null) rs.close();
