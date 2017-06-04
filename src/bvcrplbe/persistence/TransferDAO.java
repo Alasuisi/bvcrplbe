@@ -332,8 +332,8 @@ public class TransferDAO implements Serializable{
 			 	}
 			 return true;
 			}
-		private static String READ_ALL_OFFERINGS= " SELECT * FROM transfer WHERE \"User_Role\"= '{\"role\":\"driver\"}'"; //AND \"Transfer_ID\">120 AND \"Transfer_ID\"<135
-		public static LinkedList<Transfer> readAllOfferings(long depTime,long worstArrival, long extendIntervalBy) throws SQLException, JSONException, IOException, ClassNotFoundException
+		private static String READ_ALL_OFFERINGS= " SELECT * FROM transfer WHERE \"User_Role\"= '{\"role\":\"driver\"}' AND \"User_ID\"<>?"; //AND \"Transfer_ID\">120 AND \"Transfer_ID\"<135
+		public static LinkedList<Transfer> readAllOfferings(int userid,long depTime,long worstArrival, long extendIntervalBy) throws SQLException, JSONException, IOException, ClassNotFoundException
 			{
 			Connection con=null;
 			PreparedStatement pstm=null;
@@ -342,6 +342,7 @@ public class TransferDAO implements Serializable{
 			ConnectionManager manager = new ConnectionManager();
 			con=manager.connect();
 			pstm=con.prepareStatement(READ_ALL_OFFERINGS);
+			pstm.setInt(1, userid);
 			rs=pstm.executeQuery();
 			if(rs.isBeforeFirst())
 				{
@@ -358,12 +359,11 @@ public class TransferDAO implements Serializable{
 					 {
 						 Transfer toAdd = new Transfer();
 						 toAdd.setTran_id(rs.getInt(1));
-						 System.out.println("added transfer: "+toAdd.getTran_id());
-						 if(toAdd.getTran_id()==146)
+						 /*if(toAdd.getTran_id()==146)
 						 	{
 							 System.out.println("drivArrTime:  "+drivArrTime+" drivDepTime: "+drivDepTime);
 							 System.out.println("worstArrival: "+worstArrival+" depTime:     "+depTime);
-						 	}
+						 	}*/
 						 toAdd.setUser_id(rs.getInt(2));
 						 toAdd.setProf_id(rs.getInt(3));
 						 toAdd.setClass_id(rs.getShort(4));
@@ -401,6 +401,7 @@ public class TransferDAO implements Serializable{
 						 toAdd.setDet_range(rs.getDouble(23));
 						 toAdd.setRide_details(rs.getString(24));
 						 toAdd.setCallback_uri(rs.getString(25));
+						 System.out.println("added transfer: "+toAdd.getTran_id()+" userid:"+toAdd.getUser_id());
 						 result.add(toAdd);
 					 }
 					 rs.next();

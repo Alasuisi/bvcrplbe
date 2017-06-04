@@ -159,6 +159,7 @@ public class McsaSolutionDAO implements Serializable {
 			 	{
 				 rs.next();
 				 McsaSolution result=new McsaSolution();
+				 result.setTransferID(rs.getInt(1));
 				 result.setSolutionID(rs.getInt(2));
 				 result.setChanges(rs.getInt(3));
 				 result.setNeededSeats(rs.getInt(4));
@@ -269,6 +270,7 @@ public class McsaSolutionDAO implements Serializable {
 					 while(!rs.isAfterLast())
 					 	{
 						 McsaSolution s = new McsaSolution();
+						 s.setTransferID(rs.getInt(1));
 						 s.setSolutionID(rs.getInt(2));
 						 s.setChanges(rs.getInt(3));
 						 s.setNeededSeats(rs.getInt(4));

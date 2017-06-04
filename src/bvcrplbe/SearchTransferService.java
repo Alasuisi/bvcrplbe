@@ -62,7 +62,7 @@ public class SearchTransferService {
 				 return Response.status(Status.BAD_REQUEST).entity(error).build();
 			 	}
 			 System.out.println("timeframe portannato? "+(timeFrame==Long.MAX_VALUE));
-			drivers = TransferDAO.readAllOfferings(depTime,worstArrival,timeFrame);
+			drivers = TransferDAO.readAllOfferings(passenger.getUser_id(),depTime,worstArrival,timeFrame);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Parser error:"+System.lineSeparator()+e.getMessage()).build();
@@ -145,7 +145,7 @@ public class SearchTransferService {
 				 String error="Malformed transfer object: the last point in the path has no arrival time, or arrival_time < departure_time";
 				 return Response.status(Status.BAD_REQUEST).entity(error).build();
 			 	}
-			drivers = TransferDAO.readAllOfferings(depTime,worstArrival,Long.MAX_VALUE);
+			drivers = TransferDAO.readAllOfferings(passenger.getUser_id(),depTime,worstArrival,Long.MAX_VALUE);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Parser error:"+System.lineSeparator()+e.getMessage()).build();

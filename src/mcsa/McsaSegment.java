@@ -93,7 +93,6 @@ public class McsaSegment {
 				 toAdd2.setTouchTime(conn.getSecond_point().getTouchTime());
 				 segmentPath.add(toAdd2);
 				 segmentDeparture=toAdd.getTouchTime(); //era segmentArrival
-				 System.out.println("ultimo punto dell'ultima diocane di connection");
 			 	}
 		 	}
 		 Collections.reverse(segmentPath);

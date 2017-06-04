@@ -1,6 +1,9 @@
 package mcsa;
 
 import java.io.BufferedReader;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,12 +79,23 @@ public class MCSA {
 	public void computeMCSA(int destinationStation,int departureStation,long departureTime)
 		{
 		 this.departureTime=departureTime;
-		 doMCSA(destinationStation,departureStation,departureTime,Long.MAX_VALUE,new LinkedList<McsaConnection>());
+		 doMCSA(destinationStation,departureStation,departureTime,Long.MAX_VALUE,new LinkedList<McsaConnection>(),new HashSet<int[]>());
 		}
 	public void computeMCSA(long departureTime)
 		{
 		 this.departureTime=departureTime;
-		 doMCSA(timetable.getDestinationIndex(),0,departureTime,Long.MAX_VALUE,new LinkedList<McsaConnection>());
+		 MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+		 int MEGABYTE = (1024*1024);
+		 try {
+			 doMCSA(timetable.getDestinationIndex(),0,departureTime,Long.MAX_VALUE,new LinkedList<McsaConnection>(),new HashSet<int[]>());
+		 	 } catch (Exception e) {
+	            e.printStackTrace();
+	         } catch (OutOfMemoryError e) {
+	            MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
+	            long maxMemory = heapUsage.getMax() / MEGABYTE;
+	            long usedMemory = heapUsage.getUsed() / MEGABYTE;
+	            System.out.println("Memory Use :" + usedMemory + "M/" + maxMemory + "M");
+	        }
 		}
 	/*public void computeMCSA(int destinationStation,int departureStation,long departureTime)
 	{
@@ -107,7 +121,7 @@ public class MCSA {
 	 *  list size), and more in general, in the carpooling scenario, offers multiple choices to the end user
 	 */
 	
-	private void doMCSA(int dest_station,int source_station,long source_dt,long next_ts,LinkedList<McsaConnection> tempRes)
+	private void doMCSA(int dest_station,int source_station,long source_dt,long next_ts,LinkedList<McsaConnection> tempRes,HashSet<int[]> connEncounter)
 	{
 		if(connection_list[dest_station].isEmpty()) return;
 		else
@@ -126,6 +140,8 @@ public class MCSA {
 							LinkedList<McsaConnection> copyRes=deepCopy(tempRes);
 							copyRes.add(toAdd);
 							result.add(copyRes);
+							copyRes=null; ////da togliere assolutamente
+							System.out.println("FOUND SOLUTIOOOOOOOOOOOOOONNNNNNNNNNNNN YEAHHHHHH BOIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
 							tempRes=null;
 							return;
 							}else 
@@ -137,9 +153,15 @@ public class MCSA {
 							{
 							//System.out.println("Not to the source, addding connection to temporary solution and piggodding");
 							LinkedList<McsaConnection> copyRes=deepCopy(tempRes);
+							HashSet<int[]> copyArr = deepCopy(connEncounter);
+							int[] thisCon = new int[2];
+							thisCon[0]=toAdd.getDeparture_station();
+							thisCon[1]=toAdd.getArrival_station();
+							if(copyArr.contains(thisCon)) System.out.println("ALREADY TRAVERSED THIS CONNECTION");
 							//System.out.print("Copied temporary list");
 							copyRes.add(toAdd);
-							doMCSA(toAdd.departure_station,source_station,source_dt,toAdd.departure_timestamp,copyRes);
+							System.out.println(toAdd.getDeparture_station()+"-->"+toAdd.getArrival_station()+" T:"+toAdd.getTransferID()+"-->"+toAdd.getConnectedTo());
+							doMCSA(toAdd.departure_station,source_station,source_dt,toAdd.departure_timestamp,copyRes,copyArr);
 							}else {
 								System.out.println("incompatible departure/arival timestamp");
 								return; 
@@ -568,7 +590,7 @@ public class MCSA {
 			if(value.intValue()<min) min=value.intValue();
 			}
 		pointsAmount=new HashMap<Integer,Integer>();
-		if(!badSolution)System.out.println("badSolution="+badSolution+" min points="+min);
+		//if(!badSolution)System.out.println("badSolution="+badSolution+" min points="+min);
 		//System.out.println(System.lineSeparator()+"------------------------");
 		if(!badSolution) cleanRes.add(thisSol);
 		}
@@ -708,6 +730,20 @@ public class MCSA {
 			}
 		return copied;
 	}
+	private static HashSet<int[]> deepCopy(HashSet<int[]> setToCopy)
+		{
+		HashSet<int[]> copied = new HashSet<int[]>();
+		Iterator<int[]> copIter = setToCopy.iterator();
+		while(copIter.hasNext())
+			{
+			int[] intToCopy=copIter.next();
+			int[] intCopied = new int[2];
+			intCopied[0]=intToCopy[0];
+			intCopied[1]=intToCopy[1];
+			copied.add(intCopied);
+			}
+		return copied;
+		}
 	
 	private static LinkedList<McsaConnection> deepCopywCheck(LinkedList<McsaConnection> listToCopy)
 	{
