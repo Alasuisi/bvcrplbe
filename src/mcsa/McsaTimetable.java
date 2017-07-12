@@ -86,7 +86,7 @@ public class McsaTimetable {
     			 	{
     				 if(previous==null||previous.getTransferID()!=actual.getTransferID())
     				 	{
-    					 //System.out.println("prima pigconnection");
+    					 //System.out.println("first connection");
     					 double FirstToFirstDst = evaluateDistance(toCheck.getFirst_point(),actual.getFirst_point());
     					 double FirstToSecondDst = evaluateDistance(toCheck.getFirst_point(),actual.getSecond_point());
     					 double FirstToDestination=evaluateDistance(toCheck.getFirst_point(),passenger.getArr_gps());
@@ -431,8 +431,11 @@ public class McsaTimetable {
 	     			 	}
     		 		}
     	 	}
-    	 
-    	 ArrayList<McsaConnection> optimized = optimize(interList);
+    	 long t0=System.currentTimeMillis();
+    	// ArrayList<McsaConnection> optimized = optimize(interList);
+    	 ArrayList<McsaConnection> optimized = interList;
+    	 long t1=System.currentTimeMillis();
+    	 System.out.println("Optimizing interconnection List took: "+(t1-t0));
     	 /*
     	 Iterator<McsaConnection> connIter = connections.iterator();
     	 while(connIter.hasNext())
@@ -445,7 +448,7 @@ public class McsaTimetable {
 	     	{
 	    	 System.out.println(linkIter.next());
 	     	}
-	     System.out.println(System.lineSeparator()+"Printng interconnections piggodded"+System.lineSeparator());
+	     System.out.println(System.lineSeparator()+"Printng interconnections"+System.lineSeparator());
 	     Iterator<McsaConnection> mah = interList.iterator();
 	     while(mah.hasNext())
 	     	{

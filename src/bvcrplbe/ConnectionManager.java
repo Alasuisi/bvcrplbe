@@ -24,7 +24,7 @@ public class ConnectionManager {
 				Class.forName("org.postgresql.Driver");
 			} catch (ClassNotFoundException e1) {
 				// TODO Auto-generated catch block
-				System.out.println("Madonna driver");
+				System.out.println("error");
 				e1.printStackTrace();
 			}
 	        Connection conn = null;
@@ -56,7 +56,7 @@ public class ConnectionManager {
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					//e.printStackTrace();
-					System.out.println("portanna la madonna"+e.getSQLState()+" "+e.getErrorCode());
+					System.out.println("Connection manager errror: "+e.getSQLState()+" "+e.getErrorCode());
 					if(e.getSQLState().equals(UNABLE_TO_ESTABLISH_SQLCONNECTION))
 						{
 						 System.out.println("Unable to connect locally, trying to establish ssh tunnel");

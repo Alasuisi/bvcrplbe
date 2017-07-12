@@ -163,7 +163,7 @@ public class McsaSolution implements Serializable{
 					 //Collections.reverse(tempList);/// un po random qeusta cosa
 					 /*if(tempList.size()<3)
 					 	{
-						 System.out.println("DAFUQQQQQQQQQQQQQQ la lista delle connessioni piccola: dimensione="+tempList.size());
+						 System.out.println("WARNING small connection list: dimensione="+tempList.size());
 						 Iterator<McsaConnection> mah = tempList.iterator();
 						 while(mah.hasNext())
 						 	{

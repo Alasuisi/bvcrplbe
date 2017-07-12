@@ -59,7 +59,7 @@ public class McsaSegment {
 	
 	public McsaSegment(LinkedList<McsaConnection> conList,HashMap<Integer,boolean[]> specialNeeds)
 		{
-		if(conList.peek().getTransferID()==128&&conList.peek().getConnectedTo()==128)System.out.println("MCSASEGMENT: lista connessioni problematica size "+conList.size());
+		//if(conList.peek().getTransferID()==128&&conList.peek().getConnectedTo()==128)System.out.println("MCSASEGMENT: lista connessioni problematica size "+conList.size());
 		 Iterator<McsaConnection> iter = conList.iterator();
 		 McsaConnection first = iter.next();
 		 fromTransferID=first.getTransferID();
@@ -107,7 +107,7 @@ public class McsaSegment {
 		 	}
 		 System.out.println(System.lineSeparator()+"END MCSA SEGMENT"+System.lineSeparator());*/
 		 segmentDuration=segmentArrival-segmentDeparture;
-		 if(conList.peek().getTransferID()==128&&conList.peek().getConnectedTo()==128)System.out.println("MCSASEGMENT: dimensioni segmento creato "+segmentPath.size());
+		 //if(conList.peek().getTransferID()==128&&conList.peek().getConnectedTo()==128)System.out.println("MCSASEGMENT: dimensioni segmento creato "+segmentPath.size());
 		}
 	
 	public long getSegmentDeparture() {

@@ -140,8 +140,8 @@ public class MCSA {
 							LinkedList<McsaConnection> copyRes=deepCopy(tempRes);
 							copyRes.add(toAdd);
 							result.add(copyRes);
-							copyRes=null; ////da togliere assolutamente
-							System.out.println("FOUND SOLUTIOOOOOOOOOOOOOONNNNNNNNNNNNN YEAHHHHHH BOIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
+							copyRes=null;
+							//System.out.println("FOUND SOLUTION");
 							tempRes=null;
 							return;
 							}else 
@@ -160,7 +160,7 @@ public class MCSA {
 							if(copyArr.contains(thisCon)) System.out.println("ALREADY TRAVERSED THIS CONNECTION");
 							//System.out.print("Copied temporary list");
 							copyRes.add(toAdd);
-							System.out.println(toAdd.getDeparture_station()+"-->"+toAdd.getArrival_station()+" T:"+toAdd.getTransferID()+"-->"+toAdd.getConnectedTo());
+							//System.out.println(toAdd.getDeparture_station()+"-->"+toAdd.getArrival_station()+" T:"+toAdd.getTransferID()+"-->"+toAdd.getConnectedTo());
 							doMCSA(toAdd.departure_station,source_station,source_dt,toAdd.departure_timestamp,copyRes,copyArr);
 							}else {
 								System.out.println("incompatible departure/arival timestamp");
@@ -268,7 +268,7 @@ public class MCSA {
 			 McsaConnection from=null;
 			 while(visiting != source_station)
 			 	{
-				 System.out.println("cazzo di size: "+connection_list[visiting].size());
+				 System.out.println("visiting connection list size: "+connection_list[visiting].size());
 				 if(connection_list[visiting].size()!=0)
 				 	{
 					 if(visitStatus[visiting]<endVisit[visiting]) ///aggiunto -1 qui, tolto =
@@ -292,7 +292,7 @@ public class MCSA {
 						 		 long wait = fromDeparture-thisArrival;
 						 		 if(wait<0)
 						 		 	{
-						 			 System.out.println("QUESTA CONNECTION ANDREBBE SCARTATA "+wait);
+						 			 System.out.println("this connection should be dropped "+wait);
 						 		 	}else System.out.println("OK");
 						 		}
 						 temp.add(con);
@@ -301,7 +301,7 @@ public class MCSA {
 					 	{
 						 System.out.println("uguali? "+Arrays.equals(visitStatus, endVisit));
 						 if(!Arrays.equals(visitStatus, endVisit)){
-							 System.out.println("Punto morto, aumento un cazzo di indice");
+							 System.out.println("dead end, increasing index");
 							 temp = new LinkedList<McsaConnection>();
 							 boolean branchPointFound=false;
 							 while(!branchPointFound)
@@ -327,7 +327,7 @@ public class MCSA {
 						 }
 					 	}*/
 			 	}
-			 System.out.println("uguali? "+Arrays.equals(visitStatus, endVisit));
+			 System.out.println("equals? "+Arrays.equals(visitStatus, endVisit));
 			 LinkedList<Integer> leftIndexes = new LinkedList<Integer>(); ////quasi sicuramente serve una coda
 			 boolean done=false;
 			 while(!done)
@@ -392,7 +392,7 @@ public class MCSA {
 			 System.out.println(begin);
 			 System.out.println(begin2);
 			
-			 System.out.println("Soluzione ad cazzum "+System.lineSeparator());
+			 System.out.println("test solution: "+System.lineSeparator());
 			 Iterator<McsaConnection> test = temp.iterator();
 			 McsaConnection first = test.next();
 			 //System.out.println(first.getDeparture_station()+"      "+first.getFirst_point().getLatitude()+","+first.getFirst_point().getLongitude());
@@ -421,7 +421,7 @@ public class MCSA {
 			 	{
 				 if(visiting2!=-1)
 				 	{
-					 System.out.println("cazzo di size: "+connection_list[visiting2].size());
+					 System.out.println("visiting connection list size: "+connection_list[visiting2].size());
 					 McsaConnection con = connection_list[visiting2].get(visitStatus[visiting2]);
 					 System.out.println("con is null: "+con==null);
 					 //inserire qui le condizioni per l'inserimento
@@ -429,7 +429,7 @@ public class MCSA {
 					 visiting2=con.getDeparture_station();
 					 System.out.println(con.toString());
 					 System.out.println("next visit "+visiting2);
-				 	}else System.out.println("PORCAMADONNAAAAAAAAAAAAAAAAAAAAAAAAAAAAH");
+				 	}else System.out.println("Something bad happened");
 			 	}while(visiting2==source_station || visiting2==-1);
 			 System.out.println("in the end visitn2="+visiting2+" and source="+source_station);
 		 	}

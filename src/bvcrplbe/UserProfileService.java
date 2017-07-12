@@ -36,7 +36,7 @@ public class UserProfileService {
 		 ObjectMapper mapper = new ObjectMapper();
 		 String response=null;
 		 try {
-			 System.out.println("STAMPO LO USER PROFILE PRIMA DI INVIARLO"+prof.toString());
+			 System.out.println("printing userprofile: "+prof.toString());
 			response = mapper.writeValueAsString(prof);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();

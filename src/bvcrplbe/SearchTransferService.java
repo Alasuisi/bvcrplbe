@@ -47,7 +47,7 @@ public class SearchTransferService {
 		 LinkedList<Transfer> drivers=null;
 		 ObjectMapper mapper = new ObjectMapper();
 		 try {
-			 System.out.println("ma che ho in ingresso?  "+transferString);
+			 System.out.println("input serialized string  "+transferString);
 			passenger = mapper.readValue(transferString, Transfer.class);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -61,7 +61,7 @@ public class SearchTransferService {
 				 String error="Malformed transfer object: the last point in the path has no arrival time, or arrival_time < departure_time";
 				 return Response.status(Status.BAD_REQUEST).entity(error).build();
 			 	}
-			 System.out.println("timeframe portannato? "+(timeFrame==Long.MAX_VALUE));
+			 System.out.println("infinite timeframe: "+(timeFrame==Long.MAX_VALUE));
 			drivers = TransferDAO.readAllOfferings(passenger.getUser_id(),depTime,worstArrival,timeFrame);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
@@ -83,19 +83,33 @@ public class SearchTransferService {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Internal error!"+System.lineSeparator()+e.getMessage()).build();
 		}
 		 MCSA mcsa = new MCSA(drivers,passenger);
+		 long t0 = System.currentTimeMillis();
 		 mcsa.removeDeadEnds();
+		 long t1 = System.currentTimeMillis();
 		 mcsa.computeMCSA(passenger.getDep_time());
+		 long t2 = System.currentTimeMillis();
 		 mcsa.removeBadOnes();
+		 long t3 = System.currentTimeMillis();
+		 
+		 System.out.println("Remove deadEnds took:" +(t1-t0));
+		 System.out.println("MCSA compute took:" +(t2-t1));
+		 System.out.println("Remove bad solution took:" +(t3-t2));
 		 LinkedList<LinkedList<McsaConnection>> result2 = mcsa.result;
-		 System.out.println("Cleaned solutions size" +result2.size());
+		 System.out.println("Cleaned solutions size " +result2.size());
 		 McsaResult result=null;
 		 try {
+			 long t4 = System.currentTimeMillis();
 			result = mcsa.getResults();
+			long t5 = System.currentTimeMillis();
+			System.out.println("Generating raw solution list took: "+(t5-t4));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Multipath Connection Scan Algorithm: FAIL"+System.lineSeparator()+e.getMessage()).build();
 		}
+		 long t6 = System.currentTimeMillis();
 		 LinkedList<McsaSolution> solutionList = result.getResults(limit);
+		 long t7 = System.currentTimeMillis();
+		 System.out.println("Generating Solution Object List took: "+(t7-t6));
 		 try {
 			McsaSolutionDAO.saveSolutions(solutionList, passenger.getTran_id());
 		} catch (JsonProcessingException e) {
@@ -131,7 +145,7 @@ public class SearchTransferService {
 		 LinkedList<Transfer> drivers=null;
 		 ObjectMapper mapper = new ObjectMapper();
 		 try {
-			 System.out.println("ma che ho in ingresso?  "+transferString);
+			 System.out.println("input serialized string  "+transferString);
 			passenger = mapper.readValue(transferString, Transfer.class);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -250,9 +264,9 @@ public class SearchTransferService {
 		 ObjectMapper mapper = new ObjectMapper();
 		 String responseString=null;
 		 try {
-			 System.out.println("sto per mappare");
+			 System.out.println("mapping..");
 			responseString = mapper.writeValueAsString(result);
-			System.out.println("mappato");
+			System.out.println("mapped!");
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error serializing response entity:"+System.lineSeparator()+e.getMessage()).build();

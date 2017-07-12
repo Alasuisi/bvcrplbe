@@ -236,51 +236,51 @@ public LinkedList<McsaSolution> getResults(int limit)
 	 HashSet<Integer> checkSet = new HashSet<Integer>();
 	 LinkedList<McsaSolution> tempResult= new LinkedList<McsaSolution>();
 	 Iterator<McsaSolution> changeIter = changeList.values().iterator();
-	 System.out.println("Printing solution CHANGE");
+	 //System.out.println("Printing solution CHANGE");
 	 while(changeIter.hasNext())
 	 	{
 		 McsaSolution toAdd=changeIter.next();
 		 Integer index= new Integer(toAdd.getSolutionID());
-		 System.out.println(index);
+		 //System.out.println(index);
 		 if(!checkSet.contains(index))
 		 	{
 			 checkSet.add(index);
 			 tempResult.add(toAdd);
 		 	}
 	 	}
-	 System.out.println(System.lineSeparator()+"Printing solution TIME");
+	 //System.out.println(System.lineSeparator()+"Printing solution TIME");
 	 Iterator<McsaSolution> timeIter = timeList.values().iterator();
 	 while(timeIter.hasNext())
 	 	{
 		 McsaSolution toAdd=timeIter.next();
 		 Integer index = new Integer(toAdd.getSolutionID());
-		 System.out.println(index);
+		 //System.out.println(index);
 		 if(!checkSet.contains(index))
 		 	{
 			 checkSet.add(index);
 			 tempResult.add(toAdd);
 		 	}
 	 	}
-	 System.out.println(System.lineSeparator()+"Printing solution WAIT");
+	 //System.out.println(System.lineSeparator()+"Printing solution WAIT");
 	 Iterator<McsaSolution> waitIter = waitList.values().iterator();
 	 while(waitIter.hasNext())
 	 	{
 		 McsaSolution toAdd=waitIter.next();
 		 Integer index= new Integer(toAdd.getSolutionID());
-		 System.out.println(index);
+		 //System.out.println(index);
 		 if(!checkSet.contains(index))
 		 	{
 			 checkSet.add(index);
 			 tempResult.add(toAdd);
 		 	}
 	 	}
-	 System.out.println(System.lineSeparator()+"Printing solution NEED");
+	 //System.out.println(System.lineSeparator()+"Printing solution NEED");
 	 Iterator<McsaSolution> needIter = needList.values().iterator();
 	 while(needIter.hasNext())
 	 	{
 		 McsaSolution toAdd=needIter.next();
 		 Integer index= new Integer(toAdd.getSolutionID());
-		 System.out.println(index);
+		 //System.out.println(index);
 		 if(!checkSet.contains(index))
 		 	{
 			 checkSet.add(index);
@@ -292,12 +292,12 @@ public LinkedList<McsaSolution> getResults(int limit)
 	 timeList=null;
 	 waitList=null;
 	 needList=null;
-	 System.out.println(System.lineSeparator()+"Printing solution COMBINED");
+	 /*System.out.println(System.lineSeparator()+"Printing solution COMBINED");
 	 Iterator<McsaSolution> cazz = tempResult.iterator();
 	 while(cazz.hasNext())
 	 	{
 		 System.out.println(cazz.next().getSolutionID());
-	 	}
+	 	}*/
 	 return tempResult;
 	 //TODO combinare la lista dei risultati finali
 	}

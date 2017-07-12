@@ -213,7 +213,7 @@ public class TransferDAO implements Serializable{
 					 JsonObject roleJson = (new JsonParser()).parse(roleString).getAsJsonObject();
 					 toAdd.setUser_role(roleJson);*/
 					 
-					 //System.out.println("che cacchio c'� in questo json?"+rs.getString(7));
+					 //System.out.println("Json content: "+rs.getString(7));
 					 JSONObject roleJson = new JSONObject(rs.getString(7));
 					 toAdd.setUser_role(roleJson.getString("role"));
 					 toAdd.setDep_addr(rs.getString(8));
@@ -450,7 +450,7 @@ public class TransferDAO implements Serializable{
 					 JsonObject roleJson = (new JsonParser()).parse(roleString).getAsJsonObject();
 					 toAdd.setUser_role(roleJson);*/
 					 
-					 //System.out.println("che cacchio c' in questo json?"+rs.getString(7));
+					 //System.out.println("json content: "+rs.getString(7));
 					 JSONObject roleJson = new JSONObject(rs.getString(7));
 					 toAdd.setUser_role(roleJson.getString("role"));
 					 toAdd.setDep_addr(rs.getString(8));
